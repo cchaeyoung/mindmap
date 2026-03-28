@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import ThemeToggle from '@/components/common/ThemeToggle';
 import Sidebar from './Sidebar';
 
 interface AppLayoutProps {
@@ -19,6 +20,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
       >
         {children}
       </main>
+
+      <div className="fixed top-4 right-4 z-30">
+        <ThemeToggle />
+      </div>
     </div>
   );
 }

@@ -16,5 +16,9 @@ export const useMapStore = create<MapStore>((set) => ({
   addNode: (node) => set((state) => ({ nodes: [...state.nodes, node] })),
   updateNode: (id, changes) =>
     set((state) => ({ nodes: state.nodes.map((n) => (n.id === id ? { ...n, ...changes } : n)) })),
-  deleteNode: (id) => set((state) => ({ nodes: state.nodes.filter((n) => n.id !== id) })),
+  deleteNode: (id) =>
+    set((state) => ({
+      nodes: state.nodes.filter((n) => n.id !== id && n.parentId !== id),
+      edges: state.edges.filter((e) => e.fromId !== id && e.toId !== id),
+    })),
 }));

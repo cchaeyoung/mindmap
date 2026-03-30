@@ -9,14 +9,11 @@ interface Props {
 }
 
 export default function ZoomControls({ zoom, zoomBy }: Props) {
-  const cx = window.innerWidth / 2;
-  const cy = window.innerHeight / 2;
-
   return (
-    <div className="border-border bg-card fixed right-[18px] bottom-[22px] z-20 flex items-center gap-0.5 rounded-[12px] border p-[3px] shadow-md">
+    <div className="border-border bg-card fixed right-4.5 bottom-5.5 z-20 flex items-center gap-0.5 rounded-[12px] border p-0.75 shadow-md">
       <button
-        className="hover:bg-primary/15 flex h-[26px] w-[32px] items-center justify-center rounded-[8px]"
-        onClick={() => zoomBy(-ZOOM_STEP, cx, cy)}
+        className="hover:bg-primary/15 flex h-6.5 w-8 items-center justify-center rounded-[8px]"
+        onClick={() => zoomBy(-ZOOM_STEP, window.innerWidth / 2, window.innerHeight / 2)}
       >
         <Minus size={14} />
       </button>
@@ -24,8 +21,8 @@ export default function ZoomControls({ zoom, zoomBy }: Props) {
         {Math.round(zoom * 100)}%
       </span>
       <button
-        className="hover:bg-primary/15 flex h-[26px] w-[26px] items-center justify-center rounded-[8px]"
-        onClick={() => zoomBy(+ZOOM_STEP, cx, cy)}
+        className="hover:bg-primary/15 flex h-6.5 w-6.5 items-center justify-center rounded-[8px]"
+        onClick={() => zoomBy(+ZOOM_STEP, window.innerWidth / 2, window.innerHeight / 2)}
       >
         <Plus size={14} />
       </button>

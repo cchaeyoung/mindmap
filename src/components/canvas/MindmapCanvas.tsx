@@ -1,6 +1,6 @@
 'use client';
 
-import { Stage, Layer } from 'react-konva';
+import { Stage, Layer, Text } from 'react-konva';
 import { KonvaEventObject } from 'konva/lib/Node';
 import { useEffect, useRef, useState } from 'react';
 
@@ -45,8 +45,11 @@ export default function MindMapCanvas({
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
       >
-        <Layer />
+        <Layer>
+          <Text text="테스트" x={100} y={100} fontSize={20} />
+        </Layer>
       </Stage>
     </div>
   );

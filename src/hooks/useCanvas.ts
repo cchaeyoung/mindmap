@@ -21,12 +21,13 @@ export function useCanvas() {
       const factor = e.evt.deltaY > 0 ? 0.9 : 1.1;
       const cx = e.evt.offsetX;
       const cy = e.evt.offsetY;
-      const newZoom = Math.min(Math.max(cam.zoom * factor, ZOOM_MIN), ZOOM_MAX);
-
-      setCam({
-        x: cx - (cx - cam.x) * (newZoom / cam.zoom),
-        y: cy - (cy - cam.y) * (newZoom / cam.zoom),
-        zoom: newZoom,
+      setCam((prev) => {
+        const newZoom = Math.min(Math.max(prev.zoom * factor, ZOOM_MIN), ZOOM_MAX);
+        return {
+          x: cx - (cx - prev.x) * (newZoom / prev.zoom),
+          y: cy - (cy - prev.y) * (newZoom / prev.zoom),
+          zoom: newZoom,
+        };
       });
     } else if (e.evt.shiftKey) {
       setCam((prev) => ({ ...prev, x: prev.x - e.evt.deltaY }));

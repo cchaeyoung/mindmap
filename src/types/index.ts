@@ -1,4 +1,4 @@
-export interface Node {
+export interface MindmapNode {
   id: string;
   x: number;
   y: number;

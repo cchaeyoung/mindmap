@@ -1,11 +1,11 @@
-import { Edge, Node } from '@/types';
+import { Edge, MindmapNode } from '@/types';
 import { create } from 'zustand';
 
 interface MapStore {
-  nodes: Node[];
+  nodes: MindmapNode[];
   edges: Edge[];
-  addNode: (node: Node) => void;
-  updateNode: (id: string, changes: Partial<Node>) => void;
+  addNode: (node: MindmapNode) => void;
+  updateNode: (id: string, changes: Partial<MindmapNode>) => void;
   deleteNode: (id: string) => void;
 }
 

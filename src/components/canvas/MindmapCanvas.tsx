@@ -1,8 +1,10 @@
 'use client';
 
-import { Stage, Layer, Text } from 'react-konva';
+import { Stage, Layer } from 'react-konva';
 import { KonvaEventObject } from 'konva/lib/Node';
 import { useEffect, useRef, useState } from 'react';
+import MindmapNode from '../node/MindmapNode';
+import { useMapStore } from '@/store/mapStore';
 
 interface Props {
   cam: { x: number; y: number; zoom: number };
@@ -21,6 +23,7 @@ export default function MindMapCanvas({
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
+  const nodes = useMapStore((state) => state.nodes);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -48,7 +51,9 @@ export default function MindMapCanvas({
         onMouseLeave={onMouseUp}
       >
         <Layer>
-          <Text text="테스트" x={100} y={100} fontSize={20} />
+          {nodes.map((node) => (
+            <MindmapNode key={node.id} node={node} isSelected={false} />
+          ))}
         </Layer>
       </Stage>
     </div>

@@ -17,7 +17,7 @@ export function useCanvas() {
   const handleWheel = (e: KonvaEventObject<WheelEvent>) => {
     e.evt.preventDefault();
 
-    if (e.evt.ctrlKey) {
+    if (e.evt.ctrlKey || e.evt.metaKey) {
       const factor = e.evt.deltaY > 0 ? 0.9 : 1.1;
       const cx = e.evt.offsetX;
       const cy = e.evt.offsetY;

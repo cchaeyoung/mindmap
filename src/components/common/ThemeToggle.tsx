@@ -2,9 +2,22 @@
 
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import { useSyncExternalStore } from 'react';
+
+const subscribe = () => () => {};
+const getSnapshot = () => true;
+const getServerSnapshot = () => false;
+
+function useMounted() {
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+}
 
 export default function ThemeToggle() {
   const { theme, setTheme } = useTheme();
+  const isMounted = useMounted();
+
+  if (!isMounted) return <div className="h-9 w-9" />;
+
   const isDark = theme === 'dark';
 
   return (

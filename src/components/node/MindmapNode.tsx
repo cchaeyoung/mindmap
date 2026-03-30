@@ -5,10 +5,11 @@ import { Group, Rect, Text } from 'react-konva';
 interface Props {
   node: MindmapNode;
   isSelected: boolean;
+  depth: number;
 }
 
-export default function MindmapNode({ node, isSelected }: Props) {
-  const tier = node.parentId === null ? 'root' : 'child';
+export default function MindmapNode({ node, isSelected, depth }: Props) {
+  const tier = node.parentId === null ? 'root' : depth === 1 ? 'child' : 'sub';
   const style = NODE_STYLE[tier];
 
   const width = style.paddingX * 2 + 120; // 임시 고정값

@@ -3,9 +3,8 @@
 import { Stage, Layer } from 'react-konva';
 import { KonvaEventObject } from 'konva/lib/Node';
 import { useEffect, useRef, useState } from 'react';
-import MindmapNode from '../node/MindmapNode';
 import { useMapStore } from '@/store/mapStore';
-
+import MindmapNode from '@/components/node/MindmapNode';
 interface Props {
   cam: { x: number; y: number; zoom: number };
   onWheel: (e: KonvaEventObject<WheelEvent>) => void;
@@ -13,6 +12,12 @@ interface Props {
   onMouseMove: (e: KonvaEventObject<MouseEvent>) => void;
   onMouseUp: () => void;
 }
+
+const getDepth = (nodeId: string, nodes: { id: string; parentId: string | null }[]): number => {
+  const node = nodes.find((n) => n.id === nodeId);
+  if (!node || !node.parentId) return 0;
+  return 1 + getDepth(node.parentId, nodes);
+};
 
 export default function MindMapCanvas({
   cam,
@@ -52,7 +57,12 @@ export default function MindMapCanvas({
       >
         <Layer>
           {nodes.map((node) => (
-            <MindmapNode key={node.id} node={node} isSelected={false} />
+            <MindmapNode
+              key={node.id}
+              node={node}
+              isSelected={false}
+              depth={getDepth(node.id, nodes)}
+            />
           ))}
         </Layer>
       </Stage>

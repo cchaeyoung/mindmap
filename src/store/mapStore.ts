@@ -1,3 +1,4 @@
+import { NODE_DEFAULT_COLOR } from '@/constants/node';
 import { Edge, MindmapNode } from '@/types';
 import { create } from 'zustand';
 
@@ -13,7 +14,10 @@ export const useMapStore = create<MapStore>((set) => ({
   nodes: [],
   edges: [],
 
-  addNode: (node) => set((state) => ({ nodes: [...state.nodes, node] })),
+  addNode: (node) =>
+    set((state) => ({
+      nodes: [...state.nodes, { ...node, color: node.color ?? NODE_DEFAULT_COLOR }],
+    })),
   updateNode: (id, changes) =>
     set((state) => ({ nodes: state.nodes.map((n) => (n.id === id ? { ...n, ...changes } : n)) })),
   deleteNode: (id) =>

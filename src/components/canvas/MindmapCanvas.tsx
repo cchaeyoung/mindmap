@@ -28,6 +28,7 @@ export default function MindMapCanvas({
   onMouseUp,
 }: Props) {
   const selectedNodeId = useUIStore((state) => state.selectedNodeId);
+  const setSelectedNode = useUIStore((state) => state.setSelectedNode);
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const nodes = useMapStore((state) => state.nodes);
@@ -52,7 +53,10 @@ export default function MindMapCanvas({
         scaleX={cam.zoom}
         scaleY={cam.zoom}
         onWheel={onWheel}
-        onMouseDown={onMouseDown}
+        onMouseDown={(e) => {
+          if (e.target === e.target.getStage()) setSelectedNode(null);
+          onMouseDown(e);
+        }}
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseUp}

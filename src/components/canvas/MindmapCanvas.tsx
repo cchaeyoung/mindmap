@@ -5,6 +5,7 @@ import { KonvaEventObject } from 'konva/lib/Node';
 import { useEffect, useRef, useState } from 'react';
 import { useMapStore } from '@/store/mapStore';
 import MindmapNode from '@/components/node/MindmapNode';
+import { useUIStore } from '@/store/uiStore';
 interface Props {
   cam: { x: number; y: number; zoom: number };
   onWheel: (e: KonvaEventObject<WheelEvent>) => void;
@@ -26,6 +27,7 @@ export default function MindMapCanvas({
   onMouseMove,
   onMouseUp,
 }: Props) {
+  const selectedNodeId = useUIStore((state) => state.selectedNodeId);
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const nodes = useMapStore((state) => state.nodes);
@@ -60,7 +62,7 @@ export default function MindMapCanvas({
             <MindmapNode
               key={node.id}
               node={node}
-              isSelected={false}
+              isSelected={node.id === selectedNodeId}
               depth={getDepth(node.id, nodes)}
             />
           ))}

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import ThemeToggle from '@/components/common/ThemeToggle';
 import Sidebar from './Sidebar';
+import Toolbar from '../canvas/Toolbar';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -24,6 +25,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <div className="fixed top-4 right-4 z-30">
         <ThemeToggle />
       </div>
+      <Toolbar />
     </div>
   );
 }

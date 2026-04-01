@@ -16,7 +16,7 @@ export default function IconButton({ onClick, children, className, title, disabl
       title={title}
       disabled={disabled}
       className={cn(
-        'flex items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-accent hover:text-foreground disabled:cursor-default disabled:opacity-30',
+        'flex cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-accent hover:text-foreground disabled:cursor-default disabled:opacity-30',
         className
       )}
     >

@@ -8,10 +8,11 @@ import { NODE_DEFAULT_COLOR } from '@/constants/node';
 export default function Toolbar() {
   const addNode = useMapStore((state) => state.addNode);
   const cam = useCanvasStore((state) => state.cam);
+  const stageSize = useCanvasStore((state) => state.stageSize);
 
   const handleAddRoot = () => {
-    const centerX = (-cam.x + window.innerWidth / 2) / cam.zoom;
-    const centerY = (-cam.y + window.innerHeight / 2) / cam.zoom;
+    const centerX = (-cam.x + stageSize.width / 2) / cam.zoom;
+    const centerY = (-cam.y + stageSize.height / 2) / cam.zoom;
     addNode({
       x: centerX,
       y: centerY,

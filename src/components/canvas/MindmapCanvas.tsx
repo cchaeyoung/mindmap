@@ -21,13 +21,9 @@ const getDepth = (nodeId: string, nodes: { id: string; parentId: string | null }
   return 1 + getDepth(node.parentId, nodes);
 };
 
-export default function MindMapCanvas({
-  onWheel,
-  onMouseDown,
-  onMouseMove,
-  onMouseUp,
-}: Props) {
+export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMouseUp }: Props) {
   const cam = useCanvasStore((state) => state.cam);
+  const setStageSize = useCanvasStore((state) => state.setStageSize);
   const selectedNodeId = useUIStore((state) => state.selectedNodeId);
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -39,6 +35,7 @@ export default function MindMapCanvas({
     const observer = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect;
       setSize({ width, height });
+      setStageSize({ width, height });
     });
     observer.observe(containerRef.current);
     return () => observer.disconnect();

@@ -9,6 +9,8 @@ interface Cam {
 interface CanvasStore {
   cam: Cam;
   setCam: (updater: Cam | ((prev: Cam) => Cam)) => void;
+  stageSize: { width: number; height: number };
+  setStageSize: (size: { width: number; height: number }) => void;
 }
 
 export const useCanvasStore = create<CanvasStore>((set) => ({
@@ -17,4 +19,6 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
     set((state) => ({
       cam: typeof updater === 'function' ? updater(state.cam) : updater,
     })),
+  stageSize: { width: 0, height: 0 },
+  setStageSize: (size) => set({ stageSize: size }),
 }));

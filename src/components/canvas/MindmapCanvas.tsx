@@ -4,10 +4,11 @@ import { Stage, Layer } from 'react-konva';
 import { KonvaEventObject } from 'konva/lib/Node';
 import { useEffect, useRef, useState } from 'react';
 import { useMapStore } from '@/store/mapStore';
+import { useCanvasStore } from '@/store/canvasStore';
 import MindmapNode from '@/components/node/MindmapNode';
 import { useUIStore } from '@/store/uiStore';
+
 interface Props {
-  cam: { x: number; y: number; zoom: number };
   onWheel: (e: KonvaEventObject<WheelEvent>) => void;
   onMouseDown: (e: KonvaEventObject<MouseEvent>) => void;
   onMouseMove: (e: KonvaEventObject<MouseEvent>) => void;
@@ -21,12 +22,12 @@ const getDepth = (nodeId: string, nodes: { id: string; parentId: string | null }
 };
 
 export default function MindMapCanvas({
-  cam,
   onWheel,
   onMouseDown,
   onMouseMove,
   onMouseUp,
 }: Props) {
+  const cam = useCanvasStore((state) => state.cam);
   const selectedNodeId = useUIStore((state) => state.selectedNodeId);
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
   const containerRef = useRef<HTMLDivElement>(null);

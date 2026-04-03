@@ -1,15 +1,11 @@
 import { ZOOM_MAX, ZOOM_MIN } from '@/constants/canvas';
+import { useCanvasStore } from '@/store/canvasStore';
 import { KonvaEventObject } from 'konva/lib/Node';
-import { useRef, useState } from 'react';
-
-interface Cam {
-  x: number;
-  y: number;
-  zoom: number;
-}
+import { useRef } from 'react';
 
 export function useCanvas() {
-  const [cam, setCam] = useState<Cam>({ x: 0, y: 0, zoom: 1 });
+  const cam = useCanvasStore((state) => state.cam);
+  const setCam = useCanvasStore((state) => state.setCam);
   const isDragging = useRef(false);
   const lastPos = useRef({ x: 0, y: 0 });
 

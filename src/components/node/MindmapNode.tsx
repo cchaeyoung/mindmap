@@ -1,4 +1,5 @@
 import { NODE_STYLE } from '@/constants/node';
+import { useUIStore } from '@/store/uiStore';
 import type { MindmapNode } from '@/types';
 import { Group, Rect, Text } from 'react-konva';
 
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function MindmapNode({ node, isSelected, depth }: Props) {
+  const setSelectedNode = useUIStore((state) => state.setSelectedNode);
   const tier = node.parentId === null ? 'root' : depth === 1 ? 'child' : 'sub';
   const style = NODE_STYLE[tier];
 
@@ -17,7 +19,7 @@ export default function MindmapNode({ node, isSelected, depth }: Props) {
   const radius = style.cornerRadius === 'pill' ? height / 2 : style.cornerRadius;
 
   return (
-    <Group x={node.x} y={node.y}>
+    <Group x={node.x} y={node.y} onClick={() => setSelectedNode(node.id)}>
       {isSelected && (
         <Rect
           width={width + 6}

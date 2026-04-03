@@ -11,7 +11,6 @@ export default function Home() {
   return (
     <AppLayout>
       <MindmapCanvas
-        cam={cam}
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}

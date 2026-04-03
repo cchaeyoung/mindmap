@@ -4,9 +4,11 @@ import { Stage, Layer } from 'react-konva';
 import { KonvaEventObject } from 'konva/lib/Node';
 import { useEffect, useRef, useState } from 'react';
 import { useMapStore } from '@/store/mapStore';
+import { useCanvasStore } from '@/store/canvasStore';
 import MindmapNode from '@/components/node/MindmapNode';
+import { useUIStore } from '@/store/uiStore';
+
 interface Props {
-  cam: { x: number; y: number; zoom: number };
   onWheel: (e: KonvaEventObject<WheelEvent>) => void;
   onMouseDown: (e: KonvaEventObject<MouseEvent>) => void;
   onMouseMove: (e: KonvaEventObject<MouseEvent>) => void;
@@ -19,13 +21,11 @@ const getDepth = (nodeId: string, nodes: { id: string; parentId: string | null }
   return 1 + getDepth(node.parentId, nodes);
 };
 
-export default function MindMapCanvas({
-  cam,
-  onWheel,
-  onMouseDown,
-  onMouseMove,
-  onMouseUp,
-}: Props) {
+export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMouseUp }: Props) {
+  const cam = useCanvasStore((state) => state.cam);
+  const setStageSize = useCanvasStore((state) => state.setStageSize);
+  const selectedNodeId = useUIStore((state) => state.selectedNodeId);
+  const setSelectedNode = useUIStore((state) => state.setSelectedNode);
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const nodes = useMapStore((state) => state.nodes);
@@ -35,6 +35,7 @@ export default function MindMapCanvas({
     const observer = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect;
       setSize({ width, height });
+      setStageSize({ width, height });
     });
     observer.observe(containerRef.current);
     return () => observer.disconnect();
@@ -50,7 +51,10 @@ export default function MindMapCanvas({
         scaleX={cam.zoom}
         scaleY={cam.zoom}
         onWheel={onWheel}
-        onMouseDown={onMouseDown}
+        onMouseDown={(e) => {
+          if (e.evt.button === 0 && e.target === e.target.getStage()) setSelectedNode(null);
+          onMouseDown(e);
+        }}
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseUp}
@@ -60,7 +64,7 @@ export default function MindMapCanvas({
             <MindmapNode
               key={node.id}
               node={node}
-              isSelected={false}
+              isSelected={node.id === selectedNodeId}
               depth={getDepth(node.id, nodes)}
             />
           ))}

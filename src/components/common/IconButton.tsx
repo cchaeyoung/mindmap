@@ -12,6 +12,7 @@ interface Props {
 export default function IconButton({ onClick, children, className, title, disabled }: Props) {
   return (
     <button
+      type="button"
       onClick={onClick}
       title={title}
       disabled={disabled}

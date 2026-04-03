@@ -52,7 +52,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
         scaleY={cam.zoom}
         onWheel={onWheel}
         onMouseDown={(e) => {
-          if (e.target === e.target.getStage()) setSelectedNode(null);
+          if (e.evt.button === 0 && e.target === e.target.getStage()) setSelectedNode(null);
           onMouseDown(e);
         }}
         onMouseMove={onMouseMove}

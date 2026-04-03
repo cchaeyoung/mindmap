@@ -2,15 +2,19 @@ import { Plus } from 'lucide-react';
 import FloatingPanel from '../common/FloatingPanel';
 import IconButton from '../common/IconButton';
 import { useMapStore } from '@/store/mapStore';
+import { useCanvasStore } from '@/store/canvasStore';
 import { NODE_DEFAULT_COLOR } from '@/constants/node';
 
 export default function Toolbar() {
   const addNode = useMapStore((state) => state.addNode);
+  const cam = useCanvasStore((state) => state.cam);
 
   const handleAddRoot = () => {
+    const centerX = (-cam.x + window.innerWidth / 2) / cam.zoom;
+    const centerY = (-cam.y + window.innerHeight / 2) / cam.zoom;
     addNode({
-      x: 400,
-      y: 300,
+      x: centerX,
+      y: centerY,
       label: '새 항목',
       parentId: null,
       color: NODE_DEFAULT_COLOR,

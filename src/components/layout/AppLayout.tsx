@@ -13,7 +13,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <div className="bg-background relative flex h-screen w-screen overflow-hidden">
+    <div className="bg-background relative h-screen w-screen overflow-hidden">
       <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen((prev) => !prev)} />
       <main className="relative h-screen w-screen overflow-hidden">
         {children}

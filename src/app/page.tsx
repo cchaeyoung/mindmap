@@ -3,6 +3,7 @@
 import AppLayout from '@/components/layout/AppLayout';
 import MindmapCanvas from '@/components/canvas/MindmapCanvas';
 import ZoomControls from '@/components/canvas/ZoomControls';
+import Toolbar from '@/components/canvas/Toolbar';
 import { useCanvas } from '@/hooks/useCanvas';
 
 export default function Home() {
@@ -17,6 +18,7 @@ export default function Home() {
         onMouseUp={handleMouseUp}
       />
       <ZoomControls zoom={cam.zoom} zoomBy={zoomBy} />
+      <Toolbar />
     </AppLayout>
   );
 }

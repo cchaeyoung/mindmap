@@ -31,6 +31,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const nodes = useMapStore((state) => state.nodes);
+  const addNode = useMapStore((state) => state.addNode);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -44,6 +45,19 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   }, []);
 
   const selectedNode = nodes.find((n) => n.id === selectedNodeId) ?? null;
+  const handleAddChild = () => {
+    if (!selectedNode) return;
+    const children = nodes.filter((n) => n.parentId === selectedNode.id);
+    const existingCount = children.length;
+    addNode({
+      x: selectedNode.x + 200,
+      y: selectedNode.y + existingCount * 80,
+      label: '새 항목',
+      parentId: selectedNode.id,
+      color: selectedNode.color,
+    });
+  };
+
   const addButtonPos = (() => {
     if (!selectedNode) return null;
     const depth = getDepth(selectedNode.id, nodes);
@@ -59,7 +73,9 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
 
   return (
     <div ref={containerRef} className="h-full w-full">
-      {addButtonPos && <NodeAddButton x={addButtonPos.x} y={addButtonPos.y} onClick={() => {}} />}
+      {addButtonPos && (
+        <NodeAddButton x={addButtonPos.x} y={addButtonPos.y} onClick={handleAddChild} />
+      )}
       <Stage
         width={size.width}
         height={size.height}

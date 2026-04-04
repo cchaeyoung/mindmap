@@ -15,10 +15,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="bg-background relative flex h-screen w-screen overflow-hidden">
       <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen((prev) => !prev)} />
-      <main
-        className="relative flex-1 overflow-hidden transition-all duration-280"
-        style={{ marginLeft: sidebarOpen ? '240px' : '0px' }}
-      >
+      <main className="relative h-screen w-screen overflow-hidden">
         {children}
       </main>
 

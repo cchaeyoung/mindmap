@@ -6,7 +6,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useMapStore } from '@/store/mapStore';
 import { useCanvasStore } from '@/store/canvasStore';
 import MindmapNode from '@/components/node/MindmapNode';
+import NodeAddButton from '@/components/node/NodeAddButton';
 import { useUIStore } from '@/store/uiStore';
+import { NODE_STYLE } from '@/constants/node';
 
 interface Props {
   onWheel: (e: KonvaEventObject<WheelEvent>) => void;
@@ -41,8 +43,23 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     return () => observer.disconnect();
   }, []);
 
+  const selectedNode = nodes.find((n) => n.id === selectedNodeId) ?? null;
+  const addButtonPos = (() => {
+    if (!selectedNode) return null;
+    const depth = getDepth(selectedNode.id, nodes);
+    const tier = selectedNode.parentId === null ? 'root' : depth === 1 ? 'child' : 'sub';
+    const style = NODE_STYLE[tier];
+    const nodeWidth = style.paddingX * 2 + 120;
+    const rightEdge = selectedNode.x + nodeWidth / 2;
+    return {
+      x: cam.x + rightEdge * cam.zoom + 21,
+      y: cam.y + selectedNode.y * cam.zoom,
+    };
+  })();
+
   return (
     <div ref={containerRef} className="h-full w-full">
+      {addButtonPos && <NodeAddButton x={addButtonPos.x} y={addButtonPos.y} onClick={() => {}} />}
       <Stage
         width={size.width}
         height={size.height}

@@ -5,7 +5,7 @@ import { create } from 'zustand';
 interface MapStore {
   nodes: MindmapNode[];
   edges: Edge[];
-  addNode: (node: Omit<MindmapNode, 'id'>) => void;
+  addNode: (node: Omit<MindmapNode, 'id'>) => string;
   updateNode: (id: string, changes: Partial<MindmapNode>) => void;
   deleteNode: (id: string) => void;
 }
@@ -14,13 +14,14 @@ export const useMapStore = create<MapStore>((set) => ({
   nodes: [],
   edges: [],
 
-  addNode: (node) =>
+  addNode: (node) => {
+    const id = crypto.randomUUID();
     set((state) => ({
-      nodes: [
-        ...state.nodes,
-        { ...node, id: crypto.randomUUID(), color: node.color ?? NODE_DEFAULT_COLOR },
-      ],
-    })),
+      nodes: [...state.nodes, { ...node, id, color: node.color ?? NODE_DEFAULT_COLOR }],
+    }));
+    return id;
+  },
+
   updateNode: (id, changes) =>
     set((state) => ({ nodes: state.nodes.map((n) => (n.id === id ? { ...n, ...changes } : n)) })),
   deleteNode: (id) =>

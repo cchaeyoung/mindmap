@@ -22,11 +22,23 @@ export default function Edge({ fromNode, toNode }: Props) {
   const midX = x1 + (x2 - x1) * 0.5;
 
   return (
-    <Line
-      points={[x1, y1, midX, y1, midX, y2, x2, y2]}
-      bezier={true}
-      stroke={toNode.color}
-      strokeWidth={2}
-    />
+    <>
+      <Line
+        points={[x1, y1, midX, y1, midX, y2, x2, y2]}
+        bezier={true}
+        stroke={toNode.color}
+        strokeWidth={2.5}
+        opacity={0.12}
+      />
+      <Line
+        points={[x1, y1, midX, y1, midX, y2, x2, y2]}
+        bezier={true}
+        strokeLinearGradientStartPoint={{ x: x1, y: y1 }}
+        strokeLinearGradientEndPoint={{ x: x2, y: y2 }}
+        strokeLinearGradientColorStops={[0, fromNode.color, 1, toNode.color]}
+        strokeWidth={1.8}
+        opacity={0.65}
+      />
+    </>
   );
 }

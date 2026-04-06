@@ -21,14 +21,18 @@ export default function Edge({ fromNode, toNode }: Props) {
   const y2 = toNode.y;
   const midX = x1 + (x2 - x1) * 0.5;
 
+  const isTopTier = fromNode.parentId === null;
+  const bgWidth = isTopTier ? 3.5 : 2;
+  const lineWidth = isTopTier ? 1.8 : 1.2;
+
   return (
     <>
       <Line
         points={[x1, y1, midX, y1, midX, y2, x2, y2]}
         bezier={true}
         stroke={toNode.color}
-        strokeWidth={2.5}
-        opacity={0.12}
+        strokeWidth={bgWidth}
+        opacity={0.18}
       />
       <Line
         points={[x1, y1, midX, y1, midX, y2, x2, y2]}
@@ -36,8 +40,8 @@ export default function Edge({ fromNode, toNode }: Props) {
         strokeLinearGradientStartPoint={{ x: x1, y: y1 }}
         strokeLinearGradientEndPoint={{ x: x2, y: y2 }}
         strokeLinearGradientColorStops={[0, fromNode.color, 1, toNode.color]}
-        strokeWidth={1.8}
-        opacity={0.65}
+        strokeWidth={lineWidth}
+        opacity={0.75}
       />
     </>
   );

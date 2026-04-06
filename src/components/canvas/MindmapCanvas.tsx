@@ -9,6 +9,7 @@ import MindmapNode from '@/components/node/MindmapNode';
 import NodeAddButton from '@/components/node/NodeAddButton';
 import { useUIStore } from '@/store/uiStore';
 import { NODE_STYLE } from '@/constants/node';
+import Edge from '@/components/canvas/Edge';
 
 interface Props {
   onWheel: (e: KonvaEventObject<WheelEvent>) => void;
@@ -93,6 +94,13 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
         onMouseLeave={onMouseUp}
       >
         <Layer>
+          {nodes
+            .filter((node) => node.parentId !== null)
+            .map((node) => {
+              const parent = nodes.find((n) => n.id === node.parentId);
+              if (!parent) return null;
+              return <Edge key={node.id} fromNode={parent} toNode={node} />;
+            })}
           {nodes.map((node) => (
             <MindmapNode
               key={node.id}

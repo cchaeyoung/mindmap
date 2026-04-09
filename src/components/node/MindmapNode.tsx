@@ -26,6 +26,10 @@ export default function MindmapNode({ node, isSelected, depth }: Props) {
       y={node.y}
       draggable
       onClick={() => setSelectedNode(node.id)}
+      onMouseDown={(e) => {
+        e.cancelBubble = true;
+      }}
+      onDragMove={(e) => updateNode(node.id, { x: e.target.x(), y: e.target.y() })}
       onDragEnd={(e) => updateNode(node.id, { x: e.target.x(), y: e.target.y() })}
     >
       {isSelected && (

@@ -2,6 +2,7 @@ import { NODE_STYLE } from '@/constants/node';
 import { useMapStore } from '@/store/mapStore';
 import { useUIStore } from '@/store/uiStore';
 import type { MindmapNode } from '@/types';
+import { useRef } from 'react';
 import { Group, Rect, Text } from 'react-konva';
 
 interface Props {
@@ -13,6 +14,14 @@ interface Props {
 export default function MindmapNode({ node, isSelected, depth }: Props) {
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
   const updateNode = useMapStore((state) => state.updateNode);
+  const nodes = useMapStore((state) => state.nodes);
+  const prevPos = useRef({ x: node.x, y: node.y });
+
+  const getDescendants = (id: string): string[] => {
+    const children = nodes.filter((n) => n.parentId === id).map((n) => n.id);
+    return [...children, ...children.flatMap((childId) => getDescendants(childId))];
+  };
+
   const tier = node.parentId === null ? 'root' : depth === 1 ? 'child' : 'sub';
   const style = NODE_STYLE[tier];
 
@@ -29,7 +38,21 @@ export default function MindmapNode({ node, isSelected, depth }: Props) {
       onMouseDown={(e) => {
         e.cancelBubble = true;
       }}
-      onDragMove={(e) => updateNode(node.id, { x: e.target.x(), y: e.target.y() })}
+      onDragStart={(e) => {
+        prevPos.current = { x: e.target.x(), y: e.target.y() };
+      }}
+      onDragMove={(e) => {
+        const x = e.target.x();
+        const y = e.target.y();
+        const dx = x - prevPos.current.x;
+        const dy = y - prevPos.current.y;
+        prevPos.current = { x, y };
+        updateNode(node.id, { x, y });
+        getDescendants(node.id).forEach((id) => {
+          const n = nodes.find((n) => n.id === id)!;
+          updateNode(id, { x: n.x + dx, y: n.y + dy });
+        });
+      }}
       onDragEnd={(e) => updateNode(node.id, { x: e.target.x(), y: e.target.y() })}
     >
       {isSelected && (

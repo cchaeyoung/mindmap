@@ -10,6 +10,7 @@ import NodeAddButton from '@/components/node/NodeAddButton';
 import { useUIStore } from '@/store/uiStore';
 import { NODE_STYLE } from '@/constants/node';
 import Edge from '@/components/canvas/Edge';
+import { NodeRefsProvider } from '@/context/NodeRefsContext';
 
 interface Props {
   onWheel: (e: KonvaEventObject<WheelEvent>) => void;
@@ -73,44 +74,46 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   })();
 
   return (
-    <div ref={containerRef} className="h-full w-full">
-      {addButtonPos && (
-        <NodeAddButton x={addButtonPos.x} y={addButtonPos.y} onClick={handleAddChild} />
-      )}
-      <Stage
-        width={size.width}
-        height={size.height}
-        x={cam.x}
-        y={cam.y}
-        scaleX={cam.zoom}
-        scaleY={cam.zoom}
-        onWheel={onWheel}
-        onMouseDown={(e) => {
-          if (e.evt.button === 0 && e.target === e.target.getStage()) setSelectedNode(null);
-          onMouseDown(e);
-        }}
-        onMouseMove={onMouseMove}
-        onMouseUp={onMouseUp}
-        onMouseLeave={onMouseUp}
-      >
-        <Layer>
-          {nodes
-            .filter((node) => node.parentId !== null)
-            .map((node) => {
-              const parent = nodes.find((n) => n.id === node.parentId);
-              if (!parent) return null;
-              return <Edge key={node.id} fromNode={parent} toNode={node} />;
-            })}
-          {nodes.map((node) => (
-            <MindmapNode
-              key={node.id}
-              node={node}
-              isSelected={node.id === selectedNodeId}
-              depth={getDepth(node.id, nodes)}
-            />
-          ))}
-        </Layer>
-      </Stage>
-    </div>
+    <NodeRefsProvider>
+      <div ref={containerRef} className="h-full w-full">
+        {addButtonPos && (
+          <NodeAddButton x={addButtonPos.x} y={addButtonPos.y} onClick={handleAddChild} />
+        )}
+        <Stage
+          width={size.width}
+          height={size.height}
+          x={cam.x}
+          y={cam.y}
+          scaleX={cam.zoom}
+          scaleY={cam.zoom}
+          onWheel={onWheel}
+          onMouseDown={(e) => {
+            if (e.evt.button === 0 && e.target === e.target.getStage()) setSelectedNode(null);
+            onMouseDown(e);
+          }}
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
+          onMouseLeave={onMouseUp}
+        >
+          <Layer>
+            {nodes
+              .filter((node) => node.parentId !== null)
+              .map((node) => {
+                const parent = nodes.find((n) => n.id === node.parentId);
+                if (!parent) return null;
+                return <Edge key={node.id} fromNode={parent} toNode={node} />;
+              })}
+            {nodes.map((node) => (
+              <MindmapNode
+                key={node.id}
+                node={node}
+                isSelected={node.id === selectedNodeId}
+                depth={getDepth(node.id, nodes)}
+              />
+            ))}
+          </Layer>
+        </Stage>
+      </div>
+    </NodeRefsProvider>
   );
 }

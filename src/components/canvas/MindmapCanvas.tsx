@@ -11,6 +11,7 @@ import { useUIStore } from '@/store/uiStore';
 import { NODE_STYLE } from '@/constants/node';
 import Edge from '@/components/canvas/Edge';
 import { NodeRefsProvider } from '@/context/NodeRefsContext';
+import NodeEditor from '../node/NodeEditor';
 
 interface Props {
   onWheel: (e: KonvaEventObject<WheelEvent>) => void;
@@ -30,6 +31,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const setStageSize = useCanvasStore((state) => state.setStageSize);
   const selectedNodeId = useUIStore((state) => state.selectedNodeId);
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
+  const editingNodeId = useUIStore((state) => state.editingNodeId);
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const nodes = useMapStore((state) => state.nodes);
@@ -79,6 +81,11 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
         {addButtonPos && (
           <NodeAddButton x={addButtonPos.x} y={addButtonPos.y} onClick={handleAddChild} />
         )}
+        {editingNodeId &&
+          (() => {
+            const depth = getDepth(editingNodeId, nodes);
+            return <NodeEditor nodeId={editingNodeId} depth={depth} />;
+          })()}
         <Stage
           width={size.width}
           height={size.height}

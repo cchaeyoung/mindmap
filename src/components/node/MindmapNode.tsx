@@ -15,6 +15,7 @@ interface Props {
 
 export default function MindmapNode({ node, isSelected, depth }: Props) {
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
+  const setEditingNode = useUIStore((state) => state.setEditingNode);
   const updateNode = useMapStore((state) => state.updateNode);
   const nodes = useMapStore((state) => state.nodes);
   const { nodeRefs, edgeRefs, registerNode, unregisterNode } = useNodeRefs();
@@ -45,6 +46,10 @@ export default function MindmapNode({ node, isSelected, depth }: Props) {
       y={node.y}
       draggable
       onClick={() => setSelectedNode(node.id)}
+      onDblClick={() => {
+        setSelectedNode(node.id);
+        setEditingNode(node.id);
+      }}
       onMouseDown={(e) => {
         e.cancelBubble = true;
       }}

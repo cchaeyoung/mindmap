@@ -8,7 +8,6 @@ import { useCanvasStore } from '@/store/canvasStore';
 import MindmapNode from '@/components/node/MindmapNode';
 import NodeAddButton from '@/components/node/NodeAddButton';
 import { useUIStore } from '@/store/uiStore';
-import { NODE_STYLE } from '@/constants/node';
 import Edge from '@/components/canvas/Edge';
 import { NodeRefsProvider } from '@/context/NodeRefsContext';
 import NodeEditor from '../node/NodeEditor';
@@ -64,10 +63,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
 
   const addButtonPos = (() => {
     if (!selectedNode) return null;
-    const depth = getDepth(selectedNode.id, nodes);
-    const tier = selectedNode.parentId === null ? 'root' : depth === 1 ? 'child' : 'sub';
-    const style = NODE_STYLE[tier];
-    const nodeWidth = style.paddingX * 2 + 120;
+    const nodeWidth = selectedNode.width;
     const rightEdge = selectedNode.x + nodeWidth / 2;
     return {
       x: cam.x + rightEdge * cam.zoom + 21,
@@ -81,11 +77,9 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
         {addButtonPos && (
           <NodeAddButton x={addButtonPos.x} y={addButtonPos.y} onClick={handleAddChild} />
         )}
-        {editingNodeId &&
-          (() => {
-            const depth = getDepth(editingNodeId, nodes);
-            return <NodeEditor nodeId={editingNodeId} depth={depth} />;
-          })()}
+        {editingNodeId && (
+          <NodeEditor nodeId={editingNodeId} depth={getDepth(editingNodeId, nodes)} />
+        )}
         <Stage
           width={size.width}
           height={size.height}
@@ -115,6 +109,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
                 key={node.id}
                 node={node}
                 isSelected={node.id === selectedNodeId}
+                isEditing={node.id === editingNodeId}
                 depth={getDepth(node.id, nodes)}
               />
             ))}

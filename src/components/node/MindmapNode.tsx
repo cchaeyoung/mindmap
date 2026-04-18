@@ -10,10 +10,11 @@ import { Group, Rect, Text } from 'react-konva';
 interface Props {
   node: MindmapNode;
   isSelected: boolean;
+  isEditing: boolean;
   depth: number;
 }
 
-export default function MindmapNode({ node, isSelected, depth }: Props) {
+export default function MindmapNode({ node, isSelected, isEditing, depth }: Props) {
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
   const setEditingNode = useUIStore((state) => state.setEditingNode);
   const updateNode = useMapStore((state) => state.updateNode);
@@ -35,7 +36,7 @@ export default function MindmapNode({ node, isSelected, depth }: Props) {
   const tier = node.parentId === null ? 'root' : depth === 1 ? 'child' : 'sub';
   const style = NODE_STYLE[tier];
 
-  const width = style.paddingX * 2 + 120; // 임시 고정값
+  const width = node.width;
   const height = style.fontSize * 1.4 + style.paddingY * 2;
   const radius = style.cornerRadius === 'pill' ? height / 2 : style.cornerRadius;
 
@@ -139,6 +140,7 @@ export default function MindmapNode({ node, isSelected, depth }: Props) {
       <Text
         text={node.label}
         fontSize={style.fontSize}
+        fontFamily="Pretendard, sans-serif"
         fontStyle={String(style.fontWeight)}
         fill="rgba(255,255,255,0.95)"
         width={width}
@@ -147,6 +149,7 @@ export default function MindmapNode({ node, isSelected, depth }: Props) {
         offsetY={height / 2}
         align="center"
         verticalAlign="middle"
+        visible={!isEditing}
       />
     </Group>
   );

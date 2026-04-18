@@ -4,6 +4,7 @@ import { NODE_STYLE } from '@/constants/node';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useMapStore } from '@/store/mapStore';
 import { useUIStore } from '@/store/uiStore';
+import { measureNodeWidth } from '@/utils/measureNodeWidth';
 import { useEffect, useRef } from 'react';
 
 interface Props {
@@ -27,30 +28,29 @@ export default function NodeEditor({ nodeId, depth }: Props) {
 
   const tier = node.parentId === null ? 'root' : depth === 1 ? 'child' : 'sub';
   const style = NODE_STYLE[tier];
-  const width = style.paddingX * 2 + 120;
   const height = style.fontSize * 1.4 + style.paddingY * 2;
 
   const screenX = node.x * cam.zoom + cam.x;
   const screenY = node.y * cam.zoom + cam.y;
 
-  const finish = (label: string) => {
-    updateNode(node.id, { label });
-    setEditingNode(null);
-  };
-
   return (
     <input
       ref={inputRef}
       defaultValue={node.label}
-      onBlur={(e) => finish(e.target.value)}
+      onChange={(e) => {
+        const newLabel = e.target.value;
+        const newWidth = measureNodeWidth(newLabel, tier);
+        updateNode(node.id, { label: newLabel, width: newWidth });
+      }}
+      onBlur={() => setEditingNode(null)}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') finish(e.currentTarget.value);
+        if (e.key === 'Enter') setEditingNode(null);
       }}
       style={{
         position: 'absolute',
-        left: screenX - (width * cam.zoom) / 2,
+        left: screenX - (node.width * cam.zoom) / 2,
         top: screenY - (height * cam.zoom) / 2,
-        width: width * cam.zoom,
+        width: node.width * cam.zoom,
         height: height * cam.zoom,
         fontSize: style.fontSize * cam.zoom,
         fontWeight: style.fontWeight,
@@ -61,6 +61,7 @@ export default function NodeEditor({ nodeId, depth }: Props) {
         color: 'rgba(255,255,255,0.95)',
         padding: 0,
         cursor: 'text',
+        zIndex: 10,
       }}
     />
   );

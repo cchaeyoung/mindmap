@@ -11,3 +11,4 @@ export const NODE_STYLE = {
 };
 
 export const NODE_DEFAULT_COLOR = '#4d69f0';
+export const NODE_MIN_TEXT_WIDTH = 80;

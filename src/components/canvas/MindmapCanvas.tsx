@@ -8,9 +8,9 @@ import { useCanvasStore } from '@/store/canvasStore';
 import MindmapNode from '@/components/node/MindmapNode';
 import NodeAddButton from '@/components/node/NodeAddButton';
 import { useUIStore } from '@/store/uiStore';
-import { NODE_STYLE } from '@/constants/node';
 import Edge from '@/components/canvas/Edge';
 import { NodeRefsProvider } from '@/context/NodeRefsContext';
+import NodeEditor from '../node/NodeEditor';
 
 interface Props {
   onWheel: (e: KonvaEventObject<WheelEvent>) => void;
@@ -30,6 +30,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const setStageSize = useCanvasStore((state) => state.setStageSize);
   const selectedNodeId = useUIStore((state) => state.selectedNodeId);
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
+  const editingNodeId = useUIStore((state) => state.editingNodeId);
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const nodes = useMapStore((state) => state.nodes);
@@ -62,10 +63,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
 
   const addButtonPos = (() => {
     if (!selectedNode) return null;
-    const depth = getDepth(selectedNode.id, nodes);
-    const tier = selectedNode.parentId === null ? 'root' : depth === 1 ? 'child' : 'sub';
-    const style = NODE_STYLE[tier];
-    const nodeWidth = style.paddingX * 2 + 120;
+    const nodeWidth = selectedNode.width;
     const rightEdge = selectedNode.x + nodeWidth / 2;
     return {
       x: cam.x + rightEdge * cam.zoom + 21,
@@ -78,6 +76,9 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
       <div ref={containerRef} className="h-full w-full">
         {addButtonPos && (
           <NodeAddButton x={addButtonPos.x} y={addButtonPos.y} onClick={handleAddChild} />
+        )}
+        {editingNodeId && (
+          <NodeEditor nodeId={editingNodeId} depth={getDepth(editingNodeId, nodes)} />
         )}
         <Stage
           width={size.width}
@@ -108,6 +109,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
                 key={node.id}
                 node={node}
                 isSelected={node.id === selectedNodeId}
+                isEditing={node.id === editingNodeId}
                 depth={getDepth(node.id, nodes)}
               />
             ))}

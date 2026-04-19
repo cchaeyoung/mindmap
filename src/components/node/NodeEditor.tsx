@@ -1,0 +1,68 @@
+'use client';
+
+import { NODE_STYLE } from '@/constants/node';
+import { useCanvasStore } from '@/store/canvasStore';
+import { useMapStore } from '@/store/mapStore';
+import { useUIStore } from '@/store/uiStore';
+import { measureNodeWidth } from '@/utils/measureNodeWidth';
+import { useEffect, useRef } from 'react';
+
+interface Props {
+  nodeId: string;
+  depth: number;
+}
+
+export default function NodeEditor({ nodeId, depth }: Props) {
+  const cam = useCanvasStore((state) => state.cam);
+  const node = useMapStore((state) => state.nodes.find((n) => n.id === nodeId));
+  const updateNode = useMapStore((state) => state.updateNode);
+  const setEditingNode = useUIStore((state) => state.setEditingNode);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+    inputRef.current?.select();
+  }, []);
+
+  if (!node) return null;
+
+  const tier = node.parentId === null ? 'root' : depth === 1 ? 'child' : 'sub';
+  const style = NODE_STYLE[tier];
+  const height = style.fontSize * 1.4 + style.paddingY * 2;
+
+  const screenX = node.x * cam.zoom + cam.x;
+  const screenY = node.y * cam.zoom + cam.y;
+
+  return (
+    <input
+      ref={inputRef}
+      defaultValue={node.label}
+      onChange={(e) => {
+        const newLabel = e.target.value;
+        const newWidth = measureNodeWidth(newLabel, tier);
+        updateNode(node.id, { label: newLabel, width: newWidth });
+      }}
+      onBlur={() => setEditingNode(null)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') setEditingNode(null);
+      }}
+      style={{
+        position: 'absolute',
+        left: screenX - (node.width * cam.zoom) / 2,
+        top: screenY - (height * cam.zoom) / 2,
+        width: node.width * cam.zoom,
+        height: height * cam.zoom,
+        fontSize: style.fontSize * cam.zoom,
+        fontWeight: style.fontWeight,
+        textAlign: 'center',
+        background: 'transparent',
+        border: 'none',
+        outline: 'none',
+        color: 'rgba(255,255,255,0.95)',
+        padding: 0,
+        cursor: 'text',
+        zIndex: 10,
+      }}
+    />
+  );
+}

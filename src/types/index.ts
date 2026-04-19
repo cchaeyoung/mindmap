@@ -3,6 +3,7 @@ export interface MindmapNode {
   x: number;
   y: number;
   label: string;
+  width: number;
   parentId: string | null;
   color: string;
 }

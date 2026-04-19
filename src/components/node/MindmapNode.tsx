@@ -10,11 +10,13 @@ import { Group, Rect, Text } from 'react-konva';
 interface Props {
   node: MindmapNode;
   isSelected: boolean;
+  isEditing: boolean;
   depth: number;
 }
 
-export default function MindmapNode({ node, isSelected, depth }: Props) {
+export default function MindmapNode({ node, isSelected, isEditing, depth }: Props) {
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
+  const setEditingNode = useUIStore((state) => state.setEditingNode);
   const updateNode = useMapStore((state) => state.updateNode);
   const nodes = useMapStore((state) => state.nodes);
   const { nodeRefs, edgeRefs, registerNode, unregisterNode } = useNodeRefs();
@@ -34,7 +36,7 @@ export default function MindmapNode({ node, isSelected, depth }: Props) {
   const tier = node.parentId === null ? 'root' : depth === 1 ? 'child' : 'sub';
   const style = NODE_STYLE[tier];
 
-  const width = style.paddingX * 2 + 120; // 임시 고정값
+  const width = node.width;
   const height = style.fontSize * 1.4 + style.paddingY * 2;
   const radius = style.cornerRadius === 'pill' ? height / 2 : style.cornerRadius;
 
@@ -45,6 +47,10 @@ export default function MindmapNode({ node, isSelected, depth }: Props) {
       y={node.y}
       draggable
       onClick={() => setSelectedNode(node.id)}
+      onDblClick={() => {
+        setSelectedNode(node.id);
+        setEditingNode(node.id);
+      }}
       onMouseDown={(e) => {
         e.cancelBubble = true;
       }}
@@ -82,10 +88,9 @@ export default function MindmapNode({ node, isSelected, depth }: Props) {
             const parentRef = nodeRefs.current.get(nodeData.parentId!);
             if (parentRef) {
               const parentPos = parentRef.position();
-              const fromTier = nodeData.parentId === null ? 'root' : 'child';
-              const toTier = 'child';
-              const fromWidth = NODE_STYLE[fromTier].paddingX * 2 + 120;
-              const toWidth = NODE_STYLE[toTier].paddingX * 2 + 120;
+              const parentData = nodes.find((n) => n.id === nodeData.parentId);
+              const fromWidth = parentData?.width ?? node.width;
+              const toWidth = node.width;
               const x1 = parentPos.x + fromWidth / 2;
               const y1 = parentPos.y;
               const x2 = pos.x - toWidth / 2;
@@ -134,6 +139,7 @@ export default function MindmapNode({ node, isSelected, depth }: Props) {
       <Text
         text={node.label}
         fontSize={style.fontSize}
+        fontFamily="Pretendard, sans-serif"
         fontStyle={String(style.fontWeight)}
         fill="rgba(255,255,255,0.95)"
         width={width}
@@ -142,6 +148,7 @@ export default function MindmapNode({ node, isSelected, depth }: Props) {
         offsetY={height / 2}
         align="center"
         verticalAlign="middle"
+        visible={!isEditing}
       />
     </Group>
   );

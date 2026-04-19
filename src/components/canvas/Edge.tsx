@@ -1,4 +1,3 @@
-import { NODE_STYLE } from '@/constants/node';
 import { useNodeRefs } from '@/context/NodeRefsContext';
 import { MindmapNode } from '@/types';
 import Konva from 'konva';
@@ -9,8 +8,6 @@ interface Props {
   fromNode: MindmapNode;
   toNode: MindmapNode;
 }
-
-const NODE_BASE_WIDTH = 120;
 
 export default function Edge({ fromNode, toNode }: Props) {
   const { registerEdge, unregisterEdge } = useNodeRefs();
@@ -25,10 +22,8 @@ export default function Edge({ fromNode, toNode }: Props) {
     return () => unregisterEdge(toNode.id);
   }, [toNode.id]);
 
-  const fromTier = fromNode.parentId === null ? 'root' : 'child';
-  const toTier = toNode.parentId === null ? 'root' : 'child';
-  const fromWidth = NODE_STYLE[fromTier].paddingX * 2 + NODE_BASE_WIDTH;
-  const toWidth = NODE_STYLE[toTier].paddingX * 2 + NODE_BASE_WIDTH;
+  const fromWidth = fromNode.width;
+  const toWidth = toNode.width;
 
   const x1 = fromNode.x + fromWidth / 2;
   const y1 = fromNode.y;

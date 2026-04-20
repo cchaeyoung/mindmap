@@ -28,9 +28,17 @@ export const useMapStore = create<MapStore>((set, get) => ({
 
   updateNode: (id, changes) =>
     set((state) => ({ nodes: state.nodes.map((n) => (n.id === id ? { ...n, ...changes } : n)) })),
-  deleteNode: (id) =>
-    set((state) => ({
-      nodes: state.nodes.filter((n) => n.id !== id && n.parentId !== id),
-      edges: state.edges.filter((e) => e.fromId !== id && e.toId !== id),
-    })),
+  deleteNode: (id) => {
+    const getAllDescendants = (targetId: string, nodes: MindmapNode[]): string[] => {
+      const children = nodes.filter((n) => n.parentId === targetId).map((n) => n.id);
+      return [...children, ...children.flatMap((childId) => getAllDescendants(childId, nodes))];
+    };
+    set((state) => {
+      const toDelete = new Set([id, ...getAllDescendants(id, state.nodes)]);
+      return {
+        nodes: state.nodes.filter((n) => !toDelete.has(n.id)),
+        edges: state.edges.filter((e) => !toDelete.has(e.fromId) && !toDelete.has(e.toId)),
+      };
+    });
+  },
 }));

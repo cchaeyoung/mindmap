@@ -17,6 +17,7 @@ interface Props {
 export default function MindmapNode({ node, isSelected, isEditing, depth }: Props) {
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
   const setEditingNode = useUIStore((state) => state.setEditingNode);
+  const setIsDragging = useUIStore((state) => state.setIsDragging);
   const updateNode = useMapStore((state) => state.updateNode);
   const nodes = useMapStore((state) => state.nodes);
   const { nodeRefs, edgeRefs, registerNode, unregisterNode } = useNodeRefs();
@@ -55,6 +56,7 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
         e.cancelBubble = true;
       }}
       onDragStart={(e) => {
+        setIsDragging(true);
         prevPos.current = { x: e.target.x(), y: e.target.y() };
       }}
       onDragMove={(e) => {
@@ -103,6 +105,8 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
         });
       }}
       onDragEnd={(e) => {
+        setIsDragging(false);
+
         const x = e.target.x();
         const y = e.target.y();
         const descendants = getDescendants(node.id);

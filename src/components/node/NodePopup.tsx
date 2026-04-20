@@ -1,21 +1,10 @@
 import IconButton from '@/components/common/IconButton';
 import { SIDEBAR_WIDTH } from '@/constants/layout';
+import { NODE_COLORS } from '@/constants/node';
 import { FileText, GitBranch, Pencil, Trash2 } from 'lucide-react';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useUIStore } from '@/store/uiStore';
 
-const COLORS = [
-  null,
-  '#64748B',
-  '#EF4444',
-  '#EC4899',
-  '#F97316',
-  '#F59E0B',
-  '#10B981',
-  '#06B6D4',
-  '#4D69F0',
-  '#8B5CF6',
-];
 
 interface Props {
   x: number;
@@ -53,7 +42,7 @@ export default function NodePopup({ x, y, nodeColor }: Props) {
     >
       {paletteOpen && (
         <div className="border-border flex flex-wrap items-center gap-1.25 border-b px-2.5 py-2">
-          {COLORS.map((color, i) => (
+          {NODE_COLORS.map((color, i) => (
             <button
               key={i}
               style={{ background: color ?? 'var(--foreground)' }}

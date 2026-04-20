@@ -35,6 +35,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const [size, setSize] = useState({ width: 0, height: 0 });
   const nodes = useMapStore((state) => state.nodes);
   const addNode = useMapStore((state) => state.addNode);
+  const deleteNode = useMapStore((state) => state.deleteNode);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -46,6 +47,18 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeId && !editingNodeId) {
+        const node = nodes.find((n) => n.id === selectedNodeId);
+        deleteNode(selectedNodeId);
+        setSelectedNode(node?.parentId ?? null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedNodeId, editingNodeId, deleteNode, setSelectedNode, nodes]);
 
   const selectedNode = nodes.find((n) => n.id === selectedNodeId) ?? null;
   const handleAddChild = () => {

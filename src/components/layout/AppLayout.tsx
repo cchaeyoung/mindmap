@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import ThemeToggle from '@/components/common/ThemeToggle';
+import { useUIStore } from '@/store/uiStore';
 import Sidebar from './Sidebar';
 
 interface AppLayoutProps {
@@ -9,11 +9,12 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ children }: AppLayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const sidebarOpen = useUIStore((state) => state.sidebarOpen);
+  const setSidebarOpen = useUIStore((state) => state.setSidebarOpen);
 
   return (
     <div className="bg-background relative h-screen w-screen overflow-hidden">
-      <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen((prev) => !prev)} />
+      <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
       <main className="relative h-screen w-screen overflow-hidden">
         {children}
       </main>

@@ -1,6 +1,8 @@
 import IconButton from '@/components/common/IconButton';
+import { SIDEBAR_WIDTH } from '@/constants/layout';
 import { FileText, GitBranch, Pencil, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
+import { useUIStore } from '@/store/uiStore';
 
 const COLORS = [
   null,
@@ -23,9 +25,23 @@ interface Props {
 
 export default function NodePopup({ x, y, nodeColor }: Props) {
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const popupRef = useRef<HTMLDivElement>(null);
+  const sidebarOpen = useUIStore((state) => state.sidebarOpen);
+
+  useLayoutEffect(() => {
+    if (!popupRef.current) return;
+    const rect = popupRef.current.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const leftBound = sidebarOpen ? SIDEBAR_WIDTH + 8 : 8;
+    let newX = x;
+    if (rect.right > vw) newX = vw - rect.width / 2 - 8;
+    if (rect.left < leftBound) newX = leftBound + rect.width / 2;
+    popupRef.current.style.left = `${newX}px`;
+  }, [x, y, sidebarOpen]);
 
   return (
     <div
+      ref={popupRef}
       style={{
         position: 'fixed',
         left: x,

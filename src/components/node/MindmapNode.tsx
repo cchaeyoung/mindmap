@@ -58,11 +58,13 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
       }}
       onMouseDown={(e) => {
         e.cancelBubble = true;
+        if (!isSelected) setSelectedNode(null);
       }}
       onDragStart={(e) => {
         setIsDragging(true);
         prevPos.current = { x: e.target.x(), y: e.target.y() };
       }}
+
       onDragMove={(e) => {
         const x = e.target.x();
         const y = e.target.y();
@@ -118,6 +120,7 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
       }}
       onDragEnd={(e) => {
         setIsDragging(false);
+        setSelectedNode(node.id);
 
         const x = e.target.x();
         const y = e.target.y();

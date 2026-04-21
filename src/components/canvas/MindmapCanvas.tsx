@@ -110,12 +110,12 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
         {addButtonPos && (
           <NodeAddButton x={addButtonPos.x} y={addButtonPos.y} onClick={handleAddChild} />
         )}
-        {popupPos && !isDragging && (
+        {popupPos && selectedNode && !isDragging && (
           <NodePopup
             x={popupPos.x}
             y={popupPos.y}
             yBelow={popupPos.yBelow}
-            nodeColor={selectedNode!.color}
+            nodeColor={selectedNode.color}
           />
         )}
         {editingNodeId && (

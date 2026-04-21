@@ -8,10 +8,11 @@ import { useUIStore } from '@/store/uiStore';
 interface Props {
   x: number;
   y: number;
+  yBelow: number;
   nodeColor: string;
 }
 
-export default function NodePopup({ x, y, nodeColor }: Props) {
+export default function NodePopup({ x, y, yBelow, nodeColor }: Props) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
   const sidebarOpen = useUIStore((state) => state.sidebarOpen);
@@ -25,7 +26,15 @@ export default function NodePopup({ x, y, nodeColor }: Props) {
     if (x + w / 2 > vw - 8) newX = vw - w / 2 - 8;
     if (newX - w / 2 < leftBound) newX = leftBound + w / 2;
     popupRef.current.style.left = `${newX}px`;
-  }, [x, y, sidebarOpen]);
+    const h = popupRef.current.offsetHeight;
+    if (y - h < 8) {
+      popupRef.current.style.top = `${yBelow}px`;
+      popupRef.current.style.transform = 'translateX(-50%)';
+    } else {
+      popupRef.current.style.top = `${y}px`;
+      popupRef.current.style.transform = 'translateX(-50%) translateY(-100%)';
+    }
+  }, [x, y, yBelow, sidebarOpen]);
 
   return (
     <div

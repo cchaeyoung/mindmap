@@ -100,6 +100,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     return {
       x: cam.x + selectedNode.x * cam.zoom,
       y: cam.y + (selectedNode.y - nodeHeight / 2) * cam.zoom - 12,
+      yBelow: cam.y + (selectedNode.y + nodeHeight / 2) * cam.zoom + 12,
     };
   })();
 
@@ -110,7 +111,12 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
           <NodeAddButton x={addButtonPos.x} y={addButtonPos.y} onClick={handleAddChild} />
         )}
         {popupPos && !isDragging && (
-          <NodePopup x={popupPos.x} y={popupPos.y} nodeColor={selectedNode!.color} />
+          <NodePopup
+            x={popupPos.x}
+            y={popupPos.y}
+            yBelow={popupPos.yBelow}
+            nodeColor={selectedNode!.color}
+          />
         )}
         {editingNodeId && (
           <NodeEditor nodeId={editingNodeId} depth={getDepth(editingNodeId, nodes)} />

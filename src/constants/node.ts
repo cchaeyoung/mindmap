@@ -15,13 +15,13 @@ export const NODE_MIN_TEXT_WIDTH = 80;
 
 export const NODE_COLORS = [
   null,
-  '#64748B',
-  '#EF4444',
-  '#EC4899',
-  '#F97316',
-  '#F59E0B',
-  '#10B981',
-  '#06B6D4',
-  '#4D69F0',
-  '#8B5CF6',
+  '#64748b',
+  '#ef4444',
+  '#ec4899',
+  '#f97316',
+  '#f59e0b',
+  '#10b981',
+  '#06b6d4',
+  '#4d69f0',
+  '#8b5cf6',
 ];

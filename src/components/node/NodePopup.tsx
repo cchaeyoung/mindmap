@@ -5,7 +5,6 @@ import { FileText, GitBranch, Pencil, Trash2 } from 'lucide-react';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useUIStore } from '@/store/uiStore';
 
-
 interface Props {
   x: number;
   y: number;
@@ -19,12 +18,12 @@ export default function NodePopup({ x, y, nodeColor }: Props) {
 
   useLayoutEffect(() => {
     if (!popupRef.current) return;
-    const rect = popupRef.current.getBoundingClientRect();
+    const w = popupRef.current.offsetWidth;
     const vw = window.innerWidth;
     const leftBound = sidebarOpen ? SIDEBAR_WIDTH + 8 : 8;
     let newX = x;
-    if (rect.right > vw) newX = vw - rect.width / 2 - 8;
-    if (rect.left < leftBound) newX = leftBound + rect.width / 2;
+    if (x + w / 2 > vw - 8) newX = vw - w / 2 - 8;
+    if (newX - w / 2 < leftBound) newX = leftBound + w / 2;
     popupRef.current.style.left = `${newX}px`;
   }, [x, y, sidebarOpen]);
 
@@ -38,7 +37,7 @@ export default function NodePopup({ x, y, nodeColor }: Props) {
         transform: 'translateX(-50%) translateY(-100%)',
         zIndex: 50,
       }}
-      className="border-border bg-popover flex flex-col overflow-hidden rounded-xl border shadow-[0_8px_32px_var(--mm-shadow)] backdrop-blur-[28px]"
+      className="border-border bg-popover flex w-max flex-col overflow-hidden rounded-xl border shadow-[0_8px_32px_var(--mm-shadow)] backdrop-blur-[28px]"
     >
       {paletteOpen && (
         <div className="border-border flex flex-wrap items-center gap-1.25 border-b px-2.5 py-2">

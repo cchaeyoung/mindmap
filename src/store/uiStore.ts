@@ -5,6 +5,10 @@ interface UIStore {
   setSelectedNode: (id: string | null) => void;
   editingNodeId: string | null;
   setEditingNode: (id: string | null) => void;
+  sidebarOpen: boolean;
+  setSidebarOpen: (v: boolean) => void;
+  isDragging: boolean;
+  setIsDragging: (v: boolean) => void;
 }
 
 export const useUIStore = create<UIStore>((set) => ({
@@ -12,4 +16,8 @@ export const useUIStore = create<UIStore>((set) => ({
   setSelectedNode: (id) => set({ selectedNodeId: id }),
   editingNodeId: null,
   setEditingNode: (id) => set({ editingNodeId: id }),
+  sidebarOpen: true,
+  setSidebarOpen: (v) => set({ sidebarOpen: v }),
+  isDragging: false,
+  setIsDragging: (v) => set({ isDragging: v }),
 }));

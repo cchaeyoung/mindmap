@@ -21,7 +21,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
 
       {/* 사이드바 */}
       <aside
-        className="border-sidebar-border bg-sidebar fixed top-0 left-0 z-25 flex h-screen w-60 flex-col border-r transition-transform duration-280"
+        className="border-sidebar-border bg-sidebar fixed top-0 left-0 z-55 flex h-screen w-60 flex-col border-r transition-transform duration-280"
         style={{
           transform: open ? 'translateX(0)' : 'translateX(-240px)',
           transitionTimingFunction: 'cubic-bezier(.22,1,.36,1)',

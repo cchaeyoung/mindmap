@@ -10,6 +10,7 @@ interface NodeRefsContextValue {
   unregisterNode: (id: string) => void;
   registerEdge: (id: string, refs: Konva.Line[]) => void;
   unregisterEdge: (id: string) => void;
+  addButtonRef: RefObject<HTMLDivElement | null>;
 }
 
 const NodeRefsContext = createContext<NodeRefsContextValue | null>(null);
@@ -23,9 +24,19 @@ export function NodeRefsProvider({ children }: { children: React.ReactNode }) {
   const registerEdge = (id: string, refs: Konva.Line[]) => edgeRefs.current.set(id, refs);
   const unregisterEdge = (id: string) => edgeRefs.current.delete(id);
 
+  const addButtonRef = useRef<HTMLDivElement | null>(null);
+
   return (
     <NodeRefsContext.Provider
-      value={{ nodeRefs, edgeRefs, registerNode, unregisterNode, registerEdge, unregisterEdge }}
+      value={{
+        nodeRefs,
+        edgeRefs,
+        registerNode,
+        unregisterNode,
+        registerEdge,
+        unregisterEdge,
+        addButtonRef,
+      }}
     >
       {children}
     </NodeRefsContext.Provider>

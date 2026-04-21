@@ -1,5 +1,6 @@
 import { NODE_STYLE } from '@/constants/node';
 import { useNodeRefs } from '@/context/NodeRefsContext';
+import { useCanvasStore } from '@/store/canvasStore';
 import { useMapStore } from '@/store/mapStore';
 import { useUIStore } from '@/store/uiStore';
 import type { MindmapNode } from '@/types';
@@ -17,9 +18,13 @@ interface Props {
 export default function MindmapNode({ node, isSelected, isEditing, depth }: Props) {
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
   const setEditingNode = useUIStore((state) => state.setEditingNode);
+  const setIsDragging = useUIStore((state) => state.setIsDragging);
   const updateNode = useMapStore((state) => state.updateNode);
   const nodes = useMapStore((state) => state.nodes);
-  const { nodeRefs, edgeRefs, registerNode, unregisterNode } = useNodeRefs();
+  const cam = useCanvasStore((state) => state.cam);
+  const camRef = useRef(cam);
+  useEffect(() => { camRef.current = cam; }, [cam]);
+  const { nodeRefs, edgeRefs, registerNode, unregisterNode, addButtonRef } = useNodeRefs();
   const groupRef = useRef<Konva.Group>(null);
   const prevPos = useRef({ x: node.x, y: node.y });
 
@@ -53,10 +58,13 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
       }}
       onMouseDown={(e) => {
         e.cancelBubble = true;
+        if (!isSelected) setSelectedNode(null);
       }}
       onDragStart={(e) => {
+        setIsDragging(true);
         prevPos.current = { x: e.target.x(), y: e.target.y() };
       }}
+
       onDragMove={(e) => {
         const x = e.target.x();
         const y = e.target.y();
@@ -90,7 +98,7 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
               const parentPos = parentRef.position();
               const parentData = nodes.find((n) => n.id === nodeData.parentId);
               const fromWidth = parentData?.width ?? node.width;
-              const toWidth = node.width;
+              const toWidth = nodeData.width;
               const x1 = parentPos.x + fromWidth / 2;
               const y1 = parentPos.y;
               const x2 = pos.x - toWidth / 2;
@@ -101,8 +109,19 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
             }
           }
         });
+
+        if (isSelected && addButtonRef.current) {
+          const c = camRef.current;
+          const screenX = c.x + (x + node.width / 2) * c.zoom + 21;
+          const screenY = c.y + y * c.zoom;
+          addButtonRef.current.style.left = `${screenX}px`;
+          addButtonRef.current.style.top = `${screenY}px`;
+        }
       }}
       onDragEnd={(e) => {
+        setIsDragging(false);
+        setSelectedNode(node.id);
+
         const x = e.target.x();
         const y = e.target.y();
         const descendants = getDescendants(node.id);

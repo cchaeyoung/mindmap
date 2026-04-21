@@ -12,3 +12,16 @@ export const NODE_STYLE = {
 
 export const NODE_DEFAULT_COLOR = '#4d69f0';
 export const NODE_MIN_TEXT_WIDTH = 80;
+
+export const NODE_COLORS = [
+  null,
+  '#64748b',
+  '#ef4444',
+  '#ec4899',
+  '#f97316',
+  '#f59e0b',
+  '#10b981',
+  '#06b6d4',
+  '#4d69f0',
+  '#8b5cf6',
+];

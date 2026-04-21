@@ -98,7 +98,7 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
               const parentPos = parentRef.position();
               const parentData = nodes.find((n) => n.id === nodeData.parentId);
               const fromWidth = parentData?.width ?? node.width;
-              const toWidth = node.width;
+              const toWidth = nodeData.width;
               const x1 = parentPos.x + fromWidth / 2;
               const y1 = parentPos.y;
               const x2 = pos.x - toWidth / 2;

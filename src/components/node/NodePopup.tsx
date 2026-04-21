@@ -22,9 +22,7 @@ export default function NodePopup({ x, y, yBelow, nodeColor }: Props) {
     const w = popupRef.current.offsetWidth;
     const vw = window.innerWidth;
     const leftBound = sidebarOpen ? SIDEBAR_WIDTH + 8 : 8;
-    let newX = x;
-    if (x + w / 2 > vw - 8) newX = vw - w / 2 - 8;
-    if (newX - w / 2 < leftBound) newX = leftBound + w / 2;
+    const newX = Math.min(Math.max(x, leftBound + w / 2), vw - w / 2 - 8);
     popupRef.current.style.left = `${newX}px`;
     const h = popupRef.current.offsetHeight;
     if (y - h < 8) {

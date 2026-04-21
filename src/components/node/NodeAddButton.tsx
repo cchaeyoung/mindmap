@@ -1,5 +1,6 @@
-import { Plus } from 'lucide-react';
 import IconButton from '@/components/common/IconButton';
+import { useNodeRefs } from '@/context/NodeRefsContext';
+import { Plus } from 'lucide-react';
 
 interface Props {
   x: number;
@@ -8,8 +9,10 @@ interface Props {
 }
 
 export default function NodeAddButton({ x, y, onClick }: Props) {
+  const { addButtonRef } = useNodeRefs();
   return (
     <div
+      ref={addButtonRef}
       style={{ position: 'fixed', left: x, top: y, transform: 'translate(-50%, -50%)', zIndex: 45 }}
     >
       <IconButton

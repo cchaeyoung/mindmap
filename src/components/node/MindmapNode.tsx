@@ -1,5 +1,6 @@
 import { NODE_STYLE } from '@/constants/node';
 import { useNodeRefs } from '@/context/NodeRefsContext';
+import { useCanvasStore } from '@/store/canvasStore';
 import { useMapStore } from '@/store/mapStore';
 import { useUIStore } from '@/store/uiStore';
 import type { MindmapNode } from '@/types';
@@ -20,7 +21,10 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
   const setIsDragging = useUIStore((state) => state.setIsDragging);
   const updateNode = useMapStore((state) => state.updateNode);
   const nodes = useMapStore((state) => state.nodes);
-  const { nodeRefs, edgeRefs, registerNode, unregisterNode } = useNodeRefs();
+  const cam = useCanvasStore((state) => state.cam);
+  const camRef = useRef(cam);
+  useEffect(() => { camRef.current = cam; }, [cam]);
+  const { nodeRefs, edgeRefs, registerNode, unregisterNode, addButtonRef } = useNodeRefs();
   const groupRef = useRef<Konva.Group>(null);
   const prevPos = useRef({ x: node.x, y: node.y });
 
@@ -103,6 +107,14 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
             }
           }
         });
+
+        if (isSelected && addButtonRef.current) {
+          const c = camRef.current;
+          const screenX = c.x + (x + node.width / 2) * c.zoom + 21;
+          const screenY = c.y + y * c.zoom;
+          addButtonRef.current.style.left = `${screenX}px`;
+          addButtonRef.current.style.top = `${screenY}px`;
+        }
       }}
       onDragEnd={(e) => {
         setIsDragging(false);

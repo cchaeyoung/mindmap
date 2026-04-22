@@ -10,5 +10,5 @@ export function measureNodeWidth(text: string, tier: Tier, size: Size): number {
   const ctx = canvas.getContext('2d')!;
   ctx.font = `${style.fontWeight} ${style.fontSize * scale}px Pretendard, sans-serif`;
   const textWidth = ctx.measureText(text || ' ').width;
-  return style.paddingX * 2 + Math.max(Math.ceil(textWidth), NODE_MIN_TEXT_WIDTH);
+  return style.paddingX * scale * 2 + Math.max(Math.ceil(textWidth), NODE_MIN_TEXT_WIDTH);
 }

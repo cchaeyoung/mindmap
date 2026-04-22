@@ -3,7 +3,7 @@
 import { Stage, Layer } from 'react-konva';
 import { KonvaEventObject } from 'konva/lib/Node';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { NODE_STYLE } from '@/constants/node';
+import { NODE_SIZE_SCALE, NODE_STYLE } from '@/constants/node';
 import { resolveNodeColor } from '@/utils/node';
 import { useTheme } from 'next-themes';
 import { useMapStore } from '@/store/mapStore';
@@ -86,6 +86,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
       label: '새 항목',
       parentId: selectedNode.id,
       color: selectedNode.color,
+      size: 'M',
     });
     setSelectedNode(newId);
   };
@@ -109,7 +110,8 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
           ? 'child'
           : 'sub';
     const style = NODE_STYLE[tier];
-    const nodeHeight = style.fontSize * 1.4 + style.paddingY * 2;
+    const scale = NODE_SIZE_SCALE[selectedNode.size ?? 'M'];
+    const nodeHeight = style.fontSize * scale * 1.4 + style.paddingY * scale * 2;
     return {
       x: cam.x + selectedNode.x * cam.zoom,
       y: cam.y + (selectedNode.y - nodeHeight / 2) * cam.zoom - 12,
@@ -141,6 +143,8 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
                 ? updateNode(selectedNode.id, { isThemeColor: true })
                 : updateNode(selectedNode.id, { color, isThemeColor: false })
             }
+            currentSize={selectedNode.size ?? 'M'}
+            onSizeChange={(size) => updateNode(selectedNode.id, { size })}
           />
         )}
         {editingNodeId && (

@@ -1,4 +1,4 @@
-import { NODE_STYLE } from '@/constants/node';
+import { NODE_SIZE_SCALE, NODE_STYLE } from '@/constants/node';
 import { resolveNodeColor } from '@/utils/node';
 import { useNodeRefs } from '@/context/NodeRefsContext';
 import { useCanvasStore } from '@/store/canvasStore';
@@ -26,7 +26,9 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
   const nodes = useMapStore((state) => state.nodes);
   const cam = useCanvasStore((state) => state.cam);
   const camRef = useRef(cam);
-  useEffect(() => { camRef.current = cam; }, [cam]);
+  useEffect(() => {
+    camRef.current = cam;
+  }, [cam]);
   const { nodeRefs, edgeRefs, registerNode, unregisterNode, addButtonRef } = useNodeRefs();
   const groupRef = useRef<Konva.Group>(null);
   const prevPos = useRef({ x: node.x, y: node.y });
@@ -45,9 +47,10 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
   const style = NODE_STYLE[tier];
 
   const fill = resolveNodeColor(node, resolvedTheme);
+  const scale = NODE_SIZE_SCALE[node.size ?? 'M'];
 
   const width = node.width;
-  const height = style.fontSize * 1.4 + style.paddingY * 2;
+  const height = style.fontSize * scale * 1.4 + style.paddingY * scale * 2;
   const radius = style.cornerRadius === 'pill' ? height / 2 : style.cornerRadius;
 
   return (
@@ -69,7 +72,6 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
         setIsDragging(true);
         prevPos.current = { x: e.target.x(), y: e.target.y() };
       }}
-
       onDragMove={(e) => {
         const x = e.target.x();
         const y = e.target.y();
@@ -162,7 +164,7 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
       />
       <Text
         text={node.label}
-        fontSize={style.fontSize}
+        fontSize={style.fontSize * scale}
         fontFamily="Pretendard, sans-serif"
         fontStyle={String(style.fontWeight)}
         fill="rgba(255,255,255,0.95)"

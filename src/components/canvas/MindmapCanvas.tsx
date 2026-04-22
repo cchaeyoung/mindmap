@@ -131,6 +131,8 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             y={popupPos.y}
             yBelow={popupPos.yBelow}
             nodeColor={resolvedNodeColor}
+            nodeRawColor={selectedNode.color}
+            isThemeColor={selectedNode.isThemeColor ?? false}
             onAddChild={handleAddChild}
             onEdit={() => setEditingNode(selectedNode.id)}
             onDelete={() => handleDeleteNode(selectedNode.id)}

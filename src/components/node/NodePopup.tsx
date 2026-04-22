@@ -109,7 +109,7 @@ export default function NodePopup({
           <button
             key={sz}
             onClick={() => onSizeChange(sz)}
-            className={`hover:bg-accent hover:text-foreground h-6.5 w-6.5 cursor-pointer rounded-[7px] px-2.25 text-[11px] font-medium transition-all ${currentSize === sz ? 'bg-[rgba(77,105,240,0.18)] text-[#4d69f0]' : 'text-muted-foreground'}`}
+            className={`h-6.5 w-6.5 cursor-pointer rounded-[7px] px-2.25 text-[11px] font-medium transition-all ${currentSize === sz ? 'bg-[rgba(77,105,240,0.18)] text-[#4d69f0]' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
           >
             {sz}
           </button>

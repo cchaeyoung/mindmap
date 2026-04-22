@@ -19,9 +19,12 @@ export const useMapStore = create<MapStore>((set, get) => ({
     const id = crypto.randomUUID();
     const parent = get().nodes.find((n) => n.id === node.parentId);
     const tier = node.parentId === null ? 'root' : parent?.parentId === null ? 'child' : 'sub';
-    const width = measureNodeWidth(node.label, tier);
+    const width = measureNodeWidth(node.label, tier, node.size ?? 'M');
     set((state) => ({
-      nodes: [...state.nodes, { ...node, id, width, color: node.color ?? NODE_DEFAULT_COLOR }],
+      nodes: [
+        ...state.nodes,
+        { ...node, id, width, size: node.size ?? 'M', color: node.color ?? NODE_DEFAULT_COLOR },
+      ],
     }));
     return id;
   },

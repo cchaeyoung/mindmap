@@ -33,6 +33,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const selectedNodeId = useUIStore((state) => state.selectedNodeId);
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
   const editingNodeId = useUIStore((state) => state.editingNodeId);
+  const setEditingNode = useUIStore((state) => state.setEditingNode);
   const isDragging = useUIStore((state) => state.isDragging);
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -116,6 +117,12 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             y={popupPos.y}
             yBelow={popupPos.yBelow}
             nodeColor={selectedNode.color}
+            onAddChild={handleAddChild}
+            onEdit={() => setEditingNode(selectedNode.id)}
+            onDelete={() => {
+              deleteNode(selectedNode.id);
+              setSelectedNode(selectedNode.parentId ?? null);
+            }}
           />
         )}
         {editingNodeId && (

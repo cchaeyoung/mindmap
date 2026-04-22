@@ -10,9 +10,20 @@ interface Props {
   y: number;
   yBelow: number;
   nodeColor: string;
+  onAddChild: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }
 
-export default function NodePopup({ x, y, yBelow, nodeColor }: Props) {
+export default function NodePopup({
+  x,
+  y,
+  yBelow,
+  nodeColor,
+  onAddChild,
+  onEdit,
+  onDelete,
+}: Props) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
   const sidebarOpen = useUIStore((state) => state.sidebarOpen);
@@ -79,10 +90,14 @@ export default function NodePopup({ x, y, yBelow, nodeColor }: Props) {
 
         <div className="bg-border mx-1 h-4 w-px shrink-0" />
 
-        <IconButton title="하위 항목 추가" className="h-6.5 w-6.5 rounded-[7px]">
+        <IconButton
+          title="하위 항목 추가"
+          onClick={onAddChild}
+          className="h-6.5 w-6.5 rounded-[7px]"
+        >
           <GitBranch size={12} />
         </IconButton>
-        <IconButton title="편집" className="h-6.5 w-6.5 rounded-[7px]">
+        <IconButton title="편집" onClick={onEdit} className="h-6.5 w-6.5 rounded-[7px]">
           <Pencil size={12} />
         </IconButton>
         <IconButton title="메모" className="h-6.5 w-6.5 rounded-[7px]">
@@ -90,6 +105,7 @@ export default function NodePopup({ x, y, yBelow, nodeColor }: Props) {
         </IconButton>
         <IconButton
           title="삭제"
+          onClick={onDelete}
           className="h-6.5 w-6.5 rounded-[7px] hover:bg-[rgba(248,113,113,0.1)] hover:text-[#f87171]"
         >
           <Trash2 size={12} />

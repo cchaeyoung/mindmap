@@ -1,6 +1,6 @@
 import { NODE_DEFAULT_COLOR } from '@/constants/node';
 import { Edge, MindmapNode } from '@/types';
-import { measureNodeWidth } from '@/utils/measureNodeWidth';
+import { measureNodeWidth } from '@/utils/node';
 import { create } from 'zustand';
 
 interface MapStore {

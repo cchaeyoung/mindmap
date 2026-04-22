@@ -4,6 +4,7 @@ import { Stage, Layer } from 'react-konva';
 import { KonvaEventObject } from 'konva/lib/Node';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { NODE_STYLE } from '@/constants/node';
+import { resolveNodeColor } from '@/utils/node';
 import { useTheme } from 'next-themes';
 import { useMapStore } from '@/store/mapStore';
 import { useCanvasStore } from '@/store/canvasStore';
@@ -116,9 +117,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     };
   })();
 
-  const resolvedNodeColor = selectedNode?.isThemeColor
-    ? resolvedTheme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(14,12,42,0.92)'
-    : selectedNode?.color ?? '';
+  const resolvedNodeColor = selectedNode ? resolveNodeColor(selectedNode, resolvedTheme) : '';
 
   return (
     <NodeRefsProvider>

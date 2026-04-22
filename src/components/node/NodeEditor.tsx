@@ -4,7 +4,7 @@ import { NODE_STYLE } from '@/constants/node';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useMapStore } from '@/store/mapStore';
 import { useUIStore } from '@/store/uiStore';
-import { measureNodeWidth } from '@/utils/measureNodeWidth';
+import { measureNodeWidth } from '@/utils/node';
 import { useEffect, useRef } from 'react';
 
 interface Props {

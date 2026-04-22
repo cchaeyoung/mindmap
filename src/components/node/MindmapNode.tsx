@@ -1,4 +1,5 @@
 import { NODE_STYLE } from '@/constants/node';
+import { resolveNodeColor } from '@/utils/node';
 import { useNodeRefs } from '@/context/NodeRefsContext';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useMapStore } from '@/store/mapStore';
@@ -43,9 +44,7 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
   const tier = node.parentId === null ? 'root' : depth === 1 ? 'child' : 'sub';
   const style = NODE_STYLE[tier];
 
-  const fill = node.isThemeColor
-    ? resolvedTheme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(14,12,42,0.92)'
-    : node.color;
+  const fill = resolveNodeColor(node, resolvedTheme);
 
   const width = node.width;
   const height = style.fontSize * 1.4 + style.paddingY * 2;

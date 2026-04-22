@@ -65,7 +65,10 @@ export default function NodePopup({
             <button
               key={i}
               style={{ background: color ?? 'var(--foreground)' }}
-              onClick={() => onColorChange(color)}
+              onClick={() => {
+                onColorChange(color);
+                setPaletteOpen(false);
+              }}
               className="h-4 w-4 shrink-0 cursor-pointer rounded-full border-[1.5px] border-transparent transition-transform hover:scale-125"
             />
           ))}

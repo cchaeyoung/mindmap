@@ -13,6 +13,7 @@ interface Props {
   onAddChild: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onColorChange: (color: string | null) => void;
 }
 
 export default function NodePopup({
@@ -23,6 +24,7 @@ export default function NodePopup({
   onAddChild,
   onEdit,
   onDelete,
+  onColorChange,
 }: Props) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
@@ -63,6 +65,7 @@ export default function NodePopup({
             <button
               key={i}
               style={{ background: color ?? 'var(--foreground)' }}
+              onClick={() => onColorChange(color)}
               className="h-4 w-4 shrink-0 cursor-pointer rounded-full border-[1.5px] border-transparent transition-transform hover:scale-125"
             />
           ))}

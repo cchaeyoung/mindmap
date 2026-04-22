@@ -4,6 +4,7 @@ import { Stage, Layer } from 'react-konva';
 import { KonvaEventObject } from 'konva/lib/Node';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { NODE_STYLE } from '@/constants/node';
+import { useTheme } from 'next-themes';
 import { useMapStore } from '@/store/mapStore';
 import { useCanvasStore } from '@/store/canvasStore';
 import MindmapNode from '@/components/node/MindmapNode';
@@ -28,6 +29,7 @@ const getDepth = (nodeId: string, nodes: { id: string; parentId: string | null }
 };
 
 export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMouseUp }: Props) {
+  const { resolvedTheme } = useTheme();
   const cam = useCanvasStore((state) => state.cam);
   const setStageSize = useCanvasStore((state) => state.setStageSize);
   const selectedNodeId = useUIStore((state) => state.selectedNodeId);
@@ -40,6 +42,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const nodes = useMapStore((state) => state.nodes);
   const addNode = useMapStore((state) => state.addNode);
   const deleteNode = useMapStore((state) => state.deleteNode);
+  const updateNode = useMapStore((state) => state.updateNode);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -52,11 +55,14 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     return () => observer.disconnect();
   }, []);
 
-  const handleDeleteNode = useCallback((nodeId: string) => {
-    const node = nodes.find((n) => n.id === nodeId);
-    deleteNode(nodeId);
-    setSelectedNode(node?.parentId ?? null);
-  }, [nodes, deleteNode, setSelectedNode]);
+  const handleDeleteNode = useCallback(
+    (nodeId: string) => {
+      const node = nodes.find((n) => n.id === nodeId);
+      deleteNode(nodeId);
+      setSelectedNode(node?.parentId ?? null);
+    },
+    [nodes, deleteNode, setSelectedNode]
+  );
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -110,6 +116,10 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     };
   })();
 
+  const resolvedNodeColor = selectedNode?.isThemeColor
+    ? resolvedTheme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(14,12,42,0.92)'
+    : selectedNode?.color ?? '';
+
   return (
     <NodeRefsProvider>
       <div ref={containerRef} className="h-full w-full">
@@ -121,10 +131,15 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             x={popupPos.x}
             y={popupPos.y}
             yBelow={popupPos.yBelow}
-            nodeColor={selectedNode.color}
+            nodeColor={resolvedNodeColor}
             onAddChild={handleAddChild}
             onEdit={() => setEditingNode(selectedNode.id)}
             onDelete={() => handleDeleteNode(selectedNode.id)}
+            onColorChange={(color) =>
+              color === null
+                ? updateNode(selectedNode.id, { isThemeColor: true })
+                : updateNode(selectedNode.id, { color, isThemeColor: false })
+            }
           />
         )}
         {editingNodeId && (

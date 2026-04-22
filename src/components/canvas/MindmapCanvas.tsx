@@ -2,7 +2,7 @@
 
 import { Stage, Layer } from 'react-konva';
 import { KonvaEventObject } from 'konva/lib/Node';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { NODE_STYLE } from '@/constants/node';
 import { useMapStore } from '@/store/mapStore';
 import { useCanvasStore } from '@/store/canvasStore';
@@ -33,6 +33,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const selectedNodeId = useUIStore((state) => state.selectedNodeId);
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
   const editingNodeId = useUIStore((state) => state.editingNodeId);
+  const setEditingNode = useUIStore((state) => state.setEditingNode);
   const isDragging = useUIStore((state) => state.isDragging);
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -51,19 +52,24 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     return () => observer.disconnect();
   }, []);
 
+  const handleDeleteNode = useCallback((nodeId: string) => {
+    const node = nodes.find((n) => n.id === nodeId);
+    deleteNode(nodeId);
+    setSelectedNode(node?.parentId ?? null);
+  }, [nodes, deleteNode, setSelectedNode]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeId && !editingNodeId) {
-        const node = nodes.find((n) => n.id === selectedNodeId);
-        deleteNode(selectedNodeId);
-        setSelectedNode(node?.parentId ?? null);
+        handleDeleteNode(selectedNodeId);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedNodeId, editingNodeId, deleteNode, setSelectedNode, nodes]);
+  }, [selectedNodeId, editingNodeId, handleDeleteNode]);
 
   const selectedNode = nodes.find((n) => n.id === selectedNodeId) ?? null;
+
   const handleAddChild = () => {
     if (!selectedNode) return;
     const children = nodes.filter((n) => n.parentId === selectedNode.id);
@@ -116,6 +122,9 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             y={popupPos.y}
             yBelow={popupPos.yBelow}
             nodeColor={selectedNode.color}
+            onAddChild={handleAddChild}
+            onEdit={() => setEditingNode(selectedNode.id)}
+            onDelete={() => handleDeleteNode(selectedNode.id)}
           />
         )}
         {editingNodeId && (

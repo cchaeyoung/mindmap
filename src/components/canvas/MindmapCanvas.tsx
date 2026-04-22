@@ -4,7 +4,7 @@ import { Stage, Layer } from 'react-konva';
 import { KonvaEventObject } from 'konva/lib/Node';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { NODE_SIZE_SCALE, NODE_STYLE } from '@/constants/node';
-import { resolveNodeColor } from '@/utils/node';
+import { measureNodeWidth, resolveNodeColor } from '@/utils/node';
 import { useTheme } from 'next-themes';
 import { useMapStore } from '@/store/mapStore';
 import { useCanvasStore } from '@/store/canvasStore';
@@ -144,7 +144,11 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
                 : updateNode(selectedNode.id, { color, isThemeColor: false })
             }
             currentSize={selectedNode.size ?? 'M'}
-            onSizeChange={(size) => updateNode(selectedNode.id, { size })}
+            onSizeChange={(sz) => {
+                const tier = selectedNode.parentId === null ? 'root' : nodes.find((n) => n.id === selectedNode.parentId)?.parentId === null ? 'child' : 'sub';
+                const width = measureNodeWidth(selectedNode.label, tier, sz);
+                updateNode(selectedNode.id, { size: sz, width });
+              }}
           />
         )}
         {editingNodeId && (

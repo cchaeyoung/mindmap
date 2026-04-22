@@ -3,7 +3,7 @@ import { NODE_MIN_TEXT_WIDTH, NODE_SIZE_SCALE, NODE_STYLE } from '@/constants/no
 type Tier = 'root' | 'child' | 'sub';
 type Size = 'S' | 'M' | 'L';
 
-export function measureNodeWidth(text: string, tier: Tier, size: Size): number {
+export function measureNodeWidth(text: string, tier: Tier, size: Size = 'M'): number {
   const style = NODE_STYLE[tier];
   const scale = NODE_SIZE_SCALE[size];
   const canvas = document.createElement('canvas');

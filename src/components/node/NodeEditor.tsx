@@ -1,6 +1,6 @@
 'use client';
 
-import { NODE_STYLE } from '@/constants/node';
+import { NODE_SIZE_SCALE, NODE_STYLE } from '@/constants/node';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useMapStore } from '@/store/mapStore';
 import { useUIStore } from '@/store/uiStore';
@@ -28,7 +28,8 @@ export default function NodeEditor({ nodeId, depth }: Props) {
 
   const tier = node.parentId === null ? 'root' : depth === 1 ? 'child' : 'sub';
   const style = NODE_STYLE[tier];
-  const height = style.fontSize * 1.4 + style.paddingY * 2;
+  const scale = NODE_SIZE_SCALE[node.size ?? 'M'];
+  const height = style.fontSize * scale * 1.4 + style.paddingY * scale * 2;
 
   const screenX = node.x * cam.zoom + cam.x;
   const screenY = node.y * cam.zoom + cam.y;
@@ -39,7 +40,7 @@ export default function NodeEditor({ nodeId, depth }: Props) {
       defaultValue={node.label}
       onChange={(e) => {
         const newLabel = e.target.value;
-        const newWidth = measureNodeWidth(newLabel, tier);
+        const newWidth = measureNodeWidth(newLabel, tier, node.size ?? 'M');
         updateNode(node.id, { label: newLabel, width: newWidth });
       }}
       onBlur={() => setEditingNode(null)}
@@ -52,7 +53,7 @@ export default function NodeEditor({ nodeId, depth }: Props) {
         top: screenY - (height * cam.zoom) / 2,
         width: node.width * cam.zoom,
         height: height * cam.zoom,
-        fontSize: style.fontSize * cam.zoom,
+        fontSize: style.fontSize * scale * cam.zoom,
         fontWeight: style.fontWeight,
         textAlign: 'center',
         background: 'transparent',

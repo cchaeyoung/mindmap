@@ -19,6 +19,7 @@ export default function Toolbar() {
       label: '새 항목',
       parentId: null,
       color: NODE_DEFAULT_COLOR,
+      size: 'M',
     });
   };
 

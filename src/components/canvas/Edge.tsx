@@ -1,6 +1,8 @@
 import { useNodeRefs } from '@/context/NodeRefsContext';
 import { MindmapNode } from '@/types';
+import { resolveNodeColor } from '@/utils/node';
 import Konva from 'konva';
+import { useTheme } from 'next-themes';
 import { useEffect, useRef } from 'react';
 import { Line } from 'react-konva';
 
@@ -10,7 +12,11 @@ interface Props {
 }
 
 export default function Edge({ fromNode, toNode }: Props) {
+  const { resolvedTheme } = useTheme();
   const { registerEdge, unregisterEdge } = useNodeRefs();
+
+  const fromColor = resolveNodeColor(fromNode, resolvedTheme);
+  const toColor = resolveNodeColor(toNode, resolvedTheme);
   const bgLineRef = useRef<Konva.Line>(null);
   const gradLineRef = useRef<Konva.Line>(null);
 
@@ -43,7 +49,7 @@ export default function Edge({ fromNode, toNode }: Props) {
         ref={bgLineRef}
         points={points}
         bezier={true}
-        stroke={toNode.color}
+        stroke={toColor}
         strokeWidth={bgWidth}
         opacity={0.18}
       />
@@ -53,7 +59,7 @@ export default function Edge({ fromNode, toNode }: Props) {
         bezier={true}
         strokeLinearGradientStartPoint={{ x: x1, y: y1 }}
         strokeLinearGradientEndPoint={{ x: x2, y: y2 }}
-        strokeLinearGradientColorStops={[0, fromNode.color, 1, toNode.color]}
+        strokeLinearGradientColorStops={[0, fromColor, 1, toColor]}
         strokeWidth={lineWidth}
         opacity={0.75}
       />

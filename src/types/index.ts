@@ -6,6 +6,8 @@ export interface MindmapNode {
   width: number;
   parentId: string | null;
   color: string;
+  isThemeColor?: boolean;
+  size: 'S' | 'M' | 'L';
 }
 
 export interface Edge {

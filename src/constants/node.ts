@@ -12,6 +12,7 @@ export const NODE_STYLE = {
 
 export const NODE_DEFAULT_COLOR = '#4d69f0';
 export const NODE_MIN_TEXT_WIDTH = 80;
+export const NODE_SIZE_SCALE = { S: 0.8, M: 1.0, L: 1.25 } as const;
 
 export const NODE_COLORS = [
   null,

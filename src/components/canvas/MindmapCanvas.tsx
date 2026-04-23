@@ -3,7 +3,9 @@
 import { Stage, Layer } from 'react-konva';
 import { KonvaEventObject } from 'konva/lib/Node';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { NODE_STYLE } from '@/constants/node';
+import { NODE_SIZE_SCALE, NODE_STYLE } from '@/constants/node';
+import { measureNodeWidth, resolveNodeColor } from '@/utils/node';
+import { useTheme } from 'next-themes';
 import { useMapStore } from '@/store/mapStore';
 import { useCanvasStore } from '@/store/canvasStore';
 import MindmapNode from '@/components/node/MindmapNode';
@@ -28,6 +30,7 @@ const getDepth = (nodeId: string, nodes: { id: string; parentId: string | null }
 };
 
 export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMouseUp }: Props) {
+  const { resolvedTheme } = useTheme();
   const cam = useCanvasStore((state) => state.cam);
   const setStageSize = useCanvasStore((state) => state.setStageSize);
   const selectedNodeId = useUIStore((state) => state.selectedNodeId);
@@ -40,6 +43,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const nodes = useMapStore((state) => state.nodes);
   const addNode = useMapStore((state) => state.addNode);
   const deleteNode = useMapStore((state) => state.deleteNode);
+  const updateNode = useMapStore((state) => state.updateNode);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -52,11 +56,14 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     return () => observer.disconnect();
   }, []);
 
-  const handleDeleteNode = useCallback((nodeId: string) => {
-    const node = nodes.find((n) => n.id === nodeId);
-    deleteNode(nodeId);
-    setSelectedNode(node?.parentId ?? null);
-  }, [nodes, deleteNode, setSelectedNode]);
+  const handleDeleteNode = useCallback(
+    (nodeId: string) => {
+      const node = nodes.find((n) => n.id === nodeId);
+      deleteNode(nodeId);
+      setSelectedNode(node?.parentId ?? null);
+    },
+    [nodes, deleteNode, setSelectedNode]
+  );
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -79,6 +86,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
       label: '새 항목',
       parentId: selectedNode.id,
       color: selectedNode.color,
+      size: 'M',
     });
     setSelectedNode(newId);
   };
@@ -102,13 +110,16 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
           ? 'child'
           : 'sub';
     const style = NODE_STYLE[tier];
-    const nodeHeight = style.fontSize * 1.4 + style.paddingY * 2;
+    const scale = NODE_SIZE_SCALE[selectedNode.size ?? 'M'];
+    const nodeHeight = style.fontSize * scale * 1.4 + style.paddingY * scale * 2;
     return {
       x: cam.x + selectedNode.x * cam.zoom,
       y: cam.y + (selectedNode.y - nodeHeight / 2) * cam.zoom - 12,
       yBelow: cam.y + (selectedNode.y + nodeHeight / 2) * cam.zoom + 12,
     };
   })();
+
+  const resolvedNodeColor = selectedNode ? resolveNodeColor(selectedNode, resolvedTheme) : '';
 
   return (
     <NodeRefsProvider>
@@ -121,10 +132,23 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             x={popupPos.x}
             y={popupPos.y}
             yBelow={popupPos.yBelow}
-            nodeColor={selectedNode.color}
+            nodeColor={resolvedNodeColor}
+            nodeRawColor={selectedNode.color}
+            isThemeColor={selectedNode.isThemeColor ?? false}
             onAddChild={handleAddChild}
             onEdit={() => setEditingNode(selectedNode.id)}
             onDelete={() => handleDeleteNode(selectedNode.id)}
+            onColorChange={(color) =>
+              color === null
+                ? updateNode(selectedNode.id, { isThemeColor: true })
+                : updateNode(selectedNode.id, { color, isThemeColor: false })
+            }
+            currentSize={selectedNode.size ?? 'M'}
+            onSizeChange={(sz) => {
+                const tier = selectedNode.parentId === null ? 'root' : nodes.find((n) => n.id === selectedNode.parentId)?.parentId === null ? 'child' : 'sub';
+                const width = measureNodeWidth(selectedNode.label, tier, sz);
+                updateNode(selectedNode.id, { size: sz, width });
+              }}
           />
         )}
         {editingNodeId && (

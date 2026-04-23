@@ -2,6 +2,7 @@ import IconButton from '@/components/common/IconButton';
 import { SIDEBAR_WIDTH } from '@/constants/layout';
 import { NODE_COLORS } from '@/constants/node';
 import { FileText, GitBranch, Pencil, Trash2 } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useUIStore } from '@/store/uiStore';
 
@@ -10,9 +11,14 @@ interface Props {
   y: number;
   yBelow: number;
   nodeColor: string;
+  nodeRawColor: string;
+  isThemeColor: boolean;
   onAddChild: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onColorChange: (color: string | null) => void;
+  onSizeChange: (size: 'S' | 'M' | 'L') => void;
+  currentSize: 'S' | 'M' | 'L';
 }
 
 export default function NodePopup({
@@ -20,13 +26,26 @@ export default function NodePopup({
   y,
   yBelow,
   nodeColor,
+  nodeRawColor,
+  isThemeColor,
   onAddChild,
   onEdit,
   onDelete,
+  onColorChange,
+  onSizeChange,
+  currentSize,
 }: Props) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
   const sidebarOpen = useUIStore((state) => state.sidebarOpen);
+  const { resolvedTheme } = useTheme();
+  const ringBoxShadow =
+    resolvedTheme === 'dark'
+      ? '0 0 0 1.5px rgba(255,255,255,0.75), 0 0 0 3px rgba(0,0,0,0.3)'
+      : '0 0 0 1.5px rgba(0,0,0,0.7), 0 0 0 3px rgba(255,255,255,0.4)';
+
+  const isSelected = (color: string | null) =>
+    color === null ? isThemeColor : !isThemeColor && color === nodeRawColor;
 
   useLayoutEffect(() => {
     if (!popupRef.current) return;
@@ -62,7 +81,14 @@ export default function NodePopup({
           {NODE_COLORS.map((color, i) => (
             <button
               key={i}
-              style={{ background: color ?? 'var(--foreground)' }}
+              style={{
+                background: color ?? 'var(--foreground)',
+                boxShadow: isSelected(color) ? ringBoxShadow : undefined,
+              }}
+              onClick={() => {
+                onColorChange(color);
+                setPaletteOpen(false);
+              }}
               className="h-4 w-4 shrink-0 cursor-pointer rounded-full border-[1.5px] border-transparent transition-transform hover:scale-125"
             />
           ))}
@@ -82,7 +108,8 @@ export default function NodePopup({
         {(['S', 'M', 'L'] as const).map((sz) => (
           <button
             key={sz}
-            className="text-muted-foreground hover:bg-accent hover:text-foreground h-6.5 w-6.5 rounded-[7px] px-2.25 text-[11px] font-medium transition-all"
+            onClick={() => onSizeChange(sz)}
+            className={`h-6.5 w-6.5 cursor-pointer rounded-[7px] px-2.25 text-[11px] font-medium transition-all ${currentSize === sz ? 'bg-[rgba(77,105,240,0.18)] text-[#4d69f0]' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
           >
             {sz}
           </button>

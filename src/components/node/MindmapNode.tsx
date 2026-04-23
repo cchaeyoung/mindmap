@@ -1,10 +1,12 @@
-import { NODE_STYLE } from '@/constants/node';
+import { NODE_SIZE_SCALE, NODE_STYLE } from '@/constants/node';
+import { resolveNodeColor } from '@/utils/node';
 import { useNodeRefs } from '@/context/NodeRefsContext';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useMapStore } from '@/store/mapStore';
 import { useUIStore } from '@/store/uiStore';
 import type { MindmapNode } from '@/types';
 import Konva from 'konva';
+import { useTheme } from 'next-themes';
 import { useEffect, useRef } from 'react';
 import { Group, Rect, Text } from 'react-konva';
 
@@ -16,6 +18,7 @@ interface Props {
 }
 
 export default function MindmapNode({ node, isSelected, isEditing, depth }: Props) {
+  const { resolvedTheme } = useTheme();
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
   const setEditingNode = useUIStore((state) => state.setEditingNode);
   const setIsDragging = useUIStore((state) => state.setIsDragging);
@@ -23,7 +26,9 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
   const nodes = useMapStore((state) => state.nodes);
   const cam = useCanvasStore((state) => state.cam);
   const camRef = useRef(cam);
-  useEffect(() => { camRef.current = cam; }, [cam]);
+  useEffect(() => {
+    camRef.current = cam;
+  }, [cam]);
   const { nodeRefs, edgeRefs, registerNode, unregisterNode, addButtonRef } = useNodeRefs();
   const groupRef = useRef<Konva.Group>(null);
   const prevPos = useRef({ x: node.x, y: node.y });
@@ -41,8 +46,11 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
   const tier = node.parentId === null ? 'root' : depth === 1 ? 'child' : 'sub';
   const style = NODE_STYLE[tier];
 
+  const fill = resolveNodeColor(node, resolvedTheme);
+  const scale = NODE_SIZE_SCALE[node.size ?? 'M'];
+
   const width = node.width;
-  const height = style.fontSize * 1.4 + style.paddingY * 2;
+  const height = style.fontSize * scale * 1.4 + style.paddingY * scale * 2;
   const radius = style.cornerRadius === 'pill' ? height / 2 : style.cornerRadius;
 
   return (
@@ -64,7 +72,6 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
         setIsDragging(true);
         prevPos.current = { x: e.target.x(), y: e.target.y() };
       }}
-
       onDragMove={(e) => {
         const x = e.target.x();
         const y = e.target.y();
@@ -143,7 +150,7 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
           offsetX={(width + 6) / 2}
           offsetY={(height + 6) / 2}
           cornerRadius={radius + 3}
-          stroke={node.color}
+          stroke={fill}
           strokeWidth={1.5}
         />
       )}
@@ -152,12 +159,12 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
         height={height}
         offsetX={width / 2}
         offsetY={height / 2}
-        fill={node.color}
+        fill={fill}
         cornerRadius={radius}
       />
       <Text
         text={node.label}
-        fontSize={style.fontSize}
+        fontSize={style.fontSize * scale}
         fontFamily="Pretendard, sans-serif"
         fontStyle={String(style.fontWeight)}
         fill="rgba(255,255,255,0.95)"

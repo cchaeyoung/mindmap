@@ -1,4 +1,3 @@
-import { NODE_DEFAULT_COLOR } from '@/constants/node';
 import { Edge, MindmapNode } from '@/types';
 import { measureNodeWidth } from '@/utils/node';
 import { create } from 'zustand';
@@ -23,7 +22,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
     set((state) => ({
       nodes: [
         ...state.nodes,
-        { ...node, id, width, size: node.size ?? 'M', color: node.color ?? NODE_DEFAULT_COLOR },
+        { ...node, id, width, size: node.size ?? 'M' },
       ],
     }));
     return id;

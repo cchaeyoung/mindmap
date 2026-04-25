@@ -1,6 +1,6 @@
 import { NODE_MIN_TEXT_WIDTH, NODE_SIZE_SCALE, NODE_STYLE } from '@/constants/node';
 
-type Tier = 'root' | 'child' | 'sub';
+type Tier = 'root' | 'child';
 type Size = 'S' | 'M' | 'L';
 
 let ctx: CanvasRenderingContext2D | null = null;

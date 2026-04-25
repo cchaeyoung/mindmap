@@ -23,11 +23,6 @@ interface Props {
   onMouseUp: () => void;
 }
 
-const getDepth = (nodeId: string, nodes: { id: string; parentId: string | null }[]): number => {
-  const node = nodes.find((n) => n.id === nodeId);
-  if (!node || !node.parentId) return 0;
-  return 1 + getDepth(node.parentId, nodes);
-};
 
 export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMouseUp }: Props) {
   const { resolvedTheme } = useTheme();
@@ -103,12 +98,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
 
   const popupPos = (() => {
     if (!selectedNode) return null;
-    const tier =
-      selectedNode.parentId === null
-        ? 'root'
-        : nodes.find((n) => n.id === selectedNode.parentId)?.parentId === null
-          ? 'child'
-          : 'sub';
+    const tier = selectedNode.parentId === null ? 'root' : 'child';
     const style = NODE_STYLE[tier];
     const scale = NODE_SIZE_SCALE[selectedNode.size ?? 'M'];
     const nodeHeight = style.fontSize * scale * 1.4 + style.paddingY * scale * 2;
@@ -145,14 +135,14 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             }
             currentSize={selectedNode.size ?? 'M'}
             onSizeChange={(sz) => {
-                const tier = selectedNode.parentId === null ? 'root' : nodes.find((n) => n.id === selectedNode.parentId)?.parentId === null ? 'child' : 'sub';
+                const tier = selectedNode.parentId === null ? 'root' : 'child';
                 const width = measureNodeWidth(selectedNode.label, tier, sz);
                 updateNode(selectedNode.id, { size: sz, width });
               }}
           />
         )}
         {editingNodeId && (
-          <NodeEditor nodeId={editingNodeId} depth={getDepth(editingNodeId, nodes)} />
+          <NodeEditor nodeId={editingNodeId} />
         )}
         <Stage
           width={size.width}
@@ -184,7 +174,6 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
                 node={node}
                 isSelected={node.id === selectedNodeId}
                 isEditing={node.id === editingNodeId}
-                depth={getDepth(node.id, nodes)}
               />
             ))}
           </Layer>

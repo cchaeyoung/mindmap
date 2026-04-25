@@ -9,10 +9,9 @@ import { useEffect, useRef } from 'react';
 
 interface Props {
   nodeId: string;
-  depth: number;
 }
 
-export default function NodeEditor({ nodeId, depth }: Props) {
+export default function NodeEditor({ nodeId }: Props) {
   const cam = useCanvasStore((state) => state.cam);
   const node = useMapStore((state) => state.nodes.find((n) => n.id === nodeId));
   const updateNode = useMapStore((state) => state.updateNode);
@@ -26,7 +25,7 @@ export default function NodeEditor({ nodeId, depth }: Props) {
 
   if (!node) return null;
 
-  const tier = node.parentId === null ? 'root' : depth === 1 ? 'child' : 'sub';
+  const tier = node.parentId === null ? 'root' : 'child';
   const style = NODE_STYLE[tier];
   const scale = NODE_SIZE_SCALE[node.size ?? 'M'];
   const height = style.fontSize * scale * 1.4 + style.paddingY * scale * 2;

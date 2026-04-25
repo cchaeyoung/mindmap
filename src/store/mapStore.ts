@@ -10,14 +10,13 @@ interface MapStore {
   deleteNode: (id: string) => void;
 }
 
-export const useMapStore = create<MapStore>((set, get) => ({
+export const useMapStore = create<MapStore>((set) => ({
   nodes: [],
   edges: [],
 
   addNode: (node) => {
     const id = crypto.randomUUID();
-    const parent = get().nodes.find((n) => n.id === node.parentId);
-    const tier = node.parentId === null ? 'root' : parent?.parentId === null ? 'child' : 'sub';
+    const tier = node.parentId === null ? 'root' : 'child';
     const width = measureNodeWidth(node.label, tier, node.size ?? 'M');
     set((state) => ({
       nodes: [

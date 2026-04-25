@@ -14,10 +14,9 @@ interface Props {
   node: MindmapNode;
   isSelected: boolean;
   isEditing: boolean;
-  depth: number;
 }
 
-export default function MindmapNode({ node, isSelected, isEditing, depth }: Props) {
+export default function MindmapNode({ node, isSelected, isEditing }: Props) {
   const { resolvedTheme } = useTheme();
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
   const setEditingNode = useUIStore((state) => state.setEditingNode);
@@ -43,7 +42,7 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
     return [...children, ...children.flatMap((childId) => getDescendants(childId))];
   };
 
-  const tier = node.parentId === null ? 'root' : depth === 1 ? 'child' : 'sub';
+  const tier = node.parentId === null ? 'root' : 'child';
   const style = NODE_STYLE[tier];
 
   const fill = resolveNodeColor(node, resolvedTheme);

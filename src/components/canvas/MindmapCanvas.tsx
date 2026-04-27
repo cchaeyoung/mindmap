@@ -14,6 +14,7 @@ import Edge from '@/components/canvas/Edge';
 import { NodeRefsProvider } from '@/context/NodeRefsContext';
 import NodeEditor from '../node/NodeEditor';
 import NodePopup from '@/components/node/NodePopup';
+import { cn } from '@/lib/utils';
 
 interface Props {
   onWheel: (e: KonvaEventObject<WheelEvent>) => void;
@@ -21,7 +22,6 @@ interface Props {
   onMouseMove: (e: KonvaEventObject<MouseEvent>) => void;
   onMouseUp: () => void;
 }
-
 
 export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMouseUp }: Props) {
   const cam = useCanvasStore((state) => state.cam);
@@ -31,6 +31,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const editingNodeId = useUIStore((state) => state.editingNodeId);
   const setEditingNode = useUIStore((state) => state.setEditingNode);
   const isDragging = useUIStore((state) => state.isDragging);
+  const canvasMode = useUIStore((state) => state.canvasMode);
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const nodes = useMapStore((state) => state.nodes);
@@ -108,11 +109,15 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     };
   })();
 
-
-
   return (
     <NodeRefsProvider>
-      <div ref={containerRef} className="h-full w-full">
+      <div
+        ref={containerRef}
+        className={cn(
+          'h-full w-full outline-none',
+          canvasMode === 'hand' ? 'cursor-grab active:cursor-grabbing' : ''
+        )}
+      >
         {addButtonPos && (
           <NodeAddButton x={addButtonPos.x} y={addButtonPos.y} onClick={handleAddChild} />
         )}
@@ -125,20 +130,16 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             onAddChild={handleAddChild}
             onEdit={() => setEditingNode(selectedNode.id)}
             onDelete={() => handleDeleteNode(selectedNode.id)}
-            onColorChange={(colorIndex) =>
-              updateNode(selectedNode.id, { colorIndex })
-            }
+            onColorChange={(colorIndex) => updateNode(selectedNode.id, { colorIndex })}
             currentSize={selectedNode.size ?? 'M'}
             onSizeChange={(sz) => {
-                const tier = selectedNode.parentId === null ? 'root' : 'child';
-                const width = measureNodeWidth(selectedNode.label, tier, sz);
-                updateNode(selectedNode.id, { size: sz, width });
-              }}
+              const tier = selectedNode.parentId === null ? 'root' : 'child';
+              const width = measureNodeWidth(selectedNode.label, tier, sz);
+              updateNode(selectedNode.id, { size: sz, width });
+            }}
           />
         )}
-        {editingNodeId && (
-          <NodeEditor nodeId={editingNodeId} />
-        )}
+        {editingNodeId && <NodeEditor nodeId={editingNodeId} />}
         <Stage
           width={size.width}
           height={size.height}
@@ -149,7 +150,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
           onWheel={onWheel}
           onMouseDown={(e) => {
             if (e.evt.button === 0 && e.target === e.target.getStage()) setSelectedNode(null);
-            onMouseDown(e);
+            if (canvasMode === 'hand') onMouseDown(e);
           }}
           onMouseMove={onMouseMove}
           onMouseUp={onMouseUp}

@@ -9,6 +9,8 @@ interface UIStore {
   setSidebarOpen: (v: boolean) => void;
   isDragging: boolean;
   setIsDragging: (v: boolean) => void;
+  canvasMode: 'select' | 'hand';
+  setCanvasMode: (mode: 'select' | 'hand') => void;
 }
 
 export const useUIStore = create<UIStore>((set) => ({
@@ -20,4 +22,6 @@ export const useUIStore = create<UIStore>((set) => ({
   setSidebarOpen: (v) => set({ sidebarOpen: v }),
   isDragging: false,
   setIsDragging: (v) => set({ isDragging: v }),
+  canvasMode: 'select',
+  setCanvasMode: (mode) => set({ canvasMode: mode }),
 }));

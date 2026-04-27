@@ -7,9 +7,10 @@ interface Props {
   className?: string;
   title?: string;
   disabled?: boolean;
+  isActive?: boolean;
 }
 
-export default function IconButton({ onClick, children, className, title, disabled }: Props) {
+export default function IconButton({ onClick, children, className, title, disabled, isActive }: Props) {
   return (
     <button
       type="button"
@@ -17,7 +18,8 @@ export default function IconButton({ onClick, children, className, title, disabl
       title={title}
       disabled={disabled}
       className={cn(
-        'flex cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-accent hover:text-foreground disabled:cursor-default disabled:opacity-30',
+        'flex cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-all disabled:cursor-default disabled:opacity-30',
+        isActive ? '' : 'hover:bg-accent hover:text-foreground',
         className
       )}
     >

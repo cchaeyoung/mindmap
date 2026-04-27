@@ -46,7 +46,7 @@ export default function NodeEditor({ nodeId }: Props) {
       className="placeholder:text-black/30 dark:placeholder:text-white/30"
       onChange={(e) => {
         const newLabel = e.target.value;
-        const newWidth = measureNodeWidth(newLabel, tier, node.size ?? 'M');
+        const newWidth = measureNodeWidth(newLabel || '새 항목', tier, node.size ?? 'M');
         updateNode(node.id, { label: newLabel, width: newWidth });
       }}
       onBlur={() => setEditingNode(null)}

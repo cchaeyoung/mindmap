@@ -66,12 +66,18 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
       ? hexToRgba(themedColor, isSelected ? 1 : 0.82)
       : hexToRgba(themedColor, isSelected ? 0.98 : 0.58);
 
-  const strokeWidth = isSelected
-    ? (tier === 'root' ? 2.5 : 2)
-    : (tier === 'root' ? 2 : 1.4);
+  const strokeWidth = isSelected ? (tier === 'root' ? 2.5 : 2) : tier === 'root' ? 2 : 1.4;
 
-  const shadowBlur = isTransparent ? 0 : tier === 'root' ? (isSelected ? 24 : 10) : (isSelected ? 12 : 0);
-  const shadowOpacity = tier === 'root' ? (isSelected ? 0.55 : 0.22) : (isSelected ? 0.38 : 0);
+  const shadowBlur = isTransparent
+    ? 0
+    : tier === 'root'
+      ? isSelected
+        ? 24
+        : 10
+      : isSelected
+        ? 12
+        : 0;
+  const shadowOpacity = tier === 'root' ? (isSelected ? 0.55 : 0.22) : isSelected ? 0.38 : 0;
 
   const textColor = isDark ? 'rgba(255,255,255,0.9)' : 'rgba(14,12,42,0.92)';
 
@@ -192,11 +198,11 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
         shadowEnabled={shadowBlur > 0}
       />
       <Text
-        text={node.label || '새 항목'}
+        text={node.label}
         fontSize={style.fontSize * scale}
         fontFamily="Pretendard, sans-serif"
         fontStyle={String(style.fontWeight)}
-        fill={node.label ? textColor : (isDark ? 'rgba(255,255,255,0.28)' : 'rgba(14,12,42,0.28)')}
+        fill={textColor}
         width={width}
         height={height}
         offsetX={width / 2}

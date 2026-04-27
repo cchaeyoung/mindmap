@@ -4,7 +4,7 @@ import type { MindmapNode } from '@/types';
 // colorIndex 0 = 테마색 (투명), 1-9 = 팔레트 색상
 export function resolveColorByTheme(colorIndex: number, isDark: boolean): string {
   const palette = isDark ? NODE_COLORS_DARK : NODE_COLORS_LIGHT;
-  return palette[colorIndex] ?? NODE_COLORS_DARK[8]!;
+  return palette[colorIndex] ?? palette[8]!;
 }
 
 export function resolveNodeColor(node: MindmapNode, isDark: boolean): string {

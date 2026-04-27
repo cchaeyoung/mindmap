@@ -73,7 +73,7 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
   const shadowBlur = isTransparent ? 0 : tier === 'root' ? (isSelected ? 24 : 10) : (isSelected ? 12 : 0);
   const shadowOpacity = tier === 'root' ? (isSelected ? 0.55 : 0.22) : (isSelected ? 0.38 : 0);
 
-  const textColor = isDark ? 'rgba(255,255,255,0.93)' : 'rgba(14,12,42,0.88)';
+  const textColor = isDark ? 'rgba(255,255,255,0.9)' : 'rgba(14,12,42,0.92)';
 
   return (
     <Group
@@ -192,11 +192,11 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
         shadowEnabled={shadowBlur > 0}
       />
       <Text
-        text={node.label}
+        text={node.label || '새 항목'}
         fontSize={style.fontSize * scale}
         fontFamily="Pretendard, sans-serif"
         fontStyle={String(style.fontWeight)}
-        fill={textColor}
+        fill={node.label ? textColor : (isDark ? 'rgba(255,255,255,0.28)' : 'rgba(14,12,42,0.28)')}
         width={width}
         height={height}
         offsetX={width / 2}

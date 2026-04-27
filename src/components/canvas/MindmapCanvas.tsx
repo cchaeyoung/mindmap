@@ -76,12 +76,13 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     const newId = addNode({
       x: selectedNode.x + 200,
       y: selectedNode.y + children.length * 80,
-      label: '새 항목',
+      label: '',
       parentId: selectedNode.id,
       colorIndex: selectedNode.colorIndex,
       size: 'M',
     });
     setSelectedNode(newId);
+    setEditingNode(newId);
   };
 
   const addButtonPos = (() => {

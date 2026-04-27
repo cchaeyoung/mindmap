@@ -3,24 +3,29 @@ import FloatingPanel from '../common/FloatingPanel';
 import IconButton from '../common/IconButton';
 import { useMapStore } from '@/store/mapStore';
 import { useCanvasStore } from '@/store/canvasStore';
+import { useUIStore } from '@/store/uiStore';
 import { NODE_DEFAULT_COLOR_INDEX } from '@/constants/node';
 
 export default function Toolbar() {
   const addNode = useMapStore((state) => state.addNode);
   const cam = useCanvasStore((state) => state.cam);
   const stageSize = useCanvasStore((state) => state.stageSize);
+  const setSelectedNode = useUIStore((state) => state.setSelectedNode);
+  const setEditingNode = useUIStore((state) => state.setEditingNode);
 
   const handleAddRoot = () => {
     const centerX = (-cam.x + stageSize.width / 2) / cam.zoom;
     const centerY = (-cam.y + stageSize.height / 2) / cam.zoom;
-    addNode({
+    const newId = addNode({
       x: centerX,
       y: centerY,
-      label: '새 항목',
+      label: '',
       parentId: null,
       colorIndex: NODE_DEFAULT_COLOR_INDEX,
       size: 'M',
     });
+    setSelectedNode(newId);
+    setEditingNode(newId);
   };
 
   return (

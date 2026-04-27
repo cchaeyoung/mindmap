@@ -5,6 +5,7 @@ import { useCanvasStore } from '@/store/canvasStore';
 import { useMapStore } from '@/store/mapStore';
 import { useUIStore } from '@/store/uiStore';
 import { measureNodeWidth } from '@/utils/node';
+import { useTheme } from 'next-themes';
 import { useEffect, useRef } from 'react';
 
 interface Props {
@@ -17,6 +18,7 @@ export default function NodeEditor({ nodeId }: Props) {
   const updateNode = useMapStore((state) => state.updateNode);
   const setEditingNode = useUIStore((state) => state.setEditingNode);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -24,6 +26,9 @@ export default function NodeEditor({ nodeId }: Props) {
   }, []);
 
   if (!node) return null;
+
+  const isDark = resolvedTheme === 'dark';
+  const textColor = isDark ? 'rgba(255,255,255,0.9)' : 'rgba(14,12,42,0.92)';
 
   const tier = node.parentId === null ? 'root' : 'child';
   const style = NODE_STYLE[tier];
@@ -37,6 +42,8 @@ export default function NodeEditor({ nodeId }: Props) {
     <input
       ref={inputRef}
       defaultValue={node.label}
+      placeholder="새 항목"
+      className="placeholder:text-black/30 dark:placeholder:text-white/30"
       onChange={(e) => {
         const newLabel = e.target.value;
         const newWidth = measureNodeWidth(newLabel, tier, node.size ?? 'M');
@@ -58,7 +65,7 @@ export default function NodeEditor({ nodeId }: Props) {
         background: 'transparent',
         border: 'none',
         outline: 'none',
-        color: 'rgba(255,255,255,0.95)',
+        color: textColor,
         padding: 0,
         cursor: 'text',
         zIndex: 10,

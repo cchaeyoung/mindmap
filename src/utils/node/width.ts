@@ -16,6 +16,6 @@ export function measureNodeWidth(text: string, tier: Tier, size: Size = 'M'): nu
   const style = NODE_STYLE[tier];
   const scale = NODE_SIZE_SCALE[size];
   getCtx().font = `${style.fontWeight} ${style.fontSize * scale}px Pretendard, sans-serif`;
-  const textWidth = getCtx().measureText(text).width;
+  const textWidth = getCtx().measureText(text || '새 항목').width;
   return style.paddingX * scale * 2 + Math.ceil(textWidth);
 }

@@ -1,10 +1,10 @@
 import { NODE_SIZE_SCALE, NODE_STYLE } from '@/constants/node';
-import { resolveNodeColor } from '@/utils/node';
 import { useNodeRefs } from '@/context/NodeRefsContext';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useMapStore } from '@/store/mapStore';
 import { useUIStore } from '@/store/uiStore';
 import type { MindmapNode } from '@/types';
+import { hexToRgba, resolveColorByTheme } from '@/utils/node';
 import Konva from 'konva';
 import { useTheme } from 'next-themes';
 import { useEffect, useRef } from 'react';
@@ -14,10 +14,9 @@ interface Props {
   node: MindmapNode;
   isSelected: boolean;
   isEditing: boolean;
-  depth: number;
 }
 
-export default function MindmapNode({ node, isSelected, isEditing, depth }: Props) {
+export default function MindmapNode({ node, isSelected, isEditing }: Props) {
   const { resolvedTheme } = useTheme();
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
   const setEditingNode = useUIStore((state) => state.setEditingNode);
@@ -43,15 +42,44 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
     return [...children, ...children.flatMap((childId) => getDescendants(childId))];
   };
 
-  const tier = node.parentId === null ? 'root' : depth === 1 ? 'child' : 'sub';
+  const tier = node.parentId === null ? 'root' : 'child';
   const style = NODE_STYLE[tier];
-
-  const fill = resolveNodeColor(node, resolvedTheme);
+  const isDark = resolvedTheme === 'dark';
   const scale = NODE_SIZE_SCALE[node.size ?? 'M'];
-
   const width = node.width;
   const height = style.fontSize * scale * 1.4 + style.paddingY * scale * 2;
   const radius = style.cornerRadius === 'pill' ? height / 2 : style.cornerRadius;
+
+  const isTransparent = node.colorIndex === 0;
+  const accentStroke = isDark ? 'rgba(154,179,250,0.38)' : 'rgba(54,82,199,0.32)';
+  const themedColor = resolveColorByTheme(node.colorIndex, isDark);
+
+  const fillColor = isTransparent
+    ? 'transparent'
+    : tier === 'root'
+      ? hexToRgba(themedColor, isDark ? 0.88 : 0.74)
+      : hexToRgba(themedColor, isDark ? 0.16 : 0.11);
+
+  const strokeColor = isTransparent
+    ? accentStroke
+    : tier === 'root'
+      ? hexToRgba(themedColor, isSelected ? 1 : 0.82)
+      : hexToRgba(themedColor, isSelected ? 0.98 : 0.58);
+
+  const strokeWidth = isSelected ? (tier === 'root' ? 2.5 : 2) : tier === 'root' ? 2 : 1.4;
+
+  const shadowBlur = isTransparent
+    ? 0
+    : tier === 'root'
+      ? isSelected
+        ? 24
+        : 10
+      : isSelected
+        ? 12
+        : 0;
+  const shadowOpacity = tier === 'root' ? (isSelected ? 0.55 : 0.22) : isSelected ? 0.38 : 0;
+
+  const textColor = isDark ? 'rgba(255,255,255,0.9)' : 'rgba(14,12,42,0.92)';
 
   return (
     <Group
@@ -143,15 +171,16 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
         });
       }}
     >
-      {isSelected && (
+      {isSelected && tier === 'root' && (
         <Rect
-          width={width + 6}
-          height={height + 6}
-          offsetX={(width + 6) / 2}
-          offsetY={(height + 6) / 2}
-          cornerRadius={radius + 3}
-          stroke={fill}
+          width={width + 7}
+          height={height + 7}
+          offsetX={(width + 7) / 2}
+          offsetY={(height + 7) / 2}
+          cornerRadius={radius + 3.5}
+          stroke={isTransparent ? accentStroke : strokeColor}
           strokeWidth={1.5}
+          opacity={0.4}
         />
       )}
       <Rect
@@ -159,15 +188,21 @@ export default function MindmapNode({ node, isSelected, isEditing, depth }: Prop
         height={height}
         offsetX={width / 2}
         offsetY={height / 2}
-        fill={fill}
+        fill={fillColor}
+        stroke={strokeColor}
+        strokeWidth={strokeWidth}
         cornerRadius={radius}
+        shadowColor={isTransparent ? 'transparent' : themedColor}
+        shadowBlur={shadowBlur}
+        shadowOpacity={shadowOpacity}
+        shadowEnabled={shadowBlur > 0}
       />
       <Text
         text={node.label}
         fontSize={style.fontSize * scale}
         fontFamily="Pretendard, sans-serif"
         fontStyle={String(style.fontWeight)}
-        fill="rgba(255,255,255,0.95)"
+        fill={textColor}
         width={width}
         height={height}
         offsetX={width / 2}

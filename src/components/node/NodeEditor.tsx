@@ -5,19 +5,20 @@ import { useCanvasStore } from '@/store/canvasStore';
 import { useMapStore } from '@/store/mapStore';
 import { useUIStore } from '@/store/uiStore';
 import { measureNodeWidth } from '@/utils/node';
+import { useTheme } from 'next-themes';
 import { useEffect, useRef } from 'react';
 
 interface Props {
   nodeId: string;
-  depth: number;
 }
 
-export default function NodeEditor({ nodeId, depth }: Props) {
+export default function NodeEditor({ nodeId }: Props) {
   const cam = useCanvasStore((state) => state.cam);
   const node = useMapStore((state) => state.nodes.find((n) => n.id === nodeId));
   const updateNode = useMapStore((state) => state.updateNode);
   const setEditingNode = useUIStore((state) => state.setEditingNode);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -26,7 +27,10 @@ export default function NodeEditor({ nodeId, depth }: Props) {
 
   if (!node) return null;
 
-  const tier = node.parentId === null ? 'root' : depth === 1 ? 'child' : 'sub';
+  const isDark = resolvedTheme === 'dark';
+  const textColor = isDark ? 'rgba(255,255,255,0.9)' : 'rgba(14,12,42,0.92)';
+
+  const tier = node.parentId === null ? 'root' : 'child';
   const style = NODE_STYLE[tier];
   const scale = NODE_SIZE_SCALE[node.size ?? 'M'];
   const height = style.fontSize * scale * 1.4 + style.paddingY * scale * 2;
@@ -38,9 +42,11 @@ export default function NodeEditor({ nodeId, depth }: Props) {
     <input
       ref={inputRef}
       defaultValue={node.label}
+      placeholder="새 항목"
+      className="placeholder:text-black/30 dark:placeholder:text-white/30"
       onChange={(e) => {
         const newLabel = e.target.value;
-        const newWidth = measureNodeWidth(newLabel, tier, node.size ?? 'M');
+        const newWidth = measureNodeWidth(newLabel || '새 항목', tier, node.size ?? 'M');
         updateNode(node.id, { label: newLabel, width: newWidth });
       }}
       onBlur={() => setEditingNode(null)}
@@ -59,7 +65,7 @@ export default function NodeEditor({ nodeId, depth }: Props) {
         background: 'transparent',
         border: 'none',
         outline: 'none',
-        color: 'rgba(255,255,255,0.95)',
+        color: textColor,
         padding: 0,
         cursor: 'text',
         zIndex: 10,

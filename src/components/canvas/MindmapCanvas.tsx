@@ -4,8 +4,7 @@ import { Stage, Layer } from 'react-konva';
 import { KonvaEventObject } from 'konva/lib/Node';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { NODE_SIZE_SCALE, NODE_STYLE } from '@/constants/node';
-import { measureNodeWidth, resolveNodeColor } from '@/utils/node';
-import { useTheme } from 'next-themes';
+import { measureNodeWidth } from '@/utils/node';
 import { useMapStore } from '@/store/mapStore';
 import { useCanvasStore } from '@/store/canvasStore';
 import MindmapNode from '@/components/node/MindmapNode';
@@ -23,14 +22,8 @@ interface Props {
   onMouseUp: () => void;
 }
 
-const getDepth = (nodeId: string, nodes: { id: string; parentId: string | null }[]): number => {
-  const node = nodes.find((n) => n.id === nodeId);
-  if (!node || !node.parentId) return 0;
-  return 1 + getDepth(node.parentId, nodes);
-};
 
 export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMouseUp }: Props) {
-  const { resolvedTheme } = useTheme();
   const cam = useCanvasStore((state) => state.cam);
   const setStageSize = useCanvasStore((state) => state.setStageSize);
   const selectedNodeId = useUIStore((state) => state.selectedNodeId);
@@ -83,12 +76,13 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     const newId = addNode({
       x: selectedNode.x + 200,
       y: selectedNode.y + children.length * 80,
-      label: '새 항목',
+      label: '',
       parentId: selectedNode.id,
-      color: selectedNode.color,
+      colorIndex: selectedNode.colorIndex,
       size: 'M',
     });
     setSelectedNode(newId);
+    setEditingNode(newId);
   };
 
   const addButtonPos = (() => {
@@ -103,12 +97,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
 
   const popupPos = (() => {
     if (!selectedNode) return null;
-    const tier =
-      selectedNode.parentId === null
-        ? 'root'
-        : nodes.find((n) => n.id === selectedNode.parentId)?.parentId === null
-          ? 'child'
-          : 'sub';
+    const tier = selectedNode.parentId === null ? 'root' : 'child';
     const style = NODE_STYLE[tier];
     const scale = NODE_SIZE_SCALE[selectedNode.size ?? 'M'];
     const nodeHeight = style.fontSize * scale * 1.4 + style.paddingY * scale * 2;
@@ -119,7 +108,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     };
   })();
 
-  const resolvedNodeColor = selectedNode ? resolveNodeColor(selectedNode, resolvedTheme) : '';
+
 
   return (
     <NodeRefsProvider>
@@ -132,27 +121,23 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             x={popupPos.x}
             y={popupPos.y}
             yBelow={popupPos.yBelow}
-            nodeColor={resolvedNodeColor}
-            nodeRawColor={selectedNode.color}
-            isThemeColor={selectedNode.isThemeColor ?? false}
+            nodeColorIndex={selectedNode.colorIndex}
             onAddChild={handleAddChild}
             onEdit={() => setEditingNode(selectedNode.id)}
             onDelete={() => handleDeleteNode(selectedNode.id)}
-            onColorChange={(color) =>
-              color === null
-                ? updateNode(selectedNode.id, { isThemeColor: true })
-                : updateNode(selectedNode.id, { color, isThemeColor: false })
+            onColorChange={(colorIndex) =>
+              updateNode(selectedNode.id, { colorIndex })
             }
             currentSize={selectedNode.size ?? 'M'}
             onSizeChange={(sz) => {
-                const tier = selectedNode.parentId === null ? 'root' : nodes.find((n) => n.id === selectedNode.parentId)?.parentId === null ? 'child' : 'sub';
+                const tier = selectedNode.parentId === null ? 'root' : 'child';
                 const width = measureNodeWidth(selectedNode.label, tier, sz);
                 updateNode(selectedNode.id, { size: sz, width });
               }}
           />
         )}
         {editingNodeId && (
-          <NodeEditor nodeId={editingNodeId} depth={getDepth(editingNodeId, nodes)} />
+          <NodeEditor nodeId={editingNodeId} />
         )}
         <Stage
           width={size.width}
@@ -184,7 +169,6 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
                 node={node}
                 isSelected={node.id === selectedNodeId}
                 isEditing={node.id === editingNodeId}
-                depth={getDepth(node.id, nodes)}
               />
             ))}
           </Layer>

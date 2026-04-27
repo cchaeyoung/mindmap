@@ -1,2 +1,2 @@
-export { resolveNodeColor } from './color';
+export { resolveNodeColor, hexToRgba, resolveColorByTheme } from './color';
 export { measureNodeWidth } from './width';

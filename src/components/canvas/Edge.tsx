@@ -14,9 +14,10 @@ interface Props {
 export default function Edge({ fromNode, toNode }: Props) {
   const { resolvedTheme } = useTheme();
   const { registerEdge, unregisterEdge } = useNodeRefs();
+  const isDark = resolvedTheme === 'dark';
 
-  const fromColor = resolveNodeColor(fromNode, resolvedTheme);
-  const toColor = resolveNodeColor(toNode, resolvedTheme);
+  const fromColor = resolveNodeColor(fromNode, isDark);
+  const toColor = resolveNodeColor(toNode, isDark);
   const bgLineRef = useRef<Konva.Line>(null);
   const gradLineRef = useRef<Konva.Line>(null);
 

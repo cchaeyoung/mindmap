@@ -5,8 +5,7 @@ export interface MindmapNode {
   label: string;
   width: number;
   parentId: string | null;
-  color: string;
-  isThemeColor?: boolean;
+  colorIndex: number;
   size: 'S' | 'M' | 'L';
 }
 

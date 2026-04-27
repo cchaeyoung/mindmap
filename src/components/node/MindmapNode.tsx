@@ -4,7 +4,7 @@ import { useCanvasStore } from '@/store/canvasStore';
 import { useMapStore } from '@/store/mapStore';
 import { useUIStore } from '@/store/uiStore';
 import type { MindmapNode } from '@/types';
-import { hexToRgba } from '@/utils/node';
+import { hexToRgba, resolveColorByTheme } from '@/utils/node';
 import Konva from 'konva';
 import { useTheme } from 'next-themes';
 import { useEffect, useRef } from 'react';
@@ -50,20 +50,21 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
   const height = style.fontSize * scale * 1.4 + style.paddingY * scale * 2;
   const radius = style.cornerRadius === 'pill' ? height / 2 : style.cornerRadius;
 
-  const isTransparent = node.isThemeColor;
+  const isTransparent = node.colorIndex === 0;
   const accentStroke = isDark ? 'rgba(154,179,250,0.38)' : 'rgba(54,82,199,0.32)';
+  const themedColor = resolveColorByTheme(node.colorIndex, isDark);
 
   const fillColor = isTransparent
     ? 'transparent'
     : tier === 'root'
-      ? hexToRgba(node.color, isDark ? 0.88 : 0.74)
-      : hexToRgba(node.color, isDark ? 0.16 : 0.11);
+      ? hexToRgba(themedColor, isDark ? 0.88 : 0.74)
+      : hexToRgba(themedColor, isDark ? 0.16 : 0.11);
 
   const strokeColor = isTransparent
     ? accentStroke
     : tier === 'root'
-      ? hexToRgba(node.color, isSelected ? 1 : 0.82)
-      : hexToRgba(node.color, isSelected ? 0.98 : 0.58);
+      ? hexToRgba(themedColor, isSelected ? 1 : 0.82)
+      : hexToRgba(themedColor, isSelected ? 0.98 : 0.58);
 
   const strokeWidth = isSelected
     ? (tier === 'root' ? 2.5 : 2)
@@ -185,7 +186,7 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
         stroke={strokeColor}
         strokeWidth={strokeWidth}
         cornerRadius={radius}
-        shadowColor={isTransparent ? 'transparent' : node.color}
+        shadowColor={isTransparent ? 'transparent' : themedColor}
         shadowBlur={shadowBlur}
         shadowOpacity={shadowOpacity}
         shadowEnabled={shadowBlur > 0}

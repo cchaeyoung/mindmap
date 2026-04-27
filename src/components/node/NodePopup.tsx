@@ -1,6 +1,6 @@
 import IconButton from '@/components/common/IconButton';
 import { SIDEBAR_WIDTH } from '@/constants/layout';
-import { NODE_COLORS } from '@/constants/node';
+import { NODE_COLORS_DARK, NODE_COLORS_LIGHT } from '@/constants/node';
 import { FileText, GitBranch, Pencil, Trash2 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useLayoutEffect, useRef, useState } from 'react';
@@ -10,13 +10,11 @@ interface Props {
   x: number;
   y: number;
   yBelow: number;
-  nodeColor: string;
-  nodeRawColor: string;
-  isThemeColor: boolean;
+  nodeColorIndex: number;
   onAddChild: () => void;
   onEdit: () => void;
   onDelete: () => void;
-  onColorChange: (color: string | null) => void;
+  onColorChange: (colorIndex: number) => void;
   onSizeChange: (size: 'S' | 'M' | 'L') => void;
   currentSize: 'S' | 'M' | 'L';
 }
@@ -25,9 +23,7 @@ export default function NodePopup({
   x,
   y,
   yBelow,
-  nodeColor,
-  nodeRawColor,
-  isThemeColor,
+  nodeColorIndex,
   onAddChild,
   onEdit,
   onDelete,
@@ -39,13 +35,11 @@ export default function NodePopup({
   const popupRef = useRef<HTMLDivElement>(null);
   const sidebarOpen = useUIStore((state) => state.sidebarOpen);
   const { resolvedTheme } = useTheme();
-  const ringBoxShadow =
-    resolvedTheme === 'dark'
-      ? '0 0 0 1.5px rgba(255,255,255,0.75), 0 0 0 3px rgba(0,0,0,0.3)'
-      : '0 0 0 1.5px rgba(0,0,0,0.7), 0 0 0 3px rgba(255,255,255,0.4)';
-
-  const isSelected = (color: string | null) =>
-    color === null ? isThemeColor : !isThemeColor && color === nodeRawColor;
+  const isDark = resolvedTheme === 'dark';
+  const palette = isDark ? NODE_COLORS_DARK : NODE_COLORS_LIGHT;
+  const ringBoxShadow = isDark
+    ? '0 0 0 1.5px rgba(255,255,255,0.75), 0 0 0 3px rgba(0,0,0,0.3)'
+    : '0 0 0 1.5px rgba(0,0,0,0.7), 0 0 0 3px rgba(255,255,255,0.4)';
 
   useLayoutEffect(() => {
     if (!popupRef.current) return;
@@ -78,15 +72,15 @@ export default function NodePopup({
     >
       {paletteOpen && (
         <div className="border-border flex flex-wrap items-center gap-1.25 border-b px-2.5 py-2">
-          {NODE_COLORS.map((color, i) => (
+          {palette.map((color, i) => (
             <button
               key={i}
               style={{
-                background: color ?? 'var(--foreground)',
-                boxShadow: isSelected(color) ? ringBoxShadow : undefined,
+                background: color ?? 'var(--background)',
+                boxShadow: i === nodeColorIndex ? ringBoxShadow : undefined,
               }}
               onClick={() => {
-                onColorChange(color);
+                onColorChange(i);
                 setPaletteOpen(false);
               }}
               className="h-4 w-4 shrink-0 cursor-pointer rounded-full border-[1.5px] border-transparent transition-transform hover:scale-125"
@@ -97,7 +91,7 @@ export default function NodePopup({
 
       <div className="flex items-center gap-0.5 px-2 py-1.25">
         <button
-          style={{ background: nodeColor }}
+          style={{ background: palette[nodeColorIndex] ?? 'var(--background)' }}
           onClick={() => setPaletteOpen((v) => !v)}
           className="h-4.5 w-4.5 shrink-0 cursor-pointer rounded-full border-[2.5px] border-white/20 transition-all hover:scale-110 hover:border-white/55"
         />

@@ -3,7 +3,7 @@ import FloatingPanel from '../common/FloatingPanel';
 import IconButton from '../common/IconButton';
 import { useMapStore } from '@/store/mapStore';
 import { useCanvasStore } from '@/store/canvasStore';
-import { NODE_DEFAULT_COLOR } from '@/constants/node';
+import { NODE_DEFAULT_COLOR_INDEX } from '@/constants/node';
 
 export default function Toolbar() {
   const addNode = useMapStore((state) => state.addNode);
@@ -18,7 +18,7 @@ export default function Toolbar() {
       y: centerY,
       label: '새 항목',
       parentId: null,
-      color: NODE_DEFAULT_COLOR,
+      colorIndex: NODE_DEFAULT_COLOR_INDEX,
       size: 'M',
     });
   };

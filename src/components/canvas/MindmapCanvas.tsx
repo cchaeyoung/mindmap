@@ -4,8 +4,7 @@ import { Stage, Layer } from 'react-konva';
 import { KonvaEventObject } from 'konva/lib/Node';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { NODE_SIZE_SCALE, NODE_STYLE } from '@/constants/node';
-import { measureNodeWidth, resolveNodeColor } from '@/utils/node';
-import { useTheme } from 'next-themes';
+import { measureNodeWidth } from '@/utils/node';
 import { useMapStore } from '@/store/mapStore';
 import { useCanvasStore } from '@/store/canvasStore';
 import MindmapNode from '@/components/node/MindmapNode';
@@ -25,7 +24,6 @@ interface Props {
 
 
 export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMouseUp }: Props) {
-  const { resolvedTheme } = useTheme();
   const cam = useCanvasStore((state) => state.cam);
   const setStageSize = useCanvasStore((state) => state.setStageSize);
   const selectedNodeId = useUIStore((state) => state.selectedNodeId);
@@ -80,7 +78,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
       y: selectedNode.y + children.length * 80,
       label: '새 항목',
       parentId: selectedNode.id,
-      color: selectedNode.color,
+      colorIndex: selectedNode.colorIndex,
       size: 'M',
     });
     setSelectedNode(newId);
@@ -109,7 +107,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     };
   })();
 
-  const resolvedNodeColor = selectedNode ? resolveNodeColor(selectedNode, resolvedTheme) : '';
+
 
   return (
     <NodeRefsProvider>
@@ -122,16 +120,12 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             x={popupPos.x}
             y={popupPos.y}
             yBelow={popupPos.yBelow}
-            nodeColor={resolvedNodeColor}
-            nodeRawColor={selectedNode.color}
-            isThemeColor={selectedNode.isThemeColor ?? false}
+            nodeColorIndex={selectedNode.colorIndex}
             onAddChild={handleAddChild}
             onEdit={() => setEditingNode(selectedNode.id)}
             onDelete={() => handleDeleteNode(selectedNode.id)}
-            onColorChange={(color) =>
-              color === null
-                ? updateNode(selectedNode.id, { isThemeColor: true })
-                : updateNode(selectedNode.id, { color, isThemeColor: false })
+            onColorChange={(colorIndex) =>
+              updateNode(selectedNode.id, { colorIndex })
             }
             currentSize={selectedNode.size ?? 'M'}
             onSizeChange={(sz) => {

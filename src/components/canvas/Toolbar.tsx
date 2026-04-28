@@ -53,7 +53,7 @@ export default function Toolbar() {
           <MousePointer2 size={15} />
         </IconButton>
         <IconButton
-          onClick={() => setCanvasMode('hand')}
+          onClick={() => { setCanvasMode('hand'); setSelectedNode(null); }}
           title="이동"
           isActive={canvasMode === 'hand'}
           className={cn('h-8 rounded-[10px] px-3', canvasMode === 'hand' && 'bg-primary/20 text-(--mm-acc-fg)')}

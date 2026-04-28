@@ -1,10 +1,11 @@
-import { Plus } from 'lucide-react';
+import { Hand, MousePointer2, Plus } from 'lucide-react';
 import FloatingPanel from '../common/FloatingPanel';
 import IconButton from '../common/IconButton';
 import { useMapStore } from '@/store/mapStore';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useUIStore } from '@/store/uiStore';
 import { NODE_DEFAULT_COLOR_INDEX } from '@/constants/node';
+import { cn } from '@/lib/utils';
 
 export default function Toolbar() {
   const addNode = useMapStore((state) => state.addNode);
@@ -12,8 +13,11 @@ export default function Toolbar() {
   const stageSize = useCanvasStore((state) => state.stageSize);
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
   const setEditingNode = useUIStore((state) => state.setEditingNode);
+  const canvasMode = useUIStore((state) => state.canvasMode);
+  const setCanvasMode = useUIStore((state) => state.setCanvasMode);
 
   const handleAddRoot = () => {
+    if (canvasMode === 'hand') setCanvasMode('select');
     const centerX = (-cam.x + stageSize.width / 2) / cam.zoom;
     const centerY = (-cam.y + stageSize.height / 2) / cam.zoom;
     const newId = addNode({
@@ -34,9 +38,28 @@ export default function Toolbar() {
         <IconButton
           onClick={handleAddRoot}
           title="새 항목 추가"
-          className="h-8 gap-1.5 rounded-[10px] px-3 text-xs font-medium"
+          className="h-8 rounded-[10px] px-3"
         >
           <Plus size={15} />
+        </IconButton>
+
+        <div className="bg-border mx-0.5 h-4 w-px shrink-0" />
+
+        <IconButton
+          onClick={() => setCanvasMode('select')}
+          title="선택"
+          isActive={canvasMode === 'select'}
+          className={cn('h-8 rounded-[10px] px-3', canvasMode === 'select' && 'bg-primary/20 text-(--mm-acc-fg)')}
+        >
+          <MousePointer2 size={15} />
+        </IconButton>
+        <IconButton
+          onClick={() => { setCanvasMode('hand'); setSelectedNode(null); setEditingNode(null); }}
+          title="이동"
+          isActive={canvasMode === 'hand'}
+          className={cn('h-8 rounded-[10px] px-3', canvasMode === 'hand' && 'bg-primary/20 text-(--mm-acc-fg)')}
+        >
+          <Hand size={15} />
         </IconButton>
       </FloatingPanel>
     </div>

@@ -9,6 +9,12 @@ interface UIStore {
   setSidebarOpen: (v: boolean) => void;
   isDragging: boolean;
   setIsDragging: (v: boolean) => void;
+  canvasMode: 'select' | 'hand';
+  setCanvasMode: (mode: 'select' | 'hand') => void;
+  hoveredNodeId: string | null;
+  setHoveredNode: (id: string | null) => void;
+  draggingNodeId: string | null;
+  setDraggingNode: (id: string | null) => void;
 }
 
 export const useUIStore = create<UIStore>((set) => ({
@@ -20,4 +26,10 @@ export const useUIStore = create<UIStore>((set) => ({
   setSidebarOpen: (v) => set({ sidebarOpen: v }),
   isDragging: false,
   setIsDragging: (v) => set({ isDragging: v }),
+  canvasMode: 'select',
+  setCanvasMode: (mode) => set({ canvasMode: mode }),
+  hoveredNodeId: null,
+  setHoveredNode: (id) => set({ hoveredNodeId: id }),
+  draggingNodeId: null,
+  setDraggingNode: (id) => set({ draggingNodeId: id }),
 }));

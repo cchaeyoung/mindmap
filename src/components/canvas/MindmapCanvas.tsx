@@ -14,6 +14,7 @@ import Edge from '@/components/canvas/Edge';
 import { NodeRefsProvider } from '@/context/NodeRefsContext';
 import NodeEditor from '../node/NodeEditor';
 import NodePopup from '@/components/node/NodePopup';
+import { cn } from '@/lib/utils';
 
 interface Props {
   onWheel: (e: KonvaEventObject<WheelEvent>) => void;
@@ -21,7 +22,6 @@ interface Props {
   onMouseMove: (e: KonvaEventObject<MouseEvent>) => void;
   onMouseUp: () => void;
 }
-
 
 export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMouseUp }: Props) {
   const cam = useCanvasStore((state) => state.cam);
@@ -31,6 +31,10 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const editingNodeId = useUIStore((state) => state.editingNodeId);
   const setEditingNode = useUIStore((state) => state.setEditingNode);
   const isDragging = useUIStore((state) => state.isDragging);
+  const canvasMode = useUIStore((state) => state.canvasMode);
+  const setCanvasMode = useUIStore((state) => state.setCanvasMode);
+  const hoveredNodeId = useUIStore((state) => state.hoveredNodeId);
+  const setHoveredNode = useUIStore((state) => state.setHoveredNode);
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const nodes = useMapStore((state) => state.nodes);
@@ -48,6 +52,39 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, []);
+
+  const handleContainerMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (isDragging || e.buttons !== 0) return;
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      for (const node of nodes) {
+        const tier = node.parentId === null ? 'root' : 'child';
+        const style = NODE_STYLE[tier];
+        const scale = NODE_SIZE_SCALE[node.size ?? 'M'];
+        const nodeH = style.fontSize * scale * 1.4 + style.paddingY * scale * 2;
+        const screenCX = cam.x + node.x * cam.zoom;
+        const screenCY = cam.y + node.y * cam.zoom;
+        const screenW = node.width * cam.zoom;
+        const screenH = nodeH * cam.zoom;
+
+        if (
+          mouseX >= screenCX - screenW / 2 &&
+          mouseX <= screenCX + screenW / 2 + (node.id === hoveredNodeId ? 50 : 0) &&
+          mouseY >= screenCY - screenH / 2 &&
+          mouseY <= screenCY + screenH / 2
+        ) {
+          if (node.id !== hoveredNodeId) setHoveredNode(node.id);
+          return;
+        }
+      }
+      if (hoveredNodeId !== null) setHoveredNode(null);
+    },
+    [nodes, cam, setHoveredNode, hoveredNodeId, isDragging]
+  );
 
   const handleDeleteNode = useCallback(
     (nodeId: string) => {
@@ -71,27 +108,29 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const selectedNode = nodes.find((n) => n.id === selectedNodeId) ?? null;
 
   const handleAddChild = () => {
-    if (!selectedNode) return;
-    const children = nodes.filter((n) => n.parentId === selectedNode.id);
+    const targetNode = selectedNode ?? nodes.find((n) => n.id === hoveredNodeId) ?? null;
+    if (!targetNode) return;
+    if (canvasMode === 'hand') setCanvasMode('select');
+    const children = nodes.filter((n) => n.parentId === targetNode.id);
     const newId = addNode({
-      x: selectedNode.x + 200,
-      y: selectedNode.y + children.length * 80,
+      x: targetNode.x + 200,
+      y: targetNode.y + children.length * 80,
       label: '',
-      parentId: selectedNode.id,
-      colorIndex: selectedNode.colorIndex,
+      parentId: targetNode.id,
+      colorIndex: targetNode.colorIndex,
       size: 'M',
     });
     setSelectedNode(newId);
     setEditingNode(newId);
   };
 
+  const addButtonTargetNode = selectedNode ?? nodes.find((n) => n.id === hoveredNodeId) ?? null;
   const addButtonPos = (() => {
-    if (!selectedNode) return null;
-    const nodeWidth = selectedNode.width;
-    const rightEdge = selectedNode.x + nodeWidth / 2;
+    if (!addButtonTargetNode) return null;
+    const rightEdge = addButtonTargetNode.x + addButtonTargetNode.width / 2;
     return {
       x: cam.x + rightEdge * cam.zoom + 21,
-      y: cam.y + selectedNode.y * cam.zoom,
+      y: cam.y + addButtonTargetNode.y * cam.zoom,
     };
   })();
 
@@ -108,11 +147,17 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     };
   })();
 
-
-
   return (
     <NodeRefsProvider>
-      <div ref={containerRef} className="h-full w-full">
+      <div
+        ref={containerRef}
+        className={cn(
+          'h-full w-full outline-none',
+          canvasMode === 'hand' ? 'cursor-grab active:cursor-grabbing' : ''
+        )}
+        onMouseMove={handleContainerMouseMove}
+        onMouseLeave={() => setHoveredNode(null)}
+      >
         {addButtonPos && (
           <NodeAddButton x={addButtonPos.x} y={addButtonPos.y} onClick={handleAddChild} />
         )}
@@ -125,20 +170,16 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             onAddChild={handleAddChild}
             onEdit={() => setEditingNode(selectedNode.id)}
             onDelete={() => handleDeleteNode(selectedNode.id)}
-            onColorChange={(colorIndex) =>
-              updateNode(selectedNode.id, { colorIndex })
-            }
+            onColorChange={(colorIndex) => updateNode(selectedNode.id, { colorIndex })}
             currentSize={selectedNode.size ?? 'M'}
             onSizeChange={(sz) => {
-                const tier = selectedNode.parentId === null ? 'root' : 'child';
-                const width = measureNodeWidth(selectedNode.label, tier, sz);
-                updateNode(selectedNode.id, { size: sz, width });
-              }}
+              const tier = selectedNode.parentId === null ? 'root' : 'child';
+              const width = measureNodeWidth(selectedNode.label, tier, sz);
+              updateNode(selectedNode.id, { size: sz, width });
+            }}
           />
         )}
-        {editingNodeId && (
-          <NodeEditor nodeId={editingNodeId} />
-        )}
+        {editingNodeId && <NodeEditor nodeId={editingNodeId} />}
         <Stage
           width={size.width}
           height={size.height}
@@ -148,8 +189,8 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
           scaleY={cam.zoom}
           onWheel={onWheel}
           onMouseDown={(e) => {
-            if (e.evt.button === 0 && e.target === e.target.getStage()) setSelectedNode(null);
-            onMouseDown(e);
+            if (e.evt.button === 0 && e.target === e.target.getStage() && canvasMode === 'select') setSelectedNode(null);
+            if (canvasMode === 'hand') onMouseDown(e);
           }}
           onMouseMove={onMouseMove}
           onMouseUp={onMouseUp}

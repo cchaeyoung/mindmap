@@ -21,6 +21,10 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
   const setEditingNode = useUIStore((state) => state.setEditingNode);
   const setIsDragging = useUIStore((state) => state.setIsDragging);
+  const canvasMode = useUIStore((state) => state.canvasMode);
+  const hoveredNodeId = useUIStore((state) => state.hoveredNodeId);
+  const setDraggingNode = useUIStore((state) => state.setDraggingNode);
+  const draggingNodeId = useUIStore((state) => state.draggingNodeId);
   const updateNode = useMapStore((state) => state.updateNode);
   const nodes = useMapStore((state) => state.nodes);
   const cam = useCanvasStore((state) => state.cam);
@@ -86,18 +90,24 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
       ref={groupRef}
       x={node.x}
       y={node.y}
-      draggable
-      onClick={() => setSelectedNode(node.id)}
+      draggable={canvasMode === 'select'}
+      onClick={() => {
+        if (canvasMode !== 'select') return;
+        setSelectedNode(node.id);
+      }}
       onDblClick={() => {
+        if (canvasMode !== 'select') return;
         setSelectedNode(node.id);
         setEditingNode(node.id);
       }}
       onMouseDown={(e) => {
+        if (canvasMode !== 'select') return;
         e.cancelBubble = true;
         if (!isSelected) setSelectedNode(null);
       }}
       onDragStart={(e) => {
         setIsDragging(true);
+        setDraggingNode(node.id);
         prevPos.current = { x: e.target.x(), y: e.target.y() };
       }}
       onDragMove={(e) => {
@@ -145,7 +155,10 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
           }
         });
 
-        if (isSelected && addButtonRef.current) {
+        if (
+          (isSelected || hoveredNodeId === node.id || draggingNodeId === node.id) &&
+          addButtonRef.current
+        ) {
           const c = camRef.current;
           const screenX = c.x + (x + node.width / 2) * c.zoom + 21;
           const screenY = c.y + y * c.zoom;
@@ -155,7 +168,7 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
       }}
       onDragEnd={(e) => {
         setIsDragging(false);
-        setSelectedNode(node.id);
+        setDraggingNode(null);
 
         const x = e.target.x();
         const y = e.target.y();

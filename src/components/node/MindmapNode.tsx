@@ -22,6 +22,7 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
   const setEditingNode = useUIStore((state) => state.setEditingNode);
   const setIsDragging = useUIStore((state) => state.setIsDragging);
   const canvasMode = useUIStore((state) => state.canvasMode);
+  const setHoveredNode = useUIStore((state) => state.setHoveredNode);
   const updateNode = useMapStore((state) => state.updateNode);
   const nodes = useMapStore((state) => state.nodes);
   const cam = useCanvasStore((state) => state.cam);
@@ -97,6 +98,8 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
         setSelectedNode(node.id);
         setEditingNode(node.id);
       }}
+      onMouseEnter={() => setHoveredNode(node.id)}
+      onMouseLeave={() => setHoveredNode(null)}
       onMouseDown={(e) => {
         if (canvasMode !== 'select') return;
         e.cancelBubble = true;

@@ -32,6 +32,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const setEditingNode = useUIStore((state) => state.setEditingNode);
   const isDragging = useUIStore((state) => state.isDragging);
   const canvasMode = useUIStore((state) => state.canvasMode);
+  const hoveredNodeId = useUIStore((state) => state.hoveredNodeId);
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const nodes = useMapStore((state) => state.nodes);
@@ -72,27 +73,28 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const selectedNode = nodes.find((n) => n.id === selectedNodeId) ?? null;
 
   const handleAddChild = () => {
-    if (!selectedNode) return;
-    const children = nodes.filter((n) => n.parentId === selectedNode.id);
+    const targetNode = selectedNode ?? nodes.find((n) => n.id === hoveredNodeId) ?? null;
+    if (!targetNode) return;
+    const children = nodes.filter((n) => n.parentId === targetNode.id);
     const newId = addNode({
-      x: selectedNode.x + 200,
-      y: selectedNode.y + children.length * 80,
+      x: targetNode.x + 200,
+      y: targetNode.y + children.length * 80,
       label: '',
-      parentId: selectedNode.id,
-      colorIndex: selectedNode.colorIndex,
+      parentId: targetNode.id,
+      colorIndex: targetNode.colorIndex,
       size: 'M',
     });
     setSelectedNode(newId);
     setEditingNode(newId);
   };
 
+  const addButtonTargetNode = selectedNode ?? nodes.find((n) => n.id === hoveredNodeId) ?? null;
   const addButtonPos = (() => {
-    if (!selectedNode) return null;
-    const nodeWidth = selectedNode.width;
-    const rightEdge = selectedNode.x + nodeWidth / 2;
+    if (!addButtonTargetNode) return null;
+    const rightEdge = addButtonTargetNode.x + addButtonTargetNode.width / 2;
     return {
       x: cam.x + rightEdge * cam.zoom + 21,
-      y: cam.y + selectedNode.y * cam.zoom,
+      y: cam.y + addButtonTargetNode.y * cam.zoom,
     };
   })();
 

@@ -11,6 +11,8 @@ interface UIStore {
   setIsDragging: (v: boolean) => void;
   canvasMode: 'select' | 'hand';
   setCanvasMode: (mode: 'select' | 'hand') => void;
+  hoveredNodeId: string | null;
+  setHoveredNode: (id: string | null) => void;
 }
 
 export const useUIStore = create<UIStore>((set) => ({
@@ -24,4 +26,6 @@ export const useUIStore = create<UIStore>((set) => ({
   setIsDragging: (v) => set({ isDragging: v }),
   canvasMode: 'select',
   setCanvasMode: (mode) => set({ canvasMode: mode }),
+  hoveredNodeId: null,
+  setHoveredNode: (id) => set({ hoveredNodeId: id }),
 }));

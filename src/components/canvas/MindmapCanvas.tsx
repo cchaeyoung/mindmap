@@ -33,6 +33,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const isDragging = useUIStore((state) => state.isDragging);
   const canvasMode = useUIStore((state) => state.canvasMode);
   const hoveredNodeId = useUIStore((state) => state.hoveredNodeId);
+  const setHoveredNode = useUIStore((state) => state.setHoveredNode);
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const nodes = useMapStore((state) => state.nodes);
@@ -50,6 +51,38 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, []);
+
+  const handleContainerMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      for (const node of nodes) {
+        const tier = node.parentId === null ? 'root' : 'child';
+        const style = NODE_STYLE[tier];
+        const scale = NODE_SIZE_SCALE[node.size ?? 'M'];
+        const nodeH = style.fontSize * scale * 1.4 + style.paddingY * scale * 2;
+        const screenCX = cam.x + node.x * cam.zoom;
+        const screenCY = cam.y + node.y * cam.zoom;
+        const screenW = node.width * cam.zoom;
+        const screenH = nodeH * cam.zoom;
+
+        if (
+          mouseX >= screenCX - screenW / 2 &&
+          mouseX <= screenCX + screenW / 2 + (node.id === hoveredNodeId ? 50 : 0) &&
+          mouseY >= screenCY - screenH / 2 &&
+          mouseY <= screenCY + screenH / 2
+        ) {
+          setHoveredNode(node.id);
+          return;
+        }
+      }
+      setHoveredNode(null);
+    },
+    [nodes, cam, setHoveredNode, hoveredNodeId]
+  );
 
   const handleDeleteNode = useCallback(
     (nodeId: string) => {
@@ -119,6 +152,8 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
           'h-full w-full outline-none',
           canvasMode === 'hand' ? 'cursor-grab active:cursor-grabbing' : ''
         )}
+        onMouseMove={handleContainerMouseMove}
+        onMouseLeave={() => setHoveredNode(null)}
       >
         {addButtonPos && (
           <NodeAddButton x={addButtonPos.x} y={addButtonPos.y} onClick={handleAddChild} />

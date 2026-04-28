@@ -55,7 +55,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
 
   const handleContainerMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (isDragging) return;
+      if (isDragging || e.buttons !== 0) return;
       const rect = containerRef.current?.getBoundingClientRect();
       if (!rect) return;
       const mouseX = e.clientX - rect.left;

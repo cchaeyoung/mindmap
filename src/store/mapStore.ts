@@ -1,3 +1,4 @@
+import { NODE_DEFAULT_SHAPE } from '@/constants/node';
 import { Edge, MindmapNode } from '@/types';
 import { measureNodeWidth } from '@/utils/node';
 import { create } from 'zustand';
@@ -19,7 +20,10 @@ export const useMapStore = create<MapStore>((set) => ({
     const tier = node.parentId === null ? 'root' : 'child';
     const width = measureNodeWidth(node.label || '새 항목', tier, node.size ?? 'M');
     set((state) => ({
-      nodes: [...state.nodes, { ...node, id, width, size: node.size ?? 'M' }],
+      nodes: [
+        ...state.nodes,
+        { ...node, id, width, size: node.size ?? 'M', shape: node.shape ?? NODE_DEFAULT_SHAPE },
+      ],
     }));
     return id;
   },

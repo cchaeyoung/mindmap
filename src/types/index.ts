@@ -7,6 +7,7 @@ export interface MindmapNode {
   parentId: string | null;
   colorIndex: number;
   size: 'S' | 'M' | 'L';
+  shape: 'pill' | 'round' | 'sharp';
 }
 
 export interface Edge {

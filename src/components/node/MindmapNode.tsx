@@ -52,7 +52,7 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
   const scale = NODE_SIZE_SCALE[node.size ?? 'M'];
   const width = node.width;
   const height = style.fontSize * scale * 1.4 + style.paddingY * scale * 2;
-  const radius = style.cornerRadius === 'pill' ? height / 2 : style.cornerRadius;
+  const radius = node.shape === 'pill' ? height / 2 : node.shape === 'round' ? 8 : 2;
 
   const isTransparent = node.colorIndex === 0;
   const accentStroke = isDark ? 'rgba(154,179,250,0.38)' : 'rgba(54,82,199,0.32)';

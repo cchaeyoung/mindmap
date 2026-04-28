@@ -76,11 +76,11 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
           mouseY >= screenCY - screenH / 2 &&
           mouseY <= screenCY + screenH / 2
         ) {
-          setHoveredNode(node.id);
+          if (node.id !== hoveredNodeId) setHoveredNode(node.id);
           return;
         }
       }
-      setHoveredNode(null);
+      if (hoveredNodeId !== null) setHoveredNode(null);
     },
     [nodes, cam, setHoveredNode, hoveredNodeId, isDragging]
   );

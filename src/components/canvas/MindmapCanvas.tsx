@@ -54,6 +54,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
 
   const handleContainerMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
+      if (isDragging) return;
       const rect = containerRef.current?.getBoundingClientRect();
       if (!rect) return;
       const mouseX = e.clientX - rect.left;
@@ -81,7 +82,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
       }
       setHoveredNode(null);
     },
-    [nodes, cam, setHoveredNode, hoveredNodeId]
+    [nodes, cam, setHoveredNode, hoveredNodeId, isDragging]
   );
 
   const handleDeleteNode = useCallback(

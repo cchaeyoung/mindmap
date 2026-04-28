@@ -17,6 +17,7 @@ export default function Toolbar() {
   const setCanvasMode = useUIStore((state) => state.setCanvasMode);
 
   const handleAddRoot = () => {
+    if (canvasMode === 'hand') setCanvasMode('select');
     const centerX = (-cam.x + stageSize.width / 2) / cam.zoom;
     const centerY = (-cam.y + stageSize.height / 2) / cam.zoom;
     const newId = addNode({

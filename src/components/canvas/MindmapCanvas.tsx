@@ -32,6 +32,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const setEditingNode = useUIStore((state) => state.setEditingNode);
   const isDragging = useUIStore((state) => state.isDragging);
   const canvasMode = useUIStore((state) => state.canvasMode);
+  const setCanvasMode = useUIStore((state) => state.setCanvasMode);
   const hoveredNodeId = useUIStore((state) => state.hoveredNodeId);
   const setHoveredNode = useUIStore((state) => state.setHoveredNode);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -109,6 +110,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const handleAddChild = () => {
     const targetNode = selectedNode ?? nodes.find((n) => n.id === hoveredNodeId) ?? null;
     if (!targetNode) return;
+    if (canvasMode === 'hand') setCanvasMode('select');
     const children = nodes.filter((n) => n.parentId === targetNode.id);
     const newId = addNode({
       x: targetNode.x + 200,

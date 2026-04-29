@@ -145,9 +145,10 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
               const parentData = nodes.find((n) => n.id === nodeData.parentId);
               const fromWidth = parentData?.width ?? node.width;
               const toWidth = nodeData.width;
-              const x1 = parentPos.x + fromWidth / 2;
+              const isLeft = nodeData.direction === 'left';
+              const x1 = isLeft ? parentPos.x - fromWidth / 2 : parentPos.x + fromWidth / 2;
               const y1 = parentPos.y;
-              const x2 = pos.x - toWidth / 2;
+              const x2 = isLeft ? pos.x + toWidth / 2 : pos.x - toWidth / 2;
               const y2 = pos.y;
               const midX = x1 + (x2 - x1) * 0.5;
               const points = [x1, y1, midX, y1, midX, y2, x2, y2];

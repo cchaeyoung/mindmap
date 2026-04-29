@@ -75,11 +75,15 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
           mouseX >=
             screenCX -
               screenW / 2 -
-              (node.id === hoveredNodeId && (node.direction === 'left' || node.parentId === null) ? 50 : 0) &&
+              (node.id === hoveredNodeId && (node.direction === 'left' || node.parentId === null)
+                ? 50
+                : 0) &&
           mouseX <=
             screenCX +
               screenW / 2 +
-              (node.id === hoveredNodeId && (node.direction !== 'left' || node.parentId === null) ? 50 : 0) &&
+              (node.id === hoveredNodeId && (node.direction !== 'left' || node.parentId === null)
+                ? 50
+                : 0) &&
           mouseY >= screenCY - screenH / 2 &&
           mouseY <= screenCY + screenH / 2
         ) {
@@ -192,7 +196,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             y={popupPos.y}
             yBelow={popupPos.yBelow}
             nodeColorIndex={selectedNode.colorIndex}
-            onAddChild={() => handleAddChild('right')}
+            onAddChild={() => handleAddChild(selectedNode.direction ?? 'right')}
             onEdit={() => setEditingNode(selectedNode.id)}
             onDelete={() => handleDeleteNode(selectedNode.id)}
             onColorChange={(colorIndex) => updateNode(selectedNode.id, { colorIndex })}

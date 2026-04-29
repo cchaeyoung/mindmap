@@ -127,13 +127,24 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   };
 
   const addButtonTargetNode = selectedNode ?? nodes.find((n) => n.id === hoveredNodeId) ?? null;
-  const addButtonPos = (() => {
-    if (!addButtonTargetNode) return null;
+  const addButtonPositions = (() => {
+    if (!addButtonTargetNode) return [];
+    const isRoot = addButtonTargetNode.parentId === null;
     const rightEdge = addButtonTargetNode.x + addButtonTargetNode.width / 2;
-    return {
-      x: cam.x + rightEdge * cam.zoom + 21,
-      y: cam.y + addButtonTargetNode.y * cam.zoom,
-    };
+    const leftEdge = addButtonTargetNode.x - addButtonTargetNode.width / 2;
+    const y = cam.y + addButtonTargetNode.y * cam.zoom;
+
+    if (isRoot) {
+      return [
+        { x: cam.x + rightEdge * cam.zoom + 21, y, direction: 'right' as const },
+        { x: cam.x + leftEdge * cam.zoom - 21, y, direction: 'left' as const },
+      ];
+    }
+
+    const dir = addButtonTargetNode.direction ?? 'right';
+    const edgeX = dir === 'right' ? rightEdge : leftEdge;
+    const offset = dir === 'right' ? 21 : -21;
+    return [{ x: cam.x + edgeX * cam.zoom + offset, y, direction: dir }];
   })();
 
   const popupPos = (() => {
@@ -160,9 +171,14 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
         onMouseMove={handleContainerMouseMove}
         onMouseLeave={() => setHoveredNode(null)}
       >
-        {addButtonPos && (
-          <NodeAddButton x={addButtonPos.x} y={addButtonPos.y} onClick={() => handleAddChild('right')} />
-        )}
+        {addButtonPositions.map((pos) => (
+          <NodeAddButton
+            key={pos.direction}
+            x={pos.x}
+            y={pos.y}
+            onClick={() => handleAddChild(pos.direction)}
+          />
+        ))}
         {popupPos && selectedNode && !isDragging && (
           <NodePopup
             x={popupPos.x}

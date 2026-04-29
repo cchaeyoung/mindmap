@@ -160,7 +160,10 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
           addButtonRef.current
         ) {
           const c = camRef.current;
-          const screenX = c.x + (x + node.width / 2) * c.zoom + 21;
+          const isLeft = node.direction === 'left';
+          const screenX = isLeft
+            ? c.x + (x - node.width / 2) * c.zoom - 21
+            : c.x + (x + node.width / 2) * c.zoom + 21;
           const screenY = c.y + y * c.zoom;
           addButtonRef.current.style.left = `${screenX}px`;
           addButtonRef.current.style.top = `${screenY}px`;

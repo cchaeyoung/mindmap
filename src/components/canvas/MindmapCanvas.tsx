@@ -107,19 +107,20 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
 
   const selectedNode = nodes.find((n) => n.id === selectedNodeId) ?? null;
 
-  const handleAddChild = () => {
+  const handleAddChild = (direction: 'left' | 'right') => {
     const targetNode = selectedNode ?? nodes.find((n) => n.id === hoveredNodeId) ?? null;
     if (!targetNode) return;
     if (canvasMode === 'hand') setCanvasMode('select');
     const children = nodes.filter((n) => n.parentId === targetNode.id);
     const newId = addNode({
-      x: targetNode.x + 200,
+      x: direction === 'right' ? targetNode.x + 200 : targetNode.x - 200,
       y: targetNode.y + children.length * 80,
       label: '',
       parentId: targetNode.id,
       colorIndex: targetNode.colorIndex,
       size: 'M',
       shape: targetNode.shape,
+      direction,
     });
     setSelectedNode(newId);
     setEditingNode(newId);
@@ -160,7 +161,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
         onMouseLeave={() => setHoveredNode(null)}
       >
         {addButtonPos && (
-          <NodeAddButton x={addButtonPos.x} y={addButtonPos.y} onClick={handleAddChild} />
+          <NodeAddButton x={addButtonPos.x} y={addButtonPos.y} onClick={() => handleAddChild('right')} />
         )}
         {popupPos && selectedNode && !isDragging && (
           <NodePopup
@@ -168,7 +169,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             y={popupPos.y}
             yBelow={popupPos.yBelow}
             nodeColorIndex={selectedNode.colorIndex}
-            onAddChild={handleAddChild}
+            onAddChild={() => handleAddChild('right')}
             onEdit={() => setEditingNode(selectedNode.id)}
             onDelete={() => handleDeleteNode(selectedNode.id)}
             onColorChange={(colorIndex) => updateNode(selectedNode.id, { colorIndex })}

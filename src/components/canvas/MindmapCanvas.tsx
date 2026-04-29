@@ -71,19 +71,13 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
         const screenW = node.width * cam.zoom;
         const screenH = nodeH * cam.zoom;
 
+        const isHovered = node.id === hoveredNodeId;
+        const leftPad = isHovered && (node.direction === 'left' || node.parentId === null) ? 50 : 0;
+        const rightPad = isHovered && (node.direction !== 'left' || node.parentId === null) ? 50 : 0;
+
         if (
-          mouseX >=
-            screenCX -
-              screenW / 2 -
-              (node.id === hoveredNodeId && (node.direction === 'left' || node.parentId === null)
-                ? 50
-                : 0) &&
-          mouseX <=
-            screenCX +
-              screenW / 2 +
-              (node.id === hoveredNodeId && (node.direction !== 'left' || node.parentId === null)
-                ? 50
-                : 0) &&
+          mouseX >= screenCX - screenW / 2 - leftPad &&
+          mouseX <= screenCX + screenW / 2 + rightPad &&
           mouseY >= screenCY - screenH / 2 &&
           mouseY <= screenCY + screenH / 2
         ) {

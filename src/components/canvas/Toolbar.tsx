@@ -27,6 +27,7 @@ export default function Toolbar() {
       parentId: null,
       colorIndex: NODE_DEFAULT_COLOR_INDEX,
       size: 'M',
+      shape: 'pill',
     });
     setSelectedNode(newId);
     setEditingNode(newId);

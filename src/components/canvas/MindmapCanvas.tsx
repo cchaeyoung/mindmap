@@ -176,6 +176,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             key={pos.direction}
             x={pos.x}
             y={pos.y}
+            direction={pos.direction}
             onClick={() => handleAddChild(pos.direction)}
           />
         ))}

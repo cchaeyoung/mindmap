@@ -32,7 +32,8 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
   useEffect(() => {
     camRef.current = cam;
   }, [cam]);
-  const { nodeRefs, edgeRefs, registerNode, unregisterNode, addButtonRef } = useNodeRefs();
+  const { nodeRefs, edgeRefs, registerNode, unregisterNode, addButtonRightRef, addButtonLeftRef } =
+    useNodeRefs();
   const groupRef = useRef<Konva.Group>(null);
   const prevPos = useRef({ x: node.x, y: node.y });
 
@@ -155,18 +156,19 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
           }
         });
 
-        if (
-          (isSelected || hoveredNodeId === node.id || draggingNodeId === node.id) &&
-          addButtonRef.current
-        ) {
+        if (isSelected || hoveredNodeId === node.id || draggingNodeId === node.id) {
           const c = camRef.current;
-          const isLeft = node.direction === 'left';
-          const screenX = isLeft
-            ? c.x + (x - node.width / 2) * c.zoom - 21
-            : c.x + (x + node.width / 2) * c.zoom + 21;
           const screenY = c.y + y * c.zoom;
-          addButtonRef.current.style.left = `${screenX}px`;
-          addButtonRef.current.style.top = `${screenY}px`;
+          if (addButtonRightRef.current) {
+            const screenX = c.x + (x + node.width / 2) * c.zoom + 21;
+            addButtonRightRef.current.style.left = `${screenX}px`;
+            addButtonRightRef.current.style.top = `${screenY}px`;
+          }
+          if (addButtonLeftRef.current) {
+            const screenX = c.x + (x - node.width / 2) * c.zoom - 21;
+            addButtonLeftRef.current.style.left = `${screenX}px`;
+            addButtonLeftRef.current.style.top = `${screenY}px`;
+          }
         }
       }}
       onDragEnd={(e) => {

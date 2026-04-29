@@ -36,6 +36,7 @@ export default function NodePopup({
   currentShape,
 }: Props) {
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [sizePaletteOpen, setSizePaletteOpen] = useState(false);
   const [shapePaletteOpen, setShapePaletteOpen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
   const sidebarOpen = useUIStore((state) => state.sidebarOpen);
@@ -94,6 +95,27 @@ export default function NodePopup({
         </div>
       )}
 
+      {sizePaletteOpen && (
+        <div className="border-border flex items-center gap-1 border-b px-2.5 py-2">
+          {(['S', 'M', 'L'] as const).map((sz) => (
+            <button
+              key={sz}
+              onClick={() => {
+                onSizeChange(sz);
+                setSizePaletteOpen(false);
+              }}
+              className={`h-6.5 cursor-pointer rounded-[7px] px-2.25 text-[11px] font-medium transition-all ${
+                currentSize === sz
+                  ? 'bg-primary/18 text-primary'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+              }`}
+            >
+              {sz}
+            </button>
+          ))}
+        </div>
+      )}
+
       {shapePaletteOpen && (
         <div className="border-border flex items-center gap-1.25 border-b px-2.5 py-2">
           {(
@@ -132,8 +154,10 @@ export default function NodePopup({
 
       <div className="flex items-center gap-0.5 px-2 py-1.25">
         <button
+          title="색상 변경"
           style={{ background: palette[nodeColorIndex] ?? 'var(--background)' }}
           onClick={() => {
+            setSizePaletteOpen(false);
             setShapePaletteOpen(false);
             setPaletteOpen((v) => !v);
           }}
@@ -142,20 +166,27 @@ export default function NodePopup({
 
         <div className="bg-border mx-1 h-4 w-px shrink-0" />
 
-        <span className="text-muted-foreground pr-1 pl-0.5 text-[10px] tracking-[0.3px]">크기</span>
-        {(['S', 'M', 'L'] as const).map((sz) => (
-          <button
-            key={sz}
-            onClick={() => onSizeChange(sz)}
-            className={`h-6.5 w-6.5 cursor-pointer rounded-[7px] px-2.25 text-[11px] font-medium transition-all ${currentSize === sz ? 'bg-primary/18 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
-          >
-            {sz}
-          </button>
-        ))}
-
         <button
+          title="크기 변경"
           onClick={() => {
             setPaletteOpen(false);
+            setShapePaletteOpen(false);
+            setSizePaletteOpen((v) => !v);
+          }}
+          className={`h-6.5 cursor-pointer rounded-[7px] px-2 text-[11px] font-medium transition-all ${
+            sizePaletteOpen
+              ? 'bg-primary/18 text-primary'
+              : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+          }`}
+        >
+          {currentSize}
+        </button>
+
+        <button
+          title="모양 변경"
+          onClick={() => {
+            setPaletteOpen(false);
+            setSizePaletteOpen(false);
             setShapePaletteOpen((v) => !v);
           }}
           className={`flex h-6.5 w-6.5 cursor-pointer items-center justify-center rounded-[7px] transition-all ${

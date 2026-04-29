@@ -8,6 +8,7 @@ export interface MindmapNode {
   colorIndex: number;
   size: 'S' | 'M' | 'L';
   shape: 'pill' | 'round' | 'sharp';
+  direction?: 'left' | 'right';
 }
 
 export interface Edge {

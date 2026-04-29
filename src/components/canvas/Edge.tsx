@@ -32,9 +32,10 @@ export default function Edge({ fromNode, toNode }: Props) {
   const fromWidth = fromNode.width;
   const toWidth = toNode.width;
 
-  const x1 = fromNode.x + fromWidth / 2;
+  const isLeft = toNode.direction === 'left';
+  const x1 = isLeft ? fromNode.x - fromWidth / 2 : fromNode.x + fromWidth / 2;
   const y1 = fromNode.y;
-  const x2 = toNode.x - toWidth / 2;
+  const x2 = isLeft ? toNode.x + toWidth / 2 : toNode.x - toWidth / 2;
   const y2 = toNode.y;
   const midX = x1 + (x2 - x1) * 0.5;
 

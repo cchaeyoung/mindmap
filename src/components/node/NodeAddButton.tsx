@@ -6,13 +6,16 @@ interface Props {
   x: number;
   y: number;
   onClick: () => void;
+  direction: 'left' | 'right';
 }
 
-export default function NodeAddButton({ x, y, onClick }: Props) {
-  const { addButtonRef } = useNodeRefs();
+export default function NodeAddButton({ x, y, onClick, direction }: Props) {
+  const { addButtonRightRef, addButtonLeftRef } = useNodeRefs();
+  const ref = direction === 'left' ? addButtonLeftRef : addButtonRightRef;
+
   return (
     <div
-      ref={addButtonRef}
+      ref={ref}
       style={{ position: 'fixed', left: x, top: y, transform: 'translate(-50%, -50%)', zIndex: 45 }}
     >
       <IconButton

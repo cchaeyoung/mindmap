@@ -1,7 +1,7 @@
 import IconButton from '@/components/common/IconButton';
 import { SIDEBAR_WIDTH } from '@/constants/layout';
 import { NODE_COLORS_DARK, NODE_COLORS_LIGHT } from '@/constants/node';
-import { FileText, GitBranch, Pencil, Trash2 } from 'lucide-react';
+import { FileText, Pencil, Trash2 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useUIStore } from '@/store/uiStore';
@@ -11,7 +11,6 @@ interface Props {
   y: number;
   yBelow: number;
   nodeColorIndex: number;
-  onAddChild: () => void;
   onEdit: () => void;
   onDelete: () => void;
   onColorChange: (colorIndex: number) => void;
@@ -26,7 +25,6 @@ export default function NodePopup({
   y,
   yBelow,
   nodeColorIndex,
-  onAddChild,
   onEdit,
   onDelete,
   onColorChange,
@@ -211,13 +209,6 @@ export default function NodePopup({
 
         <div className="bg-border mx-1 h-4 w-px shrink-0" />
 
-        <IconButton
-          title="하위 항목 추가"
-          onClick={onAddChild}
-          className="h-6.5 w-6.5 rounded-[7px]"
-        >
-          <GitBranch size={12} />
-        </IconButton>
         <IconButton title="편집" onClick={onEdit} className="h-6.5 w-6.5 rounded-[7px]">
           <Pencil size={12} />
         </IconButton>

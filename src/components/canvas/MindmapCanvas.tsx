@@ -71,9 +71,13 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
         const screenW = node.width * cam.zoom;
         const screenH = nodeH * cam.zoom;
 
+        const isHovered = node.id === hoveredNodeId;
+        const leftPad = isHovered && (node.direction === 'left' || node.parentId === null) ? 50 : 0;
+        const rightPad = isHovered && (node.direction !== 'left' || node.parentId === null) ? 50 : 0;
+
         if (
-          mouseX >= screenCX - screenW / 2 &&
-          mouseX <= screenCX + screenW / 2 + (node.id === hoveredNodeId ? 50 : 0) &&
+          mouseX >= screenCX - screenW / 2 - leftPad &&
+          mouseX <= screenCX + screenW / 2 + rightPad &&
           mouseY >= screenCY - screenH / 2 &&
           mouseY <= screenCY + screenH / 2
         ) {
@@ -107,32 +111,44 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
 
   const selectedNode = nodes.find((n) => n.id === selectedNodeId) ?? null;
 
-  const handleAddChild = () => {
+  const handleAddChild = (direction: 'left' | 'right') => {
     const targetNode = selectedNode ?? nodes.find((n) => n.id === hoveredNodeId) ?? null;
     if (!targetNode) return;
     if (canvasMode === 'hand') setCanvasMode('select');
     const children = nodes.filter((n) => n.parentId === targetNode.id);
     const newId = addNode({
-      x: targetNode.x + 200,
+      x: direction === 'right' ? targetNode.x + 200 : targetNode.x - 200,
       y: targetNode.y + children.length * 80,
       label: '',
       parentId: targetNode.id,
       colorIndex: targetNode.colorIndex,
       size: 'M',
       shape: targetNode.shape,
+      direction,
     });
     setSelectedNode(newId);
     setEditingNode(newId);
   };
 
   const addButtonTargetNode = selectedNode ?? nodes.find((n) => n.id === hoveredNodeId) ?? null;
-  const addButtonPos = (() => {
-    if (!addButtonTargetNode) return null;
+  const addButtonPositions = (() => {
+    if (!addButtonTargetNode) return [];
+    const isRoot = addButtonTargetNode.parentId === null;
     const rightEdge = addButtonTargetNode.x + addButtonTargetNode.width / 2;
-    return {
-      x: cam.x + rightEdge * cam.zoom + 21,
-      y: cam.y + addButtonTargetNode.y * cam.zoom,
-    };
+    const leftEdge = addButtonTargetNode.x - addButtonTargetNode.width / 2;
+    const y = cam.y + addButtonTargetNode.y * cam.zoom;
+
+    if (isRoot) {
+      return [
+        { x: cam.x + rightEdge * cam.zoom + 21, y, direction: 'right' as const },
+        { x: cam.x + leftEdge * cam.zoom - 21, y, direction: 'left' as const },
+      ];
+    }
+
+    const dir = addButtonTargetNode.direction ?? 'right';
+    const edgeX = dir === 'right' ? rightEdge : leftEdge;
+    const offset = dir === 'right' ? 21 : -21;
+    return [{ x: cam.x + edgeX * cam.zoom + offset, y, direction: dir }];
   })();
 
   const popupPos = (() => {
@@ -159,16 +175,21 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
         onMouseMove={handleContainerMouseMove}
         onMouseLeave={() => setHoveredNode(null)}
       >
-        {addButtonPos && (
-          <NodeAddButton x={addButtonPos.x} y={addButtonPos.y} onClick={handleAddChild} />
-        )}
+        {addButtonPositions.map((pos) => (
+          <NodeAddButton
+            key={pos.direction}
+            x={pos.x}
+            y={pos.y}
+            direction={pos.direction}
+            onClick={() => handleAddChild(pos.direction)}
+          />
+        ))}
         {popupPos && selectedNode && !isDragging && (
           <NodePopup
             x={popupPos.x}
             y={popupPos.y}
             yBelow={popupPos.yBelow}
             nodeColorIndex={selectedNode.colorIndex}
-            onAddChild={handleAddChild}
             onEdit={() => setEditingNode(selectedNode.id)}
             onDelete={() => handleDeleteNode(selectedNode.id)}
             onColorChange={(colorIndex) => updateNode(selectedNode.id, { colorIndex })}

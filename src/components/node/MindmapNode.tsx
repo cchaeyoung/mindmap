@@ -32,7 +32,8 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
   useEffect(() => {
     camRef.current = cam;
   }, [cam]);
-  const { nodeRefs, edgeRefs, registerNode, unregisterNode, addButtonRef } = useNodeRefs();
+  const { nodeRefs, edgeRefs, registerNode, unregisterNode, addButtonRightRef, addButtonLeftRef } =
+    useNodeRefs();
   const groupRef = useRef<Konva.Group>(null);
   const prevPos = useRef({ x: node.x, y: node.y });
 
@@ -144,9 +145,10 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
               const parentData = nodes.find((n) => n.id === nodeData.parentId);
               const fromWidth = parentData?.width ?? node.width;
               const toWidth = nodeData.width;
-              const x1 = parentPos.x + fromWidth / 2;
+              const isLeft = nodeData.direction === 'left';
+              const x1 = isLeft ? parentPos.x - fromWidth / 2 : parentPos.x + fromWidth / 2;
               const y1 = parentPos.y;
-              const x2 = pos.x - toWidth / 2;
+              const x2 = isLeft ? pos.x + toWidth / 2 : pos.x - toWidth / 2;
               const y2 = pos.y;
               const midX = x1 + (x2 - x1) * 0.5;
               const points = [x1, y1, midX, y1, midX, y2, x2, y2];
@@ -155,15 +157,19 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
           }
         });
 
-        if (
-          (isSelected || hoveredNodeId === node.id || draggingNodeId === node.id) &&
-          addButtonRef.current
-        ) {
+        if (isSelected || hoveredNodeId === node.id || draggingNodeId === node.id) {
           const c = camRef.current;
-          const screenX = c.x + (x + node.width / 2) * c.zoom + 21;
           const screenY = c.y + y * c.zoom;
-          addButtonRef.current.style.left = `${screenX}px`;
-          addButtonRef.current.style.top = `${screenY}px`;
+          if (addButtonRightRef.current) {
+            const screenX = c.x + (x + node.width / 2) * c.zoom + 21;
+            addButtonRightRef.current.style.left = `${screenX}px`;
+            addButtonRightRef.current.style.top = `${screenY}px`;
+          }
+          if (addButtonLeftRef.current) {
+            const screenX = c.x + (x - node.width / 2) * c.zoom - 21;
+            addButtonLeftRef.current.style.left = `${screenX}px`;
+            addButtonLeftRef.current.style.top = `${screenY}px`;
+          }
         }
       }}
       onDragEnd={(e) => {

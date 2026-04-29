@@ -4,7 +4,7 @@ import IconButton from '../common/IconButton';
 import { useMapStore } from '@/store/mapStore';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useUIStore } from '@/store/uiStore';
-import { NODE_DEFAULT_COLOR_INDEX } from '@/constants/node';
+import { NODE_DEFAULT_COLOR_INDEX, NODE_DEFAULT_SHAPE } from '@/constants/node';
 import { cn } from '@/lib/utils';
 
 export default function Toolbar() {
@@ -27,6 +27,7 @@ export default function Toolbar() {
       parentId: null,
       colorIndex: NODE_DEFAULT_COLOR_INDEX,
       size: 'M',
+      shape: NODE_DEFAULT_SHAPE,
     });
     setSelectedNode(newId);
     setEditingNode(newId);

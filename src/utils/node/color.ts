@@ -9,7 +9,7 @@ export function resolveColorByTheme(colorIndex: number, isDark: boolean): string
 
 export function resolveNodeColor(node: MindmapNode, isDark: boolean): string {
   if (node.colorIndex === 0) {
-    return isDark ? 'rgba(255,255,255,0.9)' : 'rgba(14,12,42,0.92)';
+    return isDark ? 'rgba(154,179,250,0.7)' : 'rgba(54,82,199,0.5)';
   }
   return resolveColorByTheme(node.colorIndex, isDark);
 }

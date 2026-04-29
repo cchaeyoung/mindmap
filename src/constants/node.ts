@@ -4,13 +4,13 @@ export const NODE_STYLE = {
     fontWeight: 700,
     paddingX: 22,
     paddingY: 12,
-    cornerRadius: 'pill' as const,
   },
-  child: { fontSize: 13, fontWeight: 600, paddingX: 16, paddingY: 10, cornerRadius: 8 },
+  child: { fontSize: 13, fontWeight: 600, paddingX: 16, paddingY: 10 },
 };
 
 export const NODE_DEFAULT_COLOR_INDEX = 8;
 export const NODE_SIZE_SCALE = { S: 0.8, M: 1.0, L: 1.25 } as const;
+export const NODE_DEFAULT_SHAPE = 'pill' as const;
 
 export const NODE_COLORS_DARK = [
   null,

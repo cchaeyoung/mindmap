@@ -119,6 +119,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
       parentId: targetNode.id,
       colorIndex: targetNode.colorIndex,
       size: 'M',
+      shape: targetNode.shape,
     });
     setSelectedNode(newId);
     setEditingNode(newId);
@@ -177,6 +178,8 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
               const width = measureNodeWidth(selectedNode.label, tier, sz);
               updateNode(selectedNode.id, { size: sz, width });
             }}
+            currentShape={selectedNode.shape}
+            onShapeChange={(shape) => updateNode(selectedNode.id, { shape })}
           />
         )}
         {editingNodeId && <NodeEditor nodeId={editingNodeId} />}
@@ -189,7 +192,8 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
           scaleY={cam.zoom}
           onWheel={onWheel}
           onMouseDown={(e) => {
-            if (e.evt.button === 0 && e.target === e.target.getStage() && canvasMode === 'select') setSelectedNode(null);
+            if (e.evt.button === 0 && e.target === e.target.getStage() && canvasMode === 'select')
+              setSelectedNode(null);
             if (canvasMode === 'hand') onMouseDown(e);
           }}
           onMouseMove={onMouseMove}

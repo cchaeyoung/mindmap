@@ -17,6 +17,8 @@ interface Props {
   onColorChange: (colorIndex: number) => void;
   onSizeChange: (size: 'S' | 'M' | 'L') => void;
   currentSize: 'S' | 'M' | 'L';
+  onShapeChange: (shape: 'pill' | 'round' | 'sharp') => void;
+  currentShape: 'pill' | 'round' | 'sharp';
 }
 
 export default function NodePopup({
@@ -30,8 +32,12 @@ export default function NodePopup({
   onColorChange,
   onSizeChange,
   currentSize,
+  onShapeChange,
+  currentShape,
 }: Props) {
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [sizePaletteOpen, setSizePaletteOpen] = useState(false);
+  const [shapePaletteOpen, setShapePaletteOpen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
   const sidebarOpen = useUIStore((state) => state.sidebarOpen);
   const { resolvedTheme } = useTheme();
@@ -89,25 +95,119 @@ export default function NodePopup({
         </div>
       )}
 
+      {sizePaletteOpen && (
+        <div className="border-border flex items-center gap-1 border-b px-2.5 py-2">
+          {(['S', 'M', 'L'] as const).map((sz) => (
+            <button
+              key={sz}
+              onClick={() => {
+                onSizeChange(sz);
+                setSizePaletteOpen(false);
+              }}
+              className={`h-6.5 cursor-pointer rounded-[7px] px-2.25 text-[11px] font-medium transition-all ${
+                currentSize === sz
+                  ? 'bg-primary/18 text-primary'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+              }`}
+            >
+              {sz}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {shapePaletteOpen && (
+        <div className="border-border flex items-center gap-1.25 border-b px-2.5 py-2">
+          {(
+            [
+              { value: 'pill', svg: <rect x="1" y="3" width="10" height="6" rx="3" /> },
+              { value: 'round', svg: <rect x="1" y="1" width="10" height="10" rx="3.5" /> },
+              { value: 'sharp', svg: <rect x="1" y="1" width="10" height="10" rx="1" /> },
+            ] as const
+          ).map(({ value, svg }) => (
+            <button
+              key={value}
+              onClick={() => {
+                onShapeChange(value);
+                setShapePaletteOpen(false);
+              }}
+              className={`flex h-6.5 w-6.5 cursor-pointer items-center justify-center rounded-[7px] transition-all ${
+                currentShape === value
+                  ? 'bg-primary/18 text-primary'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+              }`}
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                {svg}
+              </svg>
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="flex items-center gap-0.5 px-2 py-1.25">
         <button
+          title="색상 변경"
           style={{ background: palette[nodeColorIndex] ?? 'var(--background)' }}
-          onClick={() => setPaletteOpen((v) => !v)}
+          onClick={() => {
+            setSizePaletteOpen(false);
+            setShapePaletteOpen(false);
+            setPaletteOpen((v) => !v);
+          }}
           className="h-4.5 w-4.5 shrink-0 cursor-pointer rounded-full border-[2.5px] border-white/20 transition-all hover:scale-110 hover:border-white/55"
         />
 
         <div className="bg-border mx-1 h-4 w-px shrink-0" />
 
-        <span className="text-muted-foreground pr-1 pl-0.5 text-[10px] tracking-[0.3px]">크기</span>
-        {(['S', 'M', 'L'] as const).map((sz) => (
-          <button
-            key={sz}
-            onClick={() => onSizeChange(sz)}
-            className={`h-6.5 w-6.5 cursor-pointer rounded-[7px] px-2.25 text-[11px] font-medium transition-all ${currentSize === sz ? 'bg-[rgba(77,105,240,0.18)] text-[#4d69f0]' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
+        <button
+          title="크기 변경"
+          onClick={() => {
+            setPaletteOpen(false);
+            setShapePaletteOpen(false);
+            setSizePaletteOpen((v) => !v);
+          }}
+          className={`h-6.5 cursor-pointer rounded-[7px] px-2 text-[11px] font-medium transition-all ${
+            sizePaletteOpen
+              ? 'bg-primary/18 text-primary'
+              : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+          }`}
+        >
+          {currentSize}
+        </button>
+
+        <button
+          title="모양 변경"
+          onClick={() => {
+            setPaletteOpen(false);
+            setSizePaletteOpen(false);
+            setShapePaletteOpen((v) => !v);
+          }}
+          className={`flex h-6.5 w-6.5 cursor-pointer items-center justify-center rounded-[7px] transition-all ${
+            shapePaletteOpen
+              ? 'bg-primary/18 text-primary'
+              : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+          }`}
+        >
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 12 12"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
           >
-            {sz}
-          </button>
-        ))}
+            {currentShape === 'pill' && <rect x="1" y="3" width="10" height="6" rx="3" />}
+            {currentShape === 'round' && <rect x="1" y="1" width="10" height="10" rx="3.5" />}
+            {currentShape === 'sharp' && <rect x="1" y="1" width="10" height="10" rx="1" />}
+          </svg>
+        </button>
 
         <div className="bg-border mx-1 h-4 w-px shrink-0" />
 

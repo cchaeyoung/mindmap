@@ -28,7 +28,7 @@ export function useCanvas() {
     } else if (e.evt.shiftKey) {
       setCam((prev) => ({ ...prev, x: prev.x - e.evt.deltaY }));
     } else {
-      setCam((prev) => ({ ...prev, y: prev.y - e.evt.deltaY }));
+      setCam((prev) => ({ ...prev, x: prev.x - e.evt.deltaX, y: prev.y - e.evt.deltaY }));
     }
   };
 

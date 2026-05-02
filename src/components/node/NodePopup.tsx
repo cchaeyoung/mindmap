@@ -28,6 +28,8 @@ interface Props {
   italic?: boolean;
   underline?: boolean;
   strikethrough?: boolean;
+  onMemoOpen: () => void;
+  hasMemo: boolean;
 }
 
 export default function NodePopup({
@@ -52,6 +54,7 @@ export default function NodePopup({
   italic,
   underline,
   strikethrough,
+  onMemoOpen,
 }: Props) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [sizePaletteOpen, setSizePaletteOpen] = useState(false);
@@ -202,18 +205,40 @@ export default function NodePopup({
 
       {textStylePaletteOpen && (
         <div className="border-border flex items-center gap-1 border-b px-2.5 py-2">
-          {([
-            { label: 'B', active: !!bold, toggle: () => onBoldChange(!bold), style: { fontWeight: 800 } },
-            { label: 'I', active: !!italic, toggle: () => onItalicChange(!italic), style: { fontStyle: 'italic' as const } },
-            { label: 'U', active: !!underline, toggle: () => onUnderlineChange(!underline), style: { textDecoration: 'underline' as const } },
-            { label: 'S', active: !!strikethrough, toggle: () => onStrikethroughChange(!strikethrough), style: { textDecoration: 'line-through' as const } },
-          ]).map(({ label, active, toggle, style }) => (
+          {[
+            {
+              label: 'B',
+              active: !!bold,
+              toggle: () => onBoldChange(!bold),
+              style: { fontWeight: 800 },
+            },
+            {
+              label: 'I',
+              active: !!italic,
+              toggle: () => onItalicChange(!italic),
+              style: { fontStyle: 'italic' as const },
+            },
+            {
+              label: 'U',
+              active: !!underline,
+              toggle: () => onUnderlineChange(!underline),
+              style: { textDecoration: 'underline' as const },
+            },
+            {
+              label: 'S',
+              active: !!strikethrough,
+              toggle: () => onStrikethroughChange(!strikethrough),
+              style: { textDecoration: 'line-through' as const },
+            },
+          ].map(({ label, active, toggle, style }) => (
             <button
               key={label}
               onClick={toggle}
               style={style}
               className={`h-6.5 w-6.5 cursor-pointer rounded-[7px] text-[12px] transition-all ${
-                active ? 'bg-primary/18 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                active
+                  ? 'bg-primary/18 text-primary'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
               }`}
             >
               {label}
@@ -288,14 +313,17 @@ export default function NodePopup({
         >
           <span>A</span>
           <span
-            className="block h-[2px] w-[10px] rounded-full"
+            className="block h-0.5 w-2.5 rounded-full"
             style={{ background: currentTextColor ?? 'currentColor' }}
           />
         </button>
 
         <button
           title="텍스트 스타일"
-          onClick={() => { closeAllPalettes(); setTextStylePaletteOpen((v) => !v); }}
+          onClick={() => {
+            closeAllPalettes();
+            setTextStylePaletteOpen((v) => !v);
+          }}
           className={`h-6.5 w-6.5 cursor-pointer rounded-[7px] text-[11px] font-bold transition-all ${textStylePaletteOpen ? 'bg-primary/18 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
         >
           T
@@ -306,7 +334,7 @@ export default function NodePopup({
         <IconButton title="편집" onClick={onEdit} className="h-6.5 w-6.5 rounded-[7px]">
           <Pencil size={12} />
         </IconButton>
-        <IconButton title="메모" className="h-6.5 w-6.5 rounded-[7px]">
+        <IconButton title="메모" onClick={onMemoOpen} className="h-6.5 w-6.5 rounded-[7px]">
           <FileText size={12} />
         </IconButton>
         <IconButton

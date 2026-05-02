@@ -14,6 +14,7 @@ export interface MindmapNode {
   italic?: boolean;
   underline?: boolean;
   strikethrough?: boolean;
+  memo?: string;
 }
 
 export interface Edge {

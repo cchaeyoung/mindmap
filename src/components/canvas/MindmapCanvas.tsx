@@ -210,8 +210,16 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             italic={selectedNode.italic}
             underline={selectedNode.underline}
             strikethrough={selectedNode.strikethrough}
-            onBoldChange={(v) => updateNode(selectedNode.id, { bold: v })}
-            onItalicChange={(v) => updateNode(selectedNode.id, { italic: v })}
+            onBoldChange={(v) => {
+              const tier = selectedNode.parentId === null ? 'root' : 'child';
+              const width = measureNodeWidth(selectedNode.label, tier, selectedNode.size ?? 'M', v, selectedNode.italic);
+              updateNode(selectedNode.id, { bold: v, width });
+            }}
+            onItalicChange={(v) => {
+              const tier = selectedNode.parentId === null ? 'root' : 'child';
+              const width = measureNodeWidth(selectedNode.label, tier, selectedNode.size ?? 'M', selectedNode.bold, v);
+              updateNode(selectedNode.id, { italic: v, width });
+            }}
             onUnderlineChange={(v) => updateNode(selectedNode.id, { underline: v })}
             onStrikethroughChange={(v) => updateNode(selectedNode.id, { strikethrough: v })}
           />

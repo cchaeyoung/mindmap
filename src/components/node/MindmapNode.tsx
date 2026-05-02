@@ -220,7 +220,7 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
         text={node.label}
         fontSize={style.fontSize * scale}
         fontFamily="Pretendard, sans-serif"
-        fontStyle={[node.italic && 'italic', node.bold && 'bold'].filter(Boolean).join(' ') || 'normal'}
+        fontStyle={[node.italic && 'italic', node.bold ? (tier === 'root' ? '800' : 'bold') : String(style.fontWeight)].filter(Boolean).join(' ')}
         textDecoration={[node.underline && 'underline', node.strikethrough && 'line-through'].filter(Boolean).join(' ')}
         fill={textColor}
         width={width}

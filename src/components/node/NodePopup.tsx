@@ -58,6 +58,14 @@ export default function NodePopup({
   const [shapePaletteOpen, setShapePaletteOpen] = useState(false);
   const [textColorPaletteOpen, setTextColorPaletteOpen] = useState(false);
   const [textStylePaletteOpen, setTextStylePaletteOpen] = useState(false);
+
+  const closeAllPalettes = () => {
+    setPaletteOpen(false);
+    setSizePaletteOpen(false);
+    setShapePaletteOpen(false);
+    setTextColorPaletteOpen(false);
+    setTextStylePaletteOpen(false);
+  };
   const popupRef = useRef<HTMLDivElement>(null);
   const sidebarOpen = useUIStore((state) => state.sidebarOpen);
   const { resolvedTheme } = useTheme();
@@ -219,10 +227,7 @@ export default function NodePopup({
           title="색상 변경"
           style={{ background: palette[nodeColorIndex] ?? 'var(--background)' }}
           onClick={() => {
-            setSizePaletteOpen(false);
-            setShapePaletteOpen(false);
-            setTextColorPaletteOpen(false);
-            setTextStylePaletteOpen(false);
+            closeAllPalettes();
             setPaletteOpen((v) => !v);
           }}
           className="h-4.5 w-4.5 shrink-0 cursor-pointer rounded-full border-[2.5px] border-white/20 transition-all hover:scale-110 hover:border-white/55"
@@ -233,10 +238,7 @@ export default function NodePopup({
         <button
           title="크기 변경"
           onClick={() => {
-            setPaletteOpen(false);
-            setShapePaletteOpen(false);
-            setTextColorPaletteOpen(false);
-            setTextStylePaletteOpen(false);
+            closeAllPalettes();
             setSizePaletteOpen((v) => !v);
           }}
           className={`h-6.5 cursor-pointer rounded-[7px] px-2 text-[11px] font-medium transition-all ${
@@ -251,10 +253,7 @@ export default function NodePopup({
         <button
           title="모양 변경"
           onClick={() => {
-            setPaletteOpen(false);
-            setSizePaletteOpen(false);
-            setTextColorPaletteOpen(false);
-            setTextStylePaletteOpen(false);
+            closeAllPalettes();
             setShapePaletteOpen((v) => !v);
           }}
           className={`flex h-6.5 w-6.5 cursor-pointer items-center justify-center rounded-[7px] transition-all ${
@@ -282,10 +281,7 @@ export default function NodePopup({
         <button
           title="텍스트 색상"
           onClick={() => {
-            setPaletteOpen(false);
-            setSizePaletteOpen(false);
-            setShapePaletteOpen(false);
-            setTextStylePaletteOpen(false);
+            closeAllPalettes();
             setTextColorPaletteOpen((v) => !v);
           }}
           className={`flex h-6.5 w-6.5 cursor-pointer flex-col items-center justify-center gap-[1.5px] rounded-[7px] text-[11px] font-bold transition-all ${textColorPaletteOpen ? 'bg-primary/18 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
@@ -299,7 +295,7 @@ export default function NodePopup({
 
         <button
           title="텍스트 스타일"
-          onClick={() => { setPaletteOpen(false); setSizePaletteOpen(false); setShapePaletteOpen(false); setTextColorPaletteOpen(false); setTextStylePaletteOpen((v) => !v); }}
+          onClick={() => { closeAllPalettes(); setTextStylePaletteOpen((v) => !v); }}
           className={`h-6.5 w-6.5 cursor-pointer rounded-[7px] text-[11px] font-bold transition-all ${textStylePaletteOpen ? 'bg-primary/18 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
         >
           T

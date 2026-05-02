@@ -10,6 +10,10 @@ export interface MindmapNode {
   shape: 'pill' | 'round' | 'sharp';
   direction?: 'left' | 'right';
   textColor?: string;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  strikethrough?: boolean;
 }
 
 export interface Edge {

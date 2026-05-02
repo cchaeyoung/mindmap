@@ -20,6 +20,14 @@ interface Props {
   currentShape: 'pill' | 'round' | 'sharp';
   onTextColorChange: (color: string | null) => void;
   currentTextColor?: string;
+  onBoldChange: (v: boolean) => void;
+  onItalicChange: (v: boolean) => void;
+  onUnderlineChange: (v: boolean) => void;
+  onStrikethroughChange: (v: boolean) => void;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  strikethrough?: boolean;
 }
 
 export default function NodePopup({
@@ -36,11 +44,20 @@ export default function NodePopup({
   currentShape,
   onTextColorChange,
   currentTextColor,
+  onBoldChange,
+  onItalicChange,
+  onUnderlineChange,
+  onStrikethroughChange,
+  bold,
+  italic,
+  underline,
+  strikethrough,
 }: Props) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [sizePaletteOpen, setSizePaletteOpen] = useState(false);
   const [shapePaletteOpen, setShapePaletteOpen] = useState(false);
   const [textColorPaletteOpen, setTextColorPaletteOpen] = useState(false);
+  const [textStylePaletteOpen, setTextStylePaletteOpen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
   const sidebarOpen = useUIStore((state) => state.sidebarOpen);
   const { resolvedTheme } = useTheme();
@@ -92,7 +109,7 @@ export default function NodePopup({
                 onColorChange(i);
                 setPaletteOpen(false);
               }}
-              className="h-4 w-4 shrink-0 cursor-pointer rounded-full border-[1.5px] border-border transition-transform hover:scale-125"
+              className="border-border h-4 w-4 shrink-0 cursor-pointer rounded-full border-[1.5px] transition-transform hover:scale-125"
             />
           ))}
         </div>
@@ -162,11 +179,37 @@ export default function NodePopup({
               key={i}
               style={{
                 background: color ?? (isDark ? 'rgba(255,255,255,0.9)' : 'rgba(14,12,42,0.92)'),
-                boxShadow: (color ?? null) === (currentTextColor ?? null) ? ringBoxShadow : undefined,
+                boxShadow:
+                  (color ?? null) === (currentTextColor ?? null) ? ringBoxShadow : undefined,
               }}
-              onClick={() => { onTextColorChange(color); setTextColorPaletteOpen(false); }}
-              className="h-4 w-4 shrink-0 cursor-pointer rounded-full border-[1.5px] border-border transition-transform hover:scale-125"
+              onClick={() => {
+                onTextColorChange(color);
+                setTextColorPaletteOpen(false);
+              }}
+              className="border-border h-4 w-4 shrink-0 cursor-pointer rounded-full border-[1.5px] transition-transform hover:scale-125"
             />
+          ))}
+        </div>
+      )}
+
+      {textStylePaletteOpen && (
+        <div className="border-border flex items-center gap-1 border-b px-2.5 py-2">
+          {([
+            { label: 'B', active: !!bold, toggle: () => onBoldChange(!bold), style: { fontWeight: 800 } },
+            { label: 'I', active: !!italic, toggle: () => onItalicChange(!italic), style: { fontStyle: 'italic' as const } },
+            { label: 'U', active: !!underline, toggle: () => onUnderlineChange(!underline), style: { textDecoration: 'underline' as const } },
+            { label: 'S', active: !!strikethrough, toggle: () => onStrikethroughChange(!strikethrough), style: { textDecoration: 'line-through' as const } },
+          ]).map(({ label, active, toggle, style }) => (
+            <button
+              key={label}
+              onClick={toggle}
+              style={style}
+              className={`h-6.5 w-6.5 cursor-pointer rounded-[7px] text-[12px] transition-all ${
+                active ? 'bg-primary/18 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+              }`}
+            >
+              {label}
+            </button>
           ))}
         </div>
       )}
@@ -233,11 +276,27 @@ export default function NodePopup({
 
         <button
           title="텍스트 색상"
-          onClick={() => { setPaletteOpen(false); setSizePaletteOpen(false); setShapePaletteOpen(false); setTextColorPaletteOpen((v) => !v); }}
-          className={`flex h-6.5 w-6.5 flex-col items-center justify-center gap-[1.5px] cursor-pointer rounded-[7px] text-[11px] font-bold transition-all ${textColorPaletteOpen ? 'bg-primary/18 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
+          onClick={() => {
+            setPaletteOpen(false);
+            setSizePaletteOpen(false);
+            setShapePaletteOpen(false);
+            setTextColorPaletteOpen((v) => !v);
+          }}
+          className={`flex h-6.5 w-6.5 cursor-pointer flex-col items-center justify-center gap-[1.5px] rounded-[7px] text-[11px] font-bold transition-all ${textColorPaletteOpen ? 'bg-primary/18 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
         >
           <span>A</span>
-          <span className="h-[2px] w-[10px] rounded-full block" style={{ background: currentTextColor ?? 'currentColor' }} />
+          <span
+            className="block h-[2px] w-[10px] rounded-full"
+            style={{ background: currentTextColor ?? 'currentColor' }}
+          />
+        </button>
+
+        <button
+          title="텍스트 스타일"
+          onClick={() => { setPaletteOpen(false); setSizePaletteOpen(false); setShapePaletteOpen(false); setTextColorPaletteOpen(false); setTextStylePaletteOpen((v) => !v); }}
+          className={`h-6.5 w-6.5 cursor-pointer rounded-[7px] text-[11px] font-bold transition-all ${textStylePaletteOpen ? 'bg-primary/18 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
+        >
+          T
         </button>
 
         <div className="bg-border mx-1 h-4 w-px shrink-0" />

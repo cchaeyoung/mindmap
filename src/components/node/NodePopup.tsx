@@ -1,6 +1,6 @@
 import IconButton from '@/components/common/IconButton';
 import { SIDEBAR_WIDTH } from '@/constants/layout';
-import { NODE_COLORS_DARK, NODE_COLORS_LIGHT } from '@/constants/node';
+import { NODE_COLORS_DARK, NODE_COLORS_LIGHT, TEXT_COLORS } from '@/constants/node';
 import { FileText, Pencil, Trash2 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useLayoutEffect, useRef, useState } from 'react';
@@ -18,6 +18,8 @@ interface Props {
   currentSize: 'S' | 'M' | 'L';
   onShapeChange: (shape: 'pill' | 'round' | 'sharp') => void;
   currentShape: 'pill' | 'round' | 'sharp';
+  onTextColorChange: (color: string | null) => void;
+  currentTextColor?: string;
 }
 
 export default function NodePopup({
@@ -32,10 +34,13 @@ export default function NodePopup({
   currentSize,
   onShapeChange,
   currentShape,
+  onTextColorChange,
+  currentTextColor,
 }: Props) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [sizePaletteOpen, setSizePaletteOpen] = useState(false);
   const [shapePaletteOpen, setShapePaletteOpen] = useState(false);
+  const [textColorPaletteOpen, setTextColorPaletteOpen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
   const sidebarOpen = useUIStore((state) => state.sidebarOpen);
   const { resolvedTheme } = useTheme();
@@ -87,7 +92,7 @@ export default function NodePopup({
                 onColorChange(i);
                 setPaletteOpen(false);
               }}
-              className="h-4 w-4 shrink-0 cursor-pointer rounded-full border-[1.5px] border-transparent transition-transform hover:scale-125"
+              className="h-4 w-4 shrink-0 cursor-pointer rounded-full border-[1.5px] border-border transition-transform hover:scale-125"
             />
           ))}
         </div>
@@ -150,6 +155,22 @@ export default function NodePopup({
         </div>
       )}
 
+      {textColorPaletteOpen && (
+        <div className="border-border flex flex-wrap items-center gap-1.25 border-b px-2.5 py-2">
+          {TEXT_COLORS.map((color, i) => (
+            <button
+              key={i}
+              style={{
+                background: color ?? (isDark ? 'rgba(255,255,255,0.9)' : 'rgba(14,12,42,0.92)'),
+                boxShadow: (color ?? null) === (currentTextColor ?? null) ? ringBoxShadow : undefined,
+              }}
+              onClick={() => { onTextColorChange(color); setTextColorPaletteOpen(false); }}
+              className="h-4 w-4 shrink-0 cursor-pointer rounded-full border-[1.5px] border-border transition-transform hover:scale-125"
+            />
+          ))}
+        </div>
+      )}
+
       <div className="flex items-center gap-0.5 px-2 py-1.25">
         <button
           title="색상 변경"
@@ -157,6 +178,7 @@ export default function NodePopup({
           onClick={() => {
             setSizePaletteOpen(false);
             setShapePaletteOpen(false);
+            setTextColorPaletteOpen(false);
             setPaletteOpen((v) => !v);
           }}
           className="h-4.5 w-4.5 shrink-0 cursor-pointer rounded-full border-[2.5px] border-white/20 transition-all hover:scale-110 hover:border-white/55"
@@ -205,6 +227,17 @@ export default function NodePopup({
             {currentShape === 'round' && <rect x="1" y="1" width="10" height="10" rx="3.5" />}
             {currentShape === 'sharp' && <rect x="1" y="1" width="10" height="10" rx="1" />}
           </svg>
+        </button>
+
+        <div className="bg-border mx-1 h-4 w-px shrink-0" />
+
+        <button
+          title="텍스트 색상"
+          onClick={() => { setPaletteOpen(false); setSizePaletteOpen(false); setShapePaletteOpen(false); setTextColorPaletteOpen((v) => !v); }}
+          className={`flex h-6.5 w-6.5 flex-col items-center justify-center gap-[1.5px] cursor-pointer rounded-[7px] text-[11px] font-bold transition-all ${textColorPaletteOpen ? 'bg-primary/18 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
+        >
+          <span>A</span>
+          <span className="h-[2px] w-[10px] rounded-full block" style={{ background: currentTextColor ?? 'currentColor' }} />
         </button>
 
         <div className="bg-border mx-1 h-4 w-px shrink-0" />

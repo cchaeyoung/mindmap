@@ -9,6 +9,7 @@ export interface MindmapNode {
   size: 'S' | 'M' | 'L';
   shape: 'pill' | 'round' | 'sharp';
   direction?: 'left' | 'right';
+  textColor?: string;
 }
 
 export interface Edge {

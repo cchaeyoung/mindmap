@@ -201,6 +201,8 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             }}
             currentShape={selectedNode.shape}
             onShapeChange={(shape) => updateNode(selectedNode.id, { shape })}
+            currentTextColor={selectedNode.textColor}
+            onTextColorChange={(color) => updateNode(selectedNode.id, { textColor: color ?? undefined })}
           />
         )}
         {editingNodeId && <NodeEditor nodeId={editingNodeId} />}

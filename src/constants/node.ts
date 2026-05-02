@@ -37,3 +37,16 @@ export const NODE_COLORS_LIGHT = [
   '#6b7fe8',
   '#a78bfa',
 ];
+
+export const TEXT_COLORS = [
+  null,
+  '#ffffff',
+  '#64748b',
+  '#ef4444',
+  '#ec4899',
+  '#f97316',
+  '#eab308',
+  '#22c55e',
+  '#3b82f6',
+  '#8b5cf6',
+];

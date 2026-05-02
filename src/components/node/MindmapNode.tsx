@@ -84,7 +84,7 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
         : 0;
   const shadowOpacity = tier === 'root' ? (isSelected ? 0.55 : 0.22) : isSelected ? 0.38 : 0;
 
-  const textColor = isDark ? 'rgba(255,255,255,0.9)' : 'rgba(14,12,42,0.92)';
+  const textColor = node.textColor ?? (isDark ? 'rgba(255,255,255,0.9)' : 'rgba(14,12,42,0.92)');
 
   return (
     <Group

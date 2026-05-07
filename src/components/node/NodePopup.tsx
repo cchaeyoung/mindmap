@@ -28,6 +28,8 @@ interface Props {
   italic?: boolean;
   underline?: boolean;
   strikethrough?: boolean;
+  onMemoOpen: () => void;
+  hasMemo: boolean;
 }
 
 export default function NodePopup({
@@ -52,6 +54,8 @@ export default function NodePopup({
   italic,
   underline,
   strikethrough,
+  onMemoOpen,
+  hasMemo,
 }: Props) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [sizePaletteOpen, setSizePaletteOpen] = useState(false);
@@ -68,6 +72,7 @@ export default function NodePopup({
   };
   const popupRef = useRef<HTMLDivElement>(null);
   const sidebarOpen = useUIStore((state) => state.sidebarOpen);
+  const memoPanelNodeId = useUIStore((state) => state.memoPanelNodeId);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
   const palette = isDark ? NODE_COLORS_DARK : NODE_COLORS_LIGHT;
@@ -202,18 +207,40 @@ export default function NodePopup({
 
       {textStylePaletteOpen && (
         <div className="border-border flex items-center gap-1 border-b px-2.5 py-2">
-          {([
-            { label: 'B', active: !!bold, toggle: () => onBoldChange(!bold), style: { fontWeight: 800 } },
-            { label: 'I', active: !!italic, toggle: () => onItalicChange(!italic), style: { fontStyle: 'italic' as const } },
-            { label: 'U', active: !!underline, toggle: () => onUnderlineChange(!underline), style: { textDecoration: 'underline' as const } },
-            { label: 'S', active: !!strikethrough, toggle: () => onStrikethroughChange(!strikethrough), style: { textDecoration: 'line-through' as const } },
-          ]).map(({ label, active, toggle, style }) => (
+          {[
+            {
+              label: 'B',
+              active: !!bold,
+              toggle: () => onBoldChange(!bold),
+              style: { fontWeight: 800 },
+            },
+            {
+              label: 'I',
+              active: !!italic,
+              toggle: () => onItalicChange(!italic),
+              style: { fontStyle: 'italic' as const },
+            },
+            {
+              label: 'U',
+              active: !!underline,
+              toggle: () => onUnderlineChange(!underline),
+              style: { textDecoration: 'underline' as const },
+            },
+            {
+              label: 'S',
+              active: !!strikethrough,
+              toggle: () => onStrikethroughChange(!strikethrough),
+              style: { textDecoration: 'line-through' as const },
+            },
+          ].map(({ label, active, toggle, style }) => (
             <button
               key={label}
               onClick={toggle}
               style={style}
               className={`h-6.5 w-6.5 cursor-pointer rounded-[7px] text-[12px] transition-all ${
-                active ? 'bg-primary/18 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                active
+                  ? 'bg-primary/18 text-primary'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
               }`}
             >
               {label}
@@ -227,8 +254,9 @@ export default function NodePopup({
           title="색상 변경"
           style={{ background: palette[nodeColorIndex] ?? 'var(--background)' }}
           onClick={() => {
+            const isOpen = paletteOpen;
             closeAllPalettes();
-            setPaletteOpen((v) => !v);
+            if (!isOpen) setPaletteOpen(true);
           }}
           className="h-4.5 w-4.5 shrink-0 cursor-pointer rounded-full border-[2.5px] border-white/20 transition-all hover:scale-110 hover:border-white/55"
         />
@@ -238,8 +266,9 @@ export default function NodePopup({
         <button
           title="크기 변경"
           onClick={() => {
+            const isOpen = sizePaletteOpen;
             closeAllPalettes();
-            setSizePaletteOpen((v) => !v);
+            if (!isOpen) setSizePaletteOpen(true);
           }}
           className={`h-6.5 cursor-pointer rounded-[7px] px-2 text-[11px] font-medium transition-all ${
             sizePaletteOpen
@@ -253,8 +282,9 @@ export default function NodePopup({
         <button
           title="모양 변경"
           onClick={() => {
+            const isOpen = shapePaletteOpen;
             closeAllPalettes();
-            setShapePaletteOpen((v) => !v);
+            if (!isOpen) setShapePaletteOpen(true);
           }}
           className={`flex h-6.5 w-6.5 cursor-pointer items-center justify-center rounded-[7px] transition-all ${
             shapePaletteOpen
@@ -281,21 +311,26 @@ export default function NodePopup({
         <button
           title="텍스트 색상"
           onClick={() => {
+            const isOpen = textColorPaletteOpen;
             closeAllPalettes();
-            setTextColorPaletteOpen((v) => !v);
+            if (!isOpen) setTextColorPaletteOpen(true);
           }}
           className={`flex h-6.5 w-6.5 cursor-pointer flex-col items-center justify-center gap-[1.5px] rounded-[7px] text-[11px] font-bold transition-all ${textColorPaletteOpen ? 'bg-primary/18 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
         >
           <span>A</span>
           <span
-            className="block h-[2px] w-[10px] rounded-full"
+            className="block h-0.5 w-2.5 rounded-full"
             style={{ background: currentTextColor ?? 'currentColor' }}
           />
         </button>
 
         <button
           title="텍스트 스타일"
-          onClick={() => { closeAllPalettes(); setTextStylePaletteOpen((v) => !v); }}
+          onClick={() => {
+            const isOpen = textStylePaletteOpen;
+            closeAllPalettes();
+            if (!isOpen) setTextStylePaletteOpen(true);
+          }}
           className={`h-6.5 w-6.5 cursor-pointer rounded-[7px] text-[11px] font-bold transition-all ${textStylePaletteOpen ? 'bg-primary/18 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
         >
           T
@@ -306,9 +341,14 @@ export default function NodePopup({
         <IconButton title="편집" onClick={onEdit} className="h-6.5 w-6.5 rounded-[7px]">
           <Pencil size={12} />
         </IconButton>
-        <IconButton title="메모" className="h-6.5 w-6.5 rounded-[7px]">
-          <FileText size={12} />
-        </IconButton>
+        <div className="relative">
+          <IconButton title="메모" onClick={onMemoOpen} isActive={!!memoPanelNodeId} className={`h-6.5 w-6.5 rounded-[7px] ${memoPanelNodeId ? 'bg-primary/18 text-primary' : ''}`}>
+            <FileText size={12} />
+          </IconButton>
+          {hasMemo && (
+            <span className="bg-primary absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full" />
+          )}
+        </div>
         <IconButton
           title="삭제"
           onClick={onDelete}

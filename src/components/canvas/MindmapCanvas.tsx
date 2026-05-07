@@ -14,6 +14,7 @@ import Edge from '@/components/canvas/Edge';
 import { NodeRefsProvider } from '@/context/NodeRefsContext';
 import NodeEditor from '../node/NodeEditor';
 import NodePopup from '@/components/node/NodePopup';
+import MemoPanel from '@/components/node/MemoPanel';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -35,6 +36,8 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const setCanvasMode = useUIStore((state) => state.setCanvasMode);
   const hoveredNodeId = useUIStore((state) => state.hoveredNodeId);
   const setHoveredNode = useUIStore((state) => state.setHoveredNode);
+  const memoPanelNodeId = useUIStore((state) => state.memoPanelNodeId);
+  const setMemoPanelNodeId = useUIStore((state) => state.setMemoPanelNode);
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const nodes = useMapStore((state) => state.nodes);
@@ -102,6 +105,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (document.activeElement?.tagName.toLowerCase() === 'textarea') return;
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeId && !editingNodeId) {
         handleDeleteNode(selectedNodeId);
       }
@@ -192,6 +196,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             yBelow={popupPos.yBelow}
             nodeColorIndex={selectedNode.colorIndex}
             onEdit={() => setEditingNode(selectedNode.id)}
+            onMemoOpen={() => setMemoPanelNodeId(memoPanelNodeId === selectedNode.id ? null : selectedNode.id)}
             onDelete={() => handleDeleteNode(selectedNode.id)}
             onColorChange={(colorIndex) => updateNode(selectedNode.id, { colorIndex })}
             currentSize={selectedNode.size ?? 'M'}
@@ -212,19 +217,33 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             strikethrough={selectedNode.strikethrough}
             onBoldChange={(v) => {
               const tier = selectedNode.parentId === null ? 'root' : 'child';
-              const width = measureNodeWidth(selectedNode.label, tier, selectedNode.size ?? 'M', v, selectedNode.italic);
+              const width = measureNodeWidth(
+                selectedNode.label,
+                tier,
+                selectedNode.size ?? 'M',
+                v,
+                selectedNode.italic
+              );
               updateNode(selectedNode.id, { bold: v, width });
             }}
             onItalicChange={(v) => {
               const tier = selectedNode.parentId === null ? 'root' : 'child';
-              const width = measureNodeWidth(selectedNode.label, tier, selectedNode.size ?? 'M', selectedNode.bold, v);
+              const width = measureNodeWidth(
+                selectedNode.label,
+                tier,
+                selectedNode.size ?? 'M',
+                selectedNode.bold,
+                v
+              );
               updateNode(selectedNode.id, { italic: v, width });
             }}
             onUnderlineChange={(v) => updateNode(selectedNode.id, { underline: v })}
             onStrikethroughChange={(v) => updateNode(selectedNode.id, { strikethrough: v })}
+            hasMemo={Boolean(selectedNode.memo?.trim())}
           />
         )}
         {editingNodeId && <NodeEditor nodeId={editingNodeId} />}
+        {memoPanelNodeId && <MemoPanel nodeId={memoPanelNodeId} />}
         <Stage
           width={size.width}
           height={size.height}

@@ -105,6 +105,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (document.activeElement?.tagName.toLowerCase() === 'textarea') return;
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeId && !editingNodeId) {
         handleDeleteNode(selectedNodeId);
       }

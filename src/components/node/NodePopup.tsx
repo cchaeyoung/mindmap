@@ -55,6 +55,7 @@ export default function NodePopup({
   underline,
   strikethrough,
   onMemoOpen,
+  hasMemo,
 }: Props) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [sizePaletteOpen, setSizePaletteOpen] = useState(false);
@@ -334,9 +335,14 @@ export default function NodePopup({
         <IconButton title="편집" onClick={onEdit} className="h-6.5 w-6.5 rounded-[7px]">
           <Pencil size={12} />
         </IconButton>
-        <IconButton title="메모" onClick={onMemoOpen} className="h-6.5 w-6.5 rounded-[7px]">
-          <FileText size={12} />
-        </IconButton>
+        <div className="relative">
+          <IconButton title="메모" onClick={onMemoOpen} className="h-6.5 w-6.5 rounded-[7px]">
+            <FileText size={12} />
+          </IconButton>
+          {hasMemo && (
+            <span className="bg-primary absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full" />
+          )}
+        </div>
         <IconButton
           title="삭제"
           onClick={onDelete}

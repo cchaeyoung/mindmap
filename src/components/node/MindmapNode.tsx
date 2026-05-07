@@ -8,7 +8,7 @@ import { hexToRgba, resolveColorByTheme } from '@/utils/node';
 import Konva from 'konva';
 import { useTheme } from 'next-themes';
 import { useEffect, useRef } from 'react';
-import { Group, Rect, Text } from 'react-konva';
+import { Circle, Group, Rect, Text } from 'react-konva';
 
 interface Props {
   node: MindmapNode;
@@ -220,8 +220,15 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
         text={node.label}
         fontSize={style.fontSize * scale}
         fontFamily="Pretendard, sans-serif"
-        fontStyle={[node.italic && 'italic', node.bold ? (tier === 'root' ? '800' : 'bold') : String(style.fontWeight)].filter(Boolean).join(' ')}
-        textDecoration={[node.underline && 'underline', node.strikethrough && 'line-through'].filter(Boolean).join(' ')}
+        fontStyle={[
+          node.italic && 'italic',
+          node.bold ? (tier === 'root' ? '800' : 'bold') : String(style.fontWeight),
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        textDecoration={[node.underline && 'underline', node.strikethrough && 'line-through']
+          .filter(Boolean)
+          .join(' ')}
         fill={textColor}
         width={width}
         height={height}
@@ -231,6 +238,24 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
         verticalAlign="middle"
         visible={!isEditing}
       />
+      {node.memo &&
+        node.memo.trim() &&
+        (() => {
+          const rx = node.shape === 'pill' ? height / 2 : node.shape === 'sharp' ? 2 : 8;
+          const dotR = 3.5;
+          const gap = 4;
+          const cornerCx = width / 2 - rx;
+          const cornerCy = -height / 2 + rx;
+          const dist = rx + dotR + gap;
+          return (
+            <Circle
+              x={cornerCx + dist / Math.SQRT2}
+              y={cornerCy - dist / Math.SQRT2}
+              radius={dotR}
+              fill={isDark ? 'rgba(154,179,250,.95)' : 'rgba(54,82,199,.85)'}
+            />
+          );
+        })()}
     </Group>
   );
 }

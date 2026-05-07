@@ -254,8 +254,9 @@ export default function NodePopup({
           title="색상 변경"
           style={{ background: palette[nodeColorIndex] ?? 'var(--background)' }}
           onClick={() => {
+            const isOpen = paletteOpen;
             closeAllPalettes();
-            setPaletteOpen((v) => !v);
+            if (!isOpen) setPaletteOpen(true);
           }}
           className="h-4.5 w-4.5 shrink-0 cursor-pointer rounded-full border-[2.5px] border-white/20 transition-all hover:scale-110 hover:border-white/55"
         />
@@ -265,8 +266,9 @@ export default function NodePopup({
         <button
           title="크기 변경"
           onClick={() => {
+            const isOpen = sizePaletteOpen;
             closeAllPalettes();
-            setSizePaletteOpen((v) => !v);
+            if (!isOpen) setSizePaletteOpen(true);
           }}
           className={`h-6.5 cursor-pointer rounded-[7px] px-2 text-[11px] font-medium transition-all ${
             sizePaletteOpen
@@ -280,8 +282,9 @@ export default function NodePopup({
         <button
           title="모양 변경"
           onClick={() => {
+            const isOpen = shapePaletteOpen;
             closeAllPalettes();
-            setShapePaletteOpen((v) => !v);
+            if (!isOpen) setShapePaletteOpen(true);
           }}
           className={`flex h-6.5 w-6.5 cursor-pointer items-center justify-center rounded-[7px] transition-all ${
             shapePaletteOpen
@@ -308,8 +311,9 @@ export default function NodePopup({
         <button
           title="텍스트 색상"
           onClick={() => {
+            const isOpen = textColorPaletteOpen;
             closeAllPalettes();
-            setTextColorPaletteOpen((v) => !v);
+            if (!isOpen) setTextColorPaletteOpen(true);
           }}
           className={`flex h-6.5 w-6.5 cursor-pointer flex-col items-center justify-center gap-[1.5px] rounded-[7px] text-[11px] font-bold transition-all ${textColorPaletteOpen ? 'bg-primary/18 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
         >
@@ -323,8 +327,9 @@ export default function NodePopup({
         <button
           title="텍스트 스타일"
           onClick={() => {
+            const isOpen = textStylePaletteOpen;
             closeAllPalettes();
-            setTextStylePaletteOpen((v) => !v);
+            if (!isOpen) setTextStylePaletteOpen(true);
           }}
           className={`h-6.5 w-6.5 cursor-pointer rounded-[7px] text-[11px] font-bold transition-all ${textStylePaletteOpen ? 'bg-primary/18 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
         >

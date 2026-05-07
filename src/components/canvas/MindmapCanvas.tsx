@@ -196,7 +196,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             yBelow={popupPos.yBelow}
             nodeColorIndex={selectedNode.colorIndex}
             onEdit={() => setEditingNode(selectedNode.id)}
-            onMemoOpen={() => setMemoPanelNodeId(selectedNode.id)}
+            onMemoOpen={() => setMemoPanelNodeId(memoPanelNodeId ? null : selectedNode.id)}
             onDelete={() => handleDeleteNode(selectedNode.id)}
             onColorChange={(colorIndex) => updateNode(selectedNode.id, { colorIndex })}
             currentSize={selectedNode.size ?? 'M'}

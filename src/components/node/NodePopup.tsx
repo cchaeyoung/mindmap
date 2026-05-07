@@ -72,6 +72,7 @@ export default function NodePopup({
   };
   const popupRef = useRef<HTMLDivElement>(null);
   const sidebarOpen = useUIStore((state) => state.sidebarOpen);
+  const memoPanelNodeId = useUIStore((state) => state.memoPanelNodeId);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
   const palette = isDark ? NODE_COLORS_DARK : NODE_COLORS_LIGHT;
@@ -336,7 +337,7 @@ export default function NodePopup({
           <Pencil size={12} />
         </IconButton>
         <div className="relative">
-          <IconButton title="메모" onClick={onMemoOpen} className="h-6.5 w-6.5 rounded-[7px]">
+          <IconButton title="메모" onClick={onMemoOpen} isActive={!!memoPanelNodeId} className={`h-6.5 w-6.5 rounded-[7px] ${memoPanelNodeId ? 'bg-primary/18 text-primary' : ''}`}>
             <FileText size={12} />
           </IconButton>
           {hasMemo && (

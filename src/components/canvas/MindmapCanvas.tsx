@@ -196,7 +196,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             yBelow={popupPos.yBelow}
             nodeColorIndex={selectedNode.colorIndex}
             onEdit={() => setEditingNode(selectedNode.id)}
-            onMemoOpen={() => setMemoPanelNodeId(memoPanelNodeId ? null : selectedNode.id)}
+            onMemoOpen={() => setMemoPanelNodeId(memoPanelNodeId === selectedNode.id ? null : selectedNode.id)}
             onDelete={() => handleDeleteNode(selectedNode.id)}
             onColorChange={(colorIndex) => updateNode(selectedNode.id, { colorIndex })}
             currentSize={selectedNode.size ?? 'M'}
@@ -239,7 +239,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             }}
             onUnderlineChange={(v) => updateNode(selectedNode.id, { underline: v })}
             onStrikethroughChange={(v) => updateNode(selectedNode.id, { strikethrough: v })}
-            hasMemo={!!selectedNode.memo}
+            hasMemo={Boolean(selectedNode.memo?.trim())}
           />
         )}
         {editingNodeId && <NodeEditor nodeId={editingNodeId} />}

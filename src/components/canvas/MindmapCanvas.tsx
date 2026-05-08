@@ -118,8 +118,8 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const selectedNode = nodes.find((n) => n.id === selectedNodeId) ?? null;
   const hoveredNode = nodes.find((n) => n.id === hoveredNodeId) ?? null;
 
-  const handleAddChild = (direction: 'left' | 'right') => {
-    const targetNode = hoveredNode ?? selectedNode ?? null;
+  const handleAddChild = (nodeId: string, direction: 'left' | 'right') => {
+    const targetNode = nodes.find((n) => n.id === nodeId) ?? null;
     if (!targetNode) return;
     if (canvasMode === 'hand') setCanvasMode('select');
     const children = nodes.filter((n) => n.parentId === targetNode.id);
@@ -189,7 +189,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             x={pos.x}
             y={pos.y}
             direction={pos.direction}
-            onClick={() => handleAddChild(pos.direction)}
+            onClick={() => handleAddChild(pos.nodeId, pos.direction)}
           />
         ))}
         {popupPos && selectedNode && !isDragging && (

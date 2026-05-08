@@ -15,6 +15,7 @@ interface Props {
 export default function MemoPanel({ nodeId }: Props) {
   const node = useMapStore((state) => state.nodes.find((n) => n.id === nodeId));
   const updateNode = useMapStore((state) => state.updateNode);
+  const saveHistory = useMapStore((state) => state.saveHistory);
   const setMemoPanelNode = useUIStore((state) => state.setMemoPanelNode);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
@@ -22,7 +23,17 @@ export default function MemoPanel({ nodeId }: Props) {
   const selectedNodeId = useUIStore((state) => state.selectedNodeId);
   const [visible, setVisible] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const memoChangedRef = useRef(false);
+
+  const saveIfChanged = () => {
+    if (memoChangedRef.current) {
+      saveHistory();
+      memoChangedRef.current = false;
+    }
+  };
+
   const handleClose = () => {
+    saveIfChanged();
     setVisible(false);
     setTimeout(() => setMemoPanelNode(null), 300);
   };
@@ -34,6 +45,7 @@ export default function MemoPanel({ nodeId }: Props) {
 
   useEffect(() => {
     if (selectedNodeId === nodeId) return;
+    saveIfChanged();
     const t1 = setTimeout(() => setVisible(false), 0);
     const t2 = setTimeout(() => setMemoPanelNode(null), 300);
     return () => {
@@ -85,7 +97,11 @@ export default function MemoPanel({ nodeId }: Props) {
         <textarea
           ref={textareaRef}
           value={node.memo ?? ''}
-          onChange={(e) => updateNode(nodeId, { memo: e.target.value })}
+          onChange={(e) => {
+            memoChangedRef.current = true;
+            updateNode(nodeId, { memo: e.target.value }, { skipHistory: true });
+          }}
+          onBlur={() => saveIfChanged()}
           placeholder="메모를 입력하세요..."
           className="text-foreground placeholder:text-muted-foreground flex-1 resize-none bg-transparent text-[13.5px] leading-[1.8] outline-none"
         />

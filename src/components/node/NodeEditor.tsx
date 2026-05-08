@@ -17,12 +17,12 @@ export default function NodeEditor({ nodeId }: Props) {
   const node = useMapStore((state) => state.nodes.find((n) => n.id === nodeId));
   const updateNode = useMapStore((state) => state.updateNode);
   const saveHistory = useMapStore((state) => state.saveHistory);
+  const mergeLastHistory = useMapStore((state) => state.mergeLastHistory);
   const setEditingNode = useUIStore((state) => state.setEditingNode);
   const inputRef = useRef<HTMLInputElement>(null);
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {
-    saveHistory();
     inputRef.current?.focus();
     inputRef.current?.select();
   }, []);
@@ -51,9 +51,27 @@ export default function NodeEditor({ nodeId }: Props) {
         const newWidth = measureNodeWidth(newLabel || '새 항목', tier, node.size ?? 'M');
         updateNode(node.id, { label: newLabel, width: newWidth }, { skipHistory: true });
       }}
-      onBlur={() => setEditingNode(null)}
+      onBlur={() => {
+        const { history, historyIndex } = useMapStore.getState();
+        const nodeInLastHistory = history[historyIndex]?.find((n) => n.id === node.id);
+        if (nodeInLastHistory?.label === '') {
+          mergeLastHistory();
+        } else {
+          saveHistory();
+        }
+        setEditingNode(null);
+      }}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') setEditingNode(null);
+        if (e.key === 'Enter') {
+          const { history, historyIndex } = useMapStore.getState();
+          const nodeInLastHistory = history[historyIndex]?.find((n) => n.id === node.id);
+          if (nodeInLastHistory?.label === '') {
+            mergeLastHistory();
+          } else {
+            saveHistory();
+          }
+          setEditingNode(null);
+        }
       }}
       style={{
         position: 'absolute',

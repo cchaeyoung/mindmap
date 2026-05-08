@@ -9,6 +9,7 @@ interface MapStore {
   history: MindmapNode[][];
   historyIndex: number;
   saveHistory: () => void;
+  mergeLastHistory: () => void;
   undo: () => void;
   redo: () => void;
   addNode: (node: Omit<MindmapNode, 'id' | 'width'>) => string;
@@ -29,6 +30,13 @@ export const useMapStore = create<MapStore>((set, get) => ({
     set({ history: next, historyIndex: next.length - 1 });
   },
 
+  mergeLastHistory: () => {
+    const { nodes, history, historyIndex } = get();
+    const updated = [...history];
+    updated[historyIndex] = [...nodes];
+    set({ history: updated });
+  },
+
   undo: () => {
     const { history, historyIndex } = get();
     if (historyIndex <= 0) return;
@@ -47,23 +55,22 @@ export const useMapStore = create<MapStore>((set, get) => ({
   },
 
   addNode: (node) => {
-    get().saveHistory();
     const id = crypto.randomUUID();
     const tier = node.parentId === null ? 'root' : 'child';
     const width = measureNodeWidth(node.label || '새 항목', tier, node.size);
     set((state) => ({
       nodes: [...state.nodes, { ...node, id, width }],
     }));
+    get().saveHistory();
     return id;
   },
 
   updateNode: (id, changes, opts) => {
-    if (!opts?.skipHistory) get().saveHistory();
     set((state) => ({ nodes: state.nodes.map((n) => (n.id === id ? { ...n, ...changes } : n)) }));
+    if (!opts?.skipHistory) get().saveHistory();
   },
 
   deleteNode: (id) => {
-    get().saveHistory();
     const getAllDescendants = (targetId: string, nodes: MindmapNode[]): string[] => {
       const children = nodes.filter((n) => n.parentId === targetId).map((n) => n.id);
       return [...children, ...children.flatMap((childId) => getAllDescendants(childId, nodes))];
@@ -75,5 +82,6 @@ export const useMapStore = create<MapStore>((set, get) => ({
         edges: state.edges.filter((e) => !toDelete.has(e.fromId) && !toDelete.has(e.toId)),
       };
     });
+    get().saveHistory();
   },
 }));

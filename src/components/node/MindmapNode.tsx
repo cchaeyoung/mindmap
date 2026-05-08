@@ -108,7 +108,6 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
         if (!isSelected) setSelectedNode(null);
       }}
       onDragStart={(e) => {
-        saveHistory();
         setIsDragging(true);
         setDraggingNode(node.id);
         prevPos.current = { x: e.target.x(), y: e.target.y() };
@@ -190,6 +189,7 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
             updateNode(id, { x: pos.x, y: pos.y }, { skipHistory: true });
           }
         });
+        saveHistory();
       }}
     >
       {isSelected && tier === 'root' && (

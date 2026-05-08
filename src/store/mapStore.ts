@@ -42,9 +42,16 @@ export const useMapStore = create<MapStore>((set, get) => ({
     if (historyIndex <= 0) return;
     const newNodes = history[historyIndex - 1];
     set({ nodes: newNodes, historyIndex: historyIndex - 1 });
-    const { selectedNodeId, setSelectedNode, memoPanelNodeId, setMemoPanelNode } =
-      useUIStore.getState();
+    const {
+      selectedNodeId,
+      setSelectedNode,
+      editingNodeId,
+      setEditingNode,
+      memoPanelNodeId,
+      setMemoPanelNode,
+    } = useUIStore.getState();
     if (selectedNodeId && !newNodes.find((n) => n.id === selectedNodeId)) setSelectedNode(null);
+    if (editingNodeId && !newNodes.find((n) => n.id === editingNodeId)) setEditingNode(null);
     if (memoPanelNodeId && !newNodes.find((n) => n.id === memoPanelNodeId)) setMemoPanelNode(null);
   },
 

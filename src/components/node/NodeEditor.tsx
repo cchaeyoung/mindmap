@@ -16,11 +16,13 @@ export default function NodeEditor({ nodeId }: Props) {
   const cam = useCanvasStore((state) => state.cam);
   const node = useMapStore((state) => state.nodes.find((n) => n.id === nodeId));
   const updateNode = useMapStore((state) => state.updateNode);
+  const saveHistory = useMapStore((state) => state.saveHistory);
   const setEditingNode = useUIStore((state) => state.setEditingNode);
   const inputRef = useRef<HTMLInputElement>(null);
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {
+    saveHistory();
     inputRef.current?.focus();
     inputRef.current?.select();
   }, []);
@@ -47,7 +49,7 @@ export default function NodeEditor({ nodeId }: Props) {
       onChange={(e) => {
         const newLabel = e.target.value;
         const newWidth = measureNodeWidth(newLabel || '새 항목', tier, node.size ?? 'M');
-        updateNode(node.id, { label: newLabel, width: newWidth });
+        updateNode(node.id, { label: newLabel, width: newWidth }, { skipHistory: true });
       }}
       onBlur={() => setEditingNode(null)}
       onKeyDown={(e) => {

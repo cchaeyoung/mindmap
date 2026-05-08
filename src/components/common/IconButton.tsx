@@ -19,7 +19,7 @@ export default function IconButton({ onClick, children, className, title, disabl
       disabled={disabled}
       className={cn(
         'flex cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-all disabled:cursor-default disabled:opacity-30',
-        isActive ? '' : 'hover:bg-accent hover:text-foreground',
+        isActive || disabled ? '' : 'hover:bg-accent hover:text-foreground',
         className
       )}
     >

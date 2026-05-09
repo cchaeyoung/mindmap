@@ -28,6 +28,7 @@ export function useKeyboardShortcuts() {
       if (activeTag === 'input' || activeTag === 'textarea') return;
 
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeId && !editingNodeId) {
+        e.preventDefault();
         const node = nodes.find((n) => n.id === selectedNodeId);
         deleteNode(selectedNodeId);
         setSelectedNode(node?.parentId ?? null);
@@ -48,11 +49,11 @@ export function useKeyboardShortcuts() {
         setSelectedNode(null);
         return;
       }
-      if (e.key.toLowerCase() === 'v') {
+      if (e.key.toLowerCase() === 'v' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         setCanvasMode('select');
         return;
       }
-      if (e.key.toLowerCase() === 'h') {
+      if (e.key.toLowerCase() === 'h' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         setCanvasMode('hand');
         setSelectedNode(null);
         setEditingNode(null);

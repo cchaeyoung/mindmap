@@ -58,12 +58,7 @@ export default function NodeEditor({ nodeId }: Props) {
         setEditingNode(null);
       }}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          const { justAddedNodeId } = useMapStore.getState();
-          if (justAddedNodeId === node.id) confirmNodeCreation();
-          else saveHistory();
-          setEditingNode(null);
-        }
+        if (e.key === 'Enter') inputRef.current?.blur();
       }}
       style={{
         position: 'absolute',

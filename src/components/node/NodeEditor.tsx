@@ -72,6 +72,7 @@ export default function NodeEditor({ nodeId, onEnterConfirm, onTabConfirm }: Pro
       }}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
+          if (e.nativeEvent.isComposing) return;
           enterPressedRef.current = true;
           inputRef.current?.blur();
         }
@@ -80,6 +81,7 @@ export default function NodeEditor({ nodeId, onEnterConfirm, onTabConfirm }: Pro
           inputRef.current?.blur();
         }
         if (e.key === 'Tab') {
+          if (e.nativeEvent.isComposing) return;
           e.preventDefault();
           tabPressedRef.current = true;
           inputRef.current?.blur();

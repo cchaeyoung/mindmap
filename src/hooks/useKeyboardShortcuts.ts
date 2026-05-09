@@ -38,6 +38,10 @@ export function useKeyboardShortcuts() {
         undo();
         return;
       }
+      if (e.key === 'Enter' && selectedNodeId && !editingNodeId) {
+        setEditingNode(selectedNodeId);
+        return;
+      }
       if (e.key.toLowerCase() === 'v') {
         setCanvasMode('select');
         return;

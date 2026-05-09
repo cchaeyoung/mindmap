@@ -4,12 +4,14 @@ import { NODE_DEFAULT_COLOR_INDEX, NODE_DEFAULT_SHAPE } from '@/constants/node';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useMapStore } from '@/store/mapStore';
 import { useUIStore } from '@/store/uiStore';
+import { measureNodeWidth } from '@/utils/node';
 import { useEffect } from 'react';
 
 export function useKeyboardShortcuts() {
   const nodes = useMapStore((state) => state.nodes);
   const deleteNode = useMapStore((state) => state.deleteNode);
   const addNode = useMapStore((state) => state.addNode);
+  const updateNode = useMapStore((state) => state.updateNode);
   const selectedNodeId = useUIStore((state) => state.selectedNodeId);
   const editingNodeId = useUIStore((state) => state.editingNodeId);
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
@@ -56,6 +58,33 @@ export function useKeyboardShortcuts() {
         setEditingNode(null);
         return;
       }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'b' && selectedNodeId) {
+        e.preventDefault();
+        const node = nodes.find((n) => n.id === selectedNodeId);
+        if (!node) return;
+        const tier = node.parentId === null ? 'root' : 'child';
+        const newBold = !node.bold;
+        const width = measureNodeWidth(node.label, tier, node.size ?? 'M', newBold, node.italic);
+        updateNode(selectedNodeId, { bold: newBold, width });
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'i' && selectedNodeId) {
+        e.preventDefault();
+        const node = nodes.find((n) => n.id === selectedNodeId);
+        if (!node) return;
+        const tier = node.parentId === null ? 'root' : 'child';
+        const newItalic = !node.italic;
+        const width = measureNodeWidth(node.label, tier, node.size ?? 'M', node.bold, newItalic);
+        updateNode(selectedNodeId, { italic: newItalic, width });
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'u' && selectedNodeId) {
+        e.preventDefault();
+        const node = nodes.find((n) => n.id === selectedNodeId);
+        if (!node) return;
+        updateNode(selectedNodeId, { underline: !node.underline });
+        return;
+      }
       if (e.key.toLowerCase() === 'n') {
         e.preventDefault();
         setCanvasMode('select');
@@ -84,6 +113,7 @@ export function useKeyboardShortcuts() {
     nodes,
     deleteNode,
     addNode,
+    updateNode,
     setSelectedNode,
     redo,
     undo,

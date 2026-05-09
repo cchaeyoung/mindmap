@@ -10,7 +10,6 @@ interface MapStore {
   historyIndex: number;
   justAddedNodeId: string | null;
   saveHistory: () => void;
-  mergeLastHistory: () => void;
   confirmNodeCreation: () => void;
   undo: () => void;
   redo: () => void;
@@ -31,13 +30,6 @@ export const useMapStore = create<MapStore>((set, get) => ({
     const trimmed = history.slice(0, historyIndex + 1);
     const next = [...trimmed, [...nodes]].slice(-50);
     set({ history: next, historyIndex: next.length - 1 });
-  },
-
-  mergeLastHistory: () => {
-    const { nodes, history, historyIndex } = get();
-    const updated = [...history];
-    updated[historyIndex] = [...nodes];
-    set({ history: updated });
   },
 
   confirmNodeCreation: () => {

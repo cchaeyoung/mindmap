@@ -58,6 +58,27 @@ export function useKeyboardShortcuts() {
         setEditingNode(null);
         return;
       }
+      if (e.key === 'Tab' && selectedNodeId) {
+        e.preventDefault();
+        const node = nodes.find((n) => n.id === selectedNodeId);
+        if (!node) return;
+        const dir = node.direction ?? 'right';
+        const children = nodes.filter((n) => n.parentId === node.id);
+        const newId = addNode({
+          x: dir === 'right' ? node.x + 200 : node.x - 200,
+          y: node.y + children.length * 80,
+          label: '',
+          parentId: node.id,
+          colorIndex: node.colorIndex,
+          size: 'M',
+          shape: node.shape,
+          direction: dir,
+        });
+        setCanvasMode('select');
+        setSelectedNode(newId);
+        setEditingNode(newId);
+        return;
+      }
       if ((e.ctrlKey || e.metaKey) && e.key === 'b' && selectedNodeId) {
         e.preventDefault();
         const node = nodes.find((n) => n.id === selectedNodeId);

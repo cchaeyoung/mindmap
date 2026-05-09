@@ -134,6 +134,12 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     }
   };
 
+  const handleTabConfirm = (nodeId: string) => {
+    const target = nodes.find((n) => n.id === nodeId);
+    if (!target) return;
+    handleAddChild(nodeId, target.direction ?? 'right');
+  };
+
   useKeyboardShortcuts();
 
   const selectedNode = nodes.find((n) => n.id === selectedNodeId) ?? null;
@@ -255,6 +261,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             key={editingNodeId}
             nodeId={editingNodeId}
             onEnterConfirm={handleEnterConfirm}
+            onTabConfirm={handleTabConfirm}
           />
         )}
         {memoPanelNodeId && <MemoPanel nodeId={memoPanelNodeId} />}

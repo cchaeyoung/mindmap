@@ -11,9 +11,10 @@ import { useEffect, useRef } from 'react';
 interface Props {
   nodeId: string;
   onEnterConfirm?: (nodeId: string) => void;
+  onTabConfirm?: (nodeId: string) => void;
 }
 
-export default function NodeEditor({ nodeId, onEnterConfirm }: Props) {
+export default function NodeEditor({ nodeId, onEnterConfirm, onTabConfirm }: Props) {
   const cam = useCanvasStore((state) => state.cam);
   const node = useMapStore((state) => state.nodes.find((n) => n.id === nodeId));
   const updateNode = useMapStore((state) => state.updateNode);
@@ -22,6 +23,7 @@ export default function NodeEditor({ nodeId, onEnterConfirm }: Props) {
   const setEditingNode = useUIStore((state) => state.setEditingNode);
   const inputRef = useRef<HTMLInputElement>(null);
   const enterPressedRef = useRef(false);
+  const tabPressedRef = useRef(false);
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {
@@ -63,6 +65,10 @@ export default function NodeEditor({ nodeId, onEnterConfirm }: Props) {
           enterPressedRef.current = false;
           onEnterConfirm?.(node.id);
         }
+        if (tabPressedRef.current) {
+          tabPressedRef.current = false;
+          onTabConfirm?.(node.id);
+        }
       }}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
@@ -71,6 +77,11 @@ export default function NodeEditor({ nodeId, onEnterConfirm }: Props) {
         }
         if (e.key === 'Escape') {
           e.stopPropagation();
+          inputRef.current?.blur();
+        }
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          tabPressedRef.current = true;
           inputRef.current?.blur();
         }
       }}

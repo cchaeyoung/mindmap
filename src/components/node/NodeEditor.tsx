@@ -84,6 +84,22 @@ export default function NodeEditor({ nodeId, onEnterConfirm, onTabConfirm }: Pro
           tabPressedRef.current = true;
           inputRef.current?.blur();
         }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+          e.preventDefault();
+          const newBold = !node.bold;
+          const width = measureNodeWidth(node.label, tier, node.size ?? 'M', newBold, node.italic);
+          updateNode(node.id, { bold: newBold, width });
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
+          e.preventDefault();
+          const newItalic = !node.italic;
+          const width = measureNodeWidth(node.label, tier, node.size ?? 'M', node.bold, newItalic);
+          updateNode(node.id, { italic: newItalic, width });
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'u') {
+          e.preventDefault();
+          updateNode(node.id, { underline: !node.underline });
+        }
       }}
       style={{
         position: 'absolute',

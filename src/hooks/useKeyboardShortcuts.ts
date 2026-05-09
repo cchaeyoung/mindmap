@@ -10,6 +10,8 @@ export function useKeyboardShortcuts() {
   const selectedNodeId = useUIStore((state) => state.selectedNodeId);
   const editingNodeId = useUIStore((state) => state.editingNodeId);
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
+  const undo = useMapStore((state) => state.undo);
+  const redo = useMapStore((state) => state.redo);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -21,9 +23,11 @@ export function useKeyboardShortcuts() {
         deleteNode(selectedNodeId);
         setSelectedNode(node?.parentId ?? null);
       }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'Z') { redo(); return; }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') { undo(); return; }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedNodeId, editingNodeId, nodes, deleteNode, setSelectedNode]);
+  }, [selectedNodeId, editingNodeId, nodes, deleteNode, setSelectedNode, redo, undo]);
 }

@@ -19,6 +19,8 @@ export default function Toolbar() {
   const redo = useMapStore((state) => state.redo);
   const historyIndex = useMapStore((state) => state.historyIndex);
   const historyLength = useMapStore((state) => state.history.length);
+  const isMac =
+    typeof navigator !== 'undefined' && navigator.platform.toUpperCase().includes('MAC');
 
   const handleAddRoot = () => {
     if (canvasMode === 'hand') setCanvasMode('select');
@@ -81,7 +83,7 @@ export default function Toolbar() {
 
         <IconButton
           onClick={undo}
-          title="실행 취소"
+          title={`실행 취소 (${isMac ? '⌘Z' : 'Ctrl+Z'})`}
           disabled={historyIndex <= 0}
           className="h-8 rounded-[10px] px-3"
         >
@@ -89,7 +91,7 @@ export default function Toolbar() {
         </IconButton>
         <IconButton
           onClick={redo}
-          title="다시 실행"
+          title={`다시 실행 (${isMac ? '⌘⇧Z' : 'Ctrl+Shift+Z'})`}
           disabled={historyIndex >= historyLength - 1}
           className="h-8 rounded-[10px] px-3"
         >

@@ -17,6 +17,7 @@ import NodePopup from '@/components/node/NodePopup';
 import MemoPanel from '@/components/node/MemoPanel';
 import { cn } from '@/lib/utils';
 import type { MindmapNode as MindmapNodeType } from '@/types';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 interface Props {
   onWheel: (e: KonvaEventObject<WheelEvent>) => void;
@@ -104,16 +105,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     [nodes, deleteNode, setSelectedNode]
   );
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (document.activeElement?.tagName.toLowerCase() === 'textarea') return;
-      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeId && !editingNodeId) {
-        handleDeleteNode(selectedNodeId);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedNodeId, editingNodeId, handleDeleteNode]);
+  useKeyboardShortcuts();
 
   const selectedNode = nodes.find((n) => n.id === selectedNodeId) ?? null;
   const hoveredNode = nodes.find((n) => n.id === hoveredNodeId) ?? null;

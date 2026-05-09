@@ -17,7 +17,7 @@ export default function NodeEditor({ nodeId }: Props) {
   const node = useMapStore((state) => state.nodes.find((n) => n.id === nodeId));
   const updateNode = useMapStore((state) => state.updateNode);
   const saveHistory = useMapStore((state) => state.saveHistory);
-  const mergeLastHistory = useMapStore((state) => state.mergeLastHistory);
+  const confirmNodeCreation = useMapStore((state) => state.confirmNodeCreation);
   const setEditingNode = useUIStore((state) => state.setEditingNode);
   const inputRef = useRef<HTMLInputElement>(null);
   const { resolvedTheme } = useTheme();
@@ -52,24 +52,16 @@ export default function NodeEditor({ nodeId }: Props) {
         updateNode(node.id, { label: newLabel, width: newWidth }, { skipHistory: true });
       }}
       onBlur={() => {
-        const { history, historyIndex } = useMapStore.getState();
-        const nodeInLastHistory = history[historyIndex]?.find((n) => n.id === node.id);
-        if (nodeInLastHistory?.label === '') {
-          mergeLastHistory();
-        } else {
-          saveHistory();
-        }
+        const { justAddedNodeId } = useMapStore.getState();
+        if (justAddedNodeId === node.id) confirmNodeCreation();
+        else saveHistory();
         setEditingNode(null);
       }}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
-          const { history, historyIndex } = useMapStore.getState();
-          const nodeInLastHistory = history[historyIndex]?.find((n) => n.id === node.id);
-          if (nodeInLastHistory?.label === '') {
-            mergeLastHistory();
-          } else {
-            saveHistory();
-          }
+          const { justAddedNodeId } = useMapStore.getState();
+          if (justAddedNodeId === node.id) confirmNodeCreation();
+          else saveHistory();
           setEditingNode(null);
         }
       }}

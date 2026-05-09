@@ -8,8 +8,10 @@ interface MapStore {
   edges: Edge[];
   history: MindmapNode[][];
   historyIndex: number;
+  justAddedNodeId: string | null;
   saveHistory: () => void;
   mergeLastHistory: () => void;
+  confirmNodeCreation: () => void;
   undo: () => void;
   redo: () => void;
   addNode: (node: Omit<MindmapNode, 'id' | 'width'>) => string;
@@ -22,6 +24,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
   edges: [],
   history: [[]],
   historyIndex: 0,
+  justAddedNodeId: null,
 
   saveHistory: () => {
     const { nodes, history, historyIndex } = get();
@@ -35,6 +38,13 @@ export const useMapStore = create<MapStore>((set, get) => ({
     const updated = [...history];
     updated[historyIndex] = [...nodes];
     set({ history: updated });
+  },
+
+  confirmNodeCreation: () => {
+    const { nodes, history, historyIndex } = get();
+    const updated = [...history];
+    updated[historyIndex] = [...nodes];
+    set({ history: updated, justAddedNodeId: null });
   },
 
   undo: () => {
@@ -69,6 +79,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
       nodes: [...state.nodes, { ...node, id, width }],
     }));
     get().saveHistory();
+    set({ justAddedNodeId: id });
     return id;
   },
 

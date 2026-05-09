@@ -17,6 +17,7 @@ import NodePopup from '@/components/node/NodePopup';
 import MemoPanel from '@/components/node/MemoPanel';
 import { cn } from '@/lib/utils';
 import type { MindmapNode as MindmapNodeType } from '@/types';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 interface Props {
   onWheel: (e: KonvaEventObject<WheelEvent>) => void;
@@ -104,20 +105,6 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     [nodes, deleteNode, setSelectedNode]
   );
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (document.activeElement?.tagName.toLowerCase() === 'textarea') return;
-      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeId && !editingNodeId) {
-        handleDeleteNode(selectedNodeId);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedNodeId, editingNodeId, handleDeleteNode]);
-
-  const selectedNode = nodes.find((n) => n.id === selectedNodeId) ?? null;
-  const hoveredNode = nodes.find((n) => n.id === hoveredNodeId) ?? null;
-
   const handleAddChild = (nodeId: string, direction: 'left' | 'right') => {
     const targetNode = nodes.find((n) => n.id === nodeId) ?? null;
     if (!targetNode) return;
@@ -137,15 +124,37 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     setEditingNode(newId);
   };
 
+  const handleEnterConfirm = (nodeId: string) => {
+    const target = nodes.find((n) => n.id === nodeId);
+    if (!target) return;
+    if (target.parentId === null) {
+      handleAddChild(nodeId, 'right');
+    } else {
+      handleAddChild(target.parentId, target.direction ?? 'right');
+    }
+  };
+
+  const handleTabConfirm = (nodeId: string) => {
+    const target = nodes.find((n) => n.id === nodeId);
+    if (!target) return;
+    handleAddChild(nodeId, target.direction ?? 'right');
+  };
+
+  useKeyboardShortcuts();
+
+  const selectedNode = nodes.find((n) => n.id === selectedNodeId) ?? null;
+  const hoveredNode = nodes.find((n) => n.id === hoveredNodeId) ?? null;
+
   const getAddButtonPositions = (node: MindmapNodeType) => {
     const isRoot = node.parentId === null;
     const rightEdge = node.x + node.width / 2;
     const leftEdge = node.x - node.width / 2;
     const y = cam.y + node.y * cam.zoom;
-    if (isRoot) return [
-      { x: cam.x + rightEdge * cam.zoom + 21, y, direction: 'right' as const, nodeId: node.id },
-      { x: cam.x + leftEdge * cam.zoom - 21, y, direction: 'left' as const, nodeId: node.id },
-    ];
+    if (isRoot)
+      return [
+        { x: cam.x + rightEdge * cam.zoom + 21, y, direction: 'right' as const, nodeId: node.id },
+        { x: cam.x + leftEdge * cam.zoom - 21, y, direction: 'left' as const, nodeId: node.id },
+      ];
     const dir = node.direction ?? 'right';
     const edgeX = dir === 'right' ? rightEdge : leftEdge;
     const offset = dir === 'right' ? 21 : -21;
@@ -247,7 +256,14 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             hasMemo={Boolean(selectedNode.memo?.trim())}
           />
         )}
-        {editingNodeId && <NodeEditor nodeId={editingNodeId} />}
+        {editingNodeId && (
+          <NodeEditor
+            key={editingNodeId}
+            nodeId={editingNodeId}
+            onEnterConfirm={handleEnterConfirm}
+            onTabConfirm={handleTabConfirm}
+          />
+        )}
         {memoPanelNodeId && <MemoPanel nodeId={memoPanelNodeId} />}
         <Stage
           width={size.width}

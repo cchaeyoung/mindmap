@@ -19,6 +19,8 @@ export default function Toolbar() {
   const redo = useMapStore((state) => state.redo);
   const historyIndex = useMapStore((state) => state.historyIndex);
   const historyLength = useMapStore((state) => state.history.length);
+  const isMac =
+    typeof navigator !== 'undefined' && navigator.platform.toUpperCase().includes('MAC');
 
   const handleAddRoot = () => {
     if (canvasMode === 'hand') setCanvasMode('select');
@@ -42,7 +44,7 @@ export default function Toolbar() {
       <FloatingPanel className="flex items-center gap-0.5 rounded-[14px] p-1">
         <IconButton
           onClick={handleAddRoot}
-          title="새 항목 추가"
+          title="새 항목 추가 (N)"
           className="h-8 rounded-[10px] px-3"
         >
           <Plus size={15} />
@@ -52,7 +54,7 @@ export default function Toolbar() {
 
         <IconButton
           onClick={() => setCanvasMode('select')}
-          title="선택"
+          title="선택 (V)"
           isActive={canvasMode === 'select'}
           className={cn(
             'h-8 rounded-[10px] px-3',
@@ -67,7 +69,7 @@ export default function Toolbar() {
             setSelectedNode(null);
             setEditingNode(null);
           }}
-          title="이동"
+          title="이동 (H)"
           isActive={canvasMode === 'hand'}
           className={cn(
             'h-8 rounded-[10px] px-3',
@@ -81,7 +83,7 @@ export default function Toolbar() {
 
         <IconButton
           onClick={undo}
-          title="실행 취소"
+          title={`실행 취소 (${isMac ? '⌘Z' : 'Ctrl+Z'})`}
           disabled={historyIndex <= 0}
           className="h-8 rounded-[10px] px-3"
         >
@@ -89,7 +91,7 @@ export default function Toolbar() {
         </IconButton>
         <IconButton
           onClick={redo}
-          title="다시 실행"
+          title={`다시 실행 (${isMac ? '⌘⇧Z' : 'Ctrl+Shift+Z'})`}
           disabled={historyIndex >= historyLength - 1}
           className="h-8 rounded-[10px] px-3"
         >

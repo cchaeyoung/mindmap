@@ -350,7 +350,7 @@ export default function NodePopup({
           )}
         </div>
         <IconButton
-          title="삭제"
+          title="삭제 (Del)"
           onClick={onDelete}
           className="h-6.5 w-6.5 rounded-[7px] hover:bg-[rgba(248,113,113,0.1)] hover:text-[#f87171]"
         >

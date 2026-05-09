@@ -10,9 +10,11 @@ import { useEffect, useRef } from 'react';
 
 interface Props {
   nodeId: string;
+  onEnterConfirm?: (nodeId: string) => void;
+  onTabConfirm?: (nodeId: string) => void;
 }
 
-export default function NodeEditor({ nodeId }: Props) {
+export default function NodeEditor({ nodeId, onEnterConfirm, onTabConfirm }: Props) {
   const cam = useCanvasStore((state) => state.cam);
   const node = useMapStore((state) => state.nodes.find((n) => n.id === nodeId));
   const updateNode = useMapStore((state) => state.updateNode);
@@ -20,6 +22,8 @@ export default function NodeEditor({ nodeId }: Props) {
   const confirmNodeCreation = useMapStore((state) => state.confirmNodeCreation);
   const setEditingNode = useUIStore((state) => state.setEditingNode);
   const inputRef = useRef<HTMLInputElement>(null);
+  const enterPressedRef = useRef(false);
+  const tabPressedRef = useRef(false);
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {
@@ -56,9 +60,48 @@ export default function NodeEditor({ nodeId }: Props) {
         if (justAddedNodeId === node.id) confirmNodeCreation();
         else saveHistory();
         setEditingNode(null);
+
+        if (enterPressedRef.current) {
+          enterPressedRef.current = false;
+          onEnterConfirm?.(node.id);
+        }
+        if (tabPressedRef.current) {
+          tabPressedRef.current = false;
+          onTabConfirm?.(node.id);
+        }
       }}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') inputRef.current?.blur();
+        if (e.key === 'Enter') {
+          if (e.nativeEvent.isComposing) return;
+          enterPressedRef.current = true;
+          inputRef.current?.blur();
+        }
+        if (e.key === 'Escape') {
+          e.stopPropagation();
+          inputRef.current?.blur();
+        }
+        if (e.key === 'Tab') {
+          if (e.nativeEvent.isComposing) return;
+          e.preventDefault();
+          tabPressedRef.current = true;
+          inputRef.current?.blur();
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+          e.preventDefault();
+          const newBold = !node.bold;
+          const width = measureNodeWidth(node.label, tier, node.size ?? 'M', newBold, node.italic);
+          updateNode(node.id, { bold: newBold, width });
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
+          e.preventDefault();
+          const newItalic = !node.italic;
+          const width = measureNodeWidth(node.label, tier, node.size ?? 'M', node.bold, newItalic);
+          updateNode(node.id, { italic: newItalic, width });
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'u') {
+          e.preventDefault();
+          updateNode(node.id, { underline: !node.underline });
+        }
       }}
       style={{
         position: 'absolute',

@@ -105,11 +105,6 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     [nodes, deleteNode, setSelectedNode]
   );
 
-  useKeyboardShortcuts();
-
-  const selectedNode = nodes.find((n) => n.id === selectedNodeId) ?? null;
-  const hoveredNode = nodes.find((n) => n.id === hoveredNodeId) ?? null;
-
   const handleAddChild = (nodeId: string, direction: 'left' | 'right') => {
     const targetNode = nodes.find((n) => n.id === nodeId) ?? null;
     if (!targetNode) return;
@@ -129,15 +124,31 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     setEditingNode(newId);
   };
 
+  const handleEnterConfirm = (nodeId: string) => {
+    const target = nodes.find((n) => n.id === nodeId);
+    if (!target) return;
+    if (target.parentId === null) {
+      handleAddChild(nodeId, 'right');
+    } else {
+      handleAddChild(target.parentId, target.direction ?? 'right');
+    }
+  };
+
+  useKeyboardShortcuts();
+
+  const selectedNode = nodes.find((n) => n.id === selectedNodeId) ?? null;
+  const hoveredNode = nodes.find((n) => n.id === hoveredNodeId) ?? null;
+
   const getAddButtonPositions = (node: MindmapNodeType) => {
     const isRoot = node.parentId === null;
     const rightEdge = node.x + node.width / 2;
     const leftEdge = node.x - node.width / 2;
     const y = cam.y + node.y * cam.zoom;
-    if (isRoot) return [
-      { x: cam.x + rightEdge * cam.zoom + 21, y, direction: 'right' as const, nodeId: node.id },
-      { x: cam.x + leftEdge * cam.zoom - 21, y, direction: 'left' as const, nodeId: node.id },
-    ];
+    if (isRoot)
+      return [
+        { x: cam.x + rightEdge * cam.zoom + 21, y, direction: 'right' as const, nodeId: node.id },
+        { x: cam.x + leftEdge * cam.zoom - 21, y, direction: 'left' as const, nodeId: node.id },
+      ];
     const dir = node.direction ?? 'right';
     const edgeX = dir === 'right' ? rightEdge : leftEdge;
     const offset = dir === 'right' ? 21 : -21;
@@ -239,7 +250,13 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             hasMemo={Boolean(selectedNode.memo?.trim())}
           />
         )}
-        {editingNodeId && <NodeEditor nodeId={editingNodeId} />}
+        {editingNodeId && (
+          <NodeEditor
+            key={editingNodeId}
+            nodeId={editingNodeId}
+            onEnterConfirm={handleEnterConfirm}
+          />
+        )}
         {memoPanelNodeId && <MemoPanel nodeId={memoPanelNodeId} />}
         <Stage
           width={size.width}

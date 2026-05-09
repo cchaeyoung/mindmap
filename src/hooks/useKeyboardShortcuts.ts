@@ -1,5 +1,7 @@
 'use client';
 
+import { NODE_DEFAULT_COLOR_INDEX, NODE_DEFAULT_SHAPE } from '@/constants/node';
+import { useCanvasStore } from '@/store/canvasStore';
 import { useMapStore } from '@/store/mapStore';
 import { useUIStore } from '@/store/uiStore';
 import { useEffect } from 'react';
@@ -7,6 +9,7 @@ import { useEffect } from 'react';
 export function useKeyboardShortcuts() {
   const nodes = useMapStore((state) => state.nodes);
   const deleteNode = useMapStore((state) => state.deleteNode);
+  const addNode = useMapStore((state) => state.addNode);
   const selectedNodeId = useUIStore((state) => state.selectedNodeId);
   const editingNodeId = useUIStore((state) => state.editingNodeId);
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
@@ -14,6 +17,8 @@ export function useKeyboardShortcuts() {
   const setCanvasMode = useUIStore((state) => state.setCanvasMode);
   const undo = useMapStore((state) => state.undo);
   const redo = useMapStore((state) => state.redo);
+  const cam = useCanvasStore((state) => state.cam);
+  const stageSize = useCanvasStore((state) => state.stageSize);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -43,6 +48,24 @@ export function useKeyboardShortcuts() {
         setEditingNode(null);
         return;
       }
+      if (e.key.toLowerCase() === 'n') {
+        e.preventDefault();
+        setCanvasMode('select');
+        const centerX = (-cam.x + stageSize.width / 2) / cam.zoom;
+        const centerY = (-cam.y + stageSize.height / 2) / cam.zoom;
+        const newId = addNode({
+          x: centerX,
+          y: centerY,
+          label: '',
+          parentId: null,
+          colorIndex: NODE_DEFAULT_COLOR_INDEX,
+          size: 'M',
+          shape: NODE_DEFAULT_SHAPE,
+        });
+        setSelectedNode(newId);
+        setEditingNode(newId);
+        return;
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -52,10 +75,13 @@ export function useKeyboardShortcuts() {
     editingNodeId,
     nodes,
     deleteNode,
+    addNode,
     setSelectedNode,
     redo,
     undo,
     setCanvasMode,
     setEditingNode,
+    cam,
+    stageSize,
   ]);
 }

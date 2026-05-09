@@ -44,7 +44,7 @@ export default function Toolbar() {
       <FloatingPanel className="flex items-center gap-0.5 rounded-[14px] p-1">
         <IconButton
           onClick={handleAddRoot}
-          title="새 항목 추가"
+          title="새 항목 추가 (N)"
           className="h-8 rounded-[10px] px-3"
         >
           <Plus size={15} />

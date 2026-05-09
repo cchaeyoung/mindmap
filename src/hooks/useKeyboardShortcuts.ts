@@ -42,6 +42,10 @@ export function useKeyboardShortcuts() {
         setEditingNode(selectedNodeId);
         return;
       }
+      if (e.key === 'Escape' && selectedNodeId) {
+        setSelectedNode(null);
+        return;
+      }
       if (e.key.toLowerCase() === 'v') {
         setCanvasMode('select');
         return;

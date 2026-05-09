@@ -69,6 +69,10 @@ export default function NodeEditor({ nodeId, onEnterConfirm }: Props) {
           enterPressedRef.current = true;
           inputRef.current?.blur();
         }
+        if (e.key === 'Escape') {
+          e.stopPropagation();
+          inputRef.current?.blur();
+        }
       }}
       style={{
         position: 'absolute',

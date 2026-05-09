@@ -54,7 +54,7 @@ export default function Toolbar() {
 
         <IconButton
           onClick={() => setCanvasMode('select')}
-          title="선택"
+          title="선택 (V)"
           isActive={canvasMode === 'select'}
           className={cn(
             'h-8 rounded-[10px] px-3',
@@ -69,7 +69,7 @@ export default function Toolbar() {
             setSelectedNode(null);
             setEditingNode(null);
           }}
-          title="이동"
+          title="이동 (H)"
           isActive={canvasMode === 'hand'}
           className={cn(
             'h-8 rounded-[10px] px-3',

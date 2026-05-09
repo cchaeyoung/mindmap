@@ -10,6 +10,8 @@ export function useKeyboardShortcuts() {
   const selectedNodeId = useUIStore((state) => state.selectedNodeId);
   const editingNodeId = useUIStore((state) => state.editingNodeId);
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
+  const setEditingNode = useUIStore((state) => state.setEditingNode);
+  const setCanvasMode = useUIStore((state) => state.setCanvasMode);
   const undo = useMapStore((state) => state.undo);
   const redo = useMapStore((state) => state.redo);
 
@@ -23,11 +25,37 @@ export function useKeyboardShortcuts() {
         deleteNode(selectedNodeId);
         setSelectedNode(node?.parentId ?? null);
       }
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'Z') { redo(); return; }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z') { undo(); return; }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'Z') {
+        redo();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        undo();
+        return;
+      }
+      if (e.key.toLowerCase() === 'v') {
+        setCanvasMode('select');
+        return;
+      }
+      if (e.key.toLowerCase() === 'h') {
+        setCanvasMode('hand');
+        setSelectedNode(null);
+        setEditingNode(null);
+        return;
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedNodeId, editingNodeId, nodes, deleteNode, setSelectedNode, redo, undo]);
+  }, [
+    selectedNodeId,
+    editingNodeId,
+    nodes,
+    deleteNode,
+    setSelectedNode,
+    redo,
+    undo,
+    setCanvasMode,
+    setEditingNode,
+  ]);
 }

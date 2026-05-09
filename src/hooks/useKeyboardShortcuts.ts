@@ -26,6 +26,7 @@ export function useKeyboardShortcuts() {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeTag = document.activeElement?.tagName.toLowerCase();
       if (activeTag === 'input' || activeTag === 'textarea') return;
+      const hasModifier = e.ctrlKey || e.metaKey || e.altKey;
 
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeId && !editingNodeId) {
         e.preventDefault();
@@ -49,11 +50,11 @@ export function useKeyboardShortcuts() {
         setSelectedNode(null);
         return;
       }
-      if (e.key.toLowerCase() === 'v' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (e.key.toLowerCase() === 'v' && !hasModifier) {
         setCanvasMode('select');
         return;
       }
-      if (e.key.toLowerCase() === 'h' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (e.key.toLowerCase() === 'h' && !hasModifier) {
         setCanvasMode('hand');
         setSelectedNode(null);
         setEditingNode(null);
@@ -107,7 +108,7 @@ export function useKeyboardShortcuts() {
         updateNode(selectedNodeId, { underline: !node.underline });
         return;
       }
-      if (e.key.toLowerCase() === 'n') {
+      if (e.key.toLowerCase() === 'n' && !hasModifier) {
         e.preventDefault();
         setCanvasMode('select');
         const centerX = (-cam.x + stageSize.width / 2) / cam.zoom;

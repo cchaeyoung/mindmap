@@ -16,6 +16,8 @@ export default function NodeEditor({ nodeId }: Props) {
   const cam = useCanvasStore((state) => state.cam);
   const node = useMapStore((state) => state.nodes.find((n) => n.id === nodeId));
   const updateNode = useMapStore((state) => state.updateNode);
+  const saveHistory = useMapStore((state) => state.saveHistory);
+  const confirmNodeCreation = useMapStore((state) => state.confirmNodeCreation);
   const setEditingNode = useUIStore((state) => state.setEditingNode);
   const inputRef = useRef<HTMLInputElement>(null);
   const { resolvedTheme } = useTheme();
@@ -47,11 +49,16 @@ export default function NodeEditor({ nodeId }: Props) {
       onChange={(e) => {
         const newLabel = e.target.value;
         const newWidth = measureNodeWidth(newLabel || '새 항목', tier, node.size ?? 'M');
-        updateNode(node.id, { label: newLabel, width: newWidth });
+        updateNode(node.id, { label: newLabel, width: newWidth }, { skipHistory: true });
       }}
-      onBlur={() => setEditingNode(null)}
+      onBlur={() => {
+        const { justAddedNodeId } = useMapStore.getState();
+        if (justAddedNodeId === node.id) confirmNodeCreation();
+        else saveHistory();
+        setEditingNode(null);
+      }}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') setEditingNode(null);
+        if (e.key === 'Enter') inputRef.current?.blur();
       }}
       style={{
         position: 'absolute',

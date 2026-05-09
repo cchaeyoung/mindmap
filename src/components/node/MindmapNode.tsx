@@ -26,6 +26,7 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
   const setDraggingNode = useUIStore((state) => state.setDraggingNode);
   const draggingNodeId = useUIStore((state) => state.draggingNodeId);
   const updateNode = useMapStore((state) => state.updateNode);
+  const saveHistory = useMapStore((state) => state.saveHistory);
   const nodes = useMapStore((state) => state.nodes);
   const cam = useCanvasStore((state) => state.cam);
   const camRef = useRef(cam);
@@ -180,14 +181,15 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
         const y = e.target.y();
         const descendants = getDescendants(node.id);
 
-        updateNode(node.id, { x, y });
+        updateNode(node.id, { x, y }, { skipHistory: true });
         descendants.forEach((id) => {
           const ref = nodeRefs.current.get(id);
           if (ref) {
             const pos = ref.position();
-            updateNode(id, { x: pos.x, y: pos.y });
+            updateNode(id, { x: pos.x, y: pos.y }, { skipHistory: true });
           }
         });
+        saveHistory();
       }}
     >
       {isSelected && tier === 'root' && (

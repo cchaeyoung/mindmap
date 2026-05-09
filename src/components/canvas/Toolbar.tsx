@@ -1,4 +1,4 @@
-import { Hand, MousePointer2, Plus } from 'lucide-react';
+import { Hand, MousePointer2, Plus, Redo2, Undo2 } from 'lucide-react';
 import FloatingPanel from '../common/FloatingPanel';
 import IconButton from '../common/IconButton';
 import { useMapStore } from '@/store/mapStore';
@@ -15,6 +15,10 @@ export default function Toolbar() {
   const setEditingNode = useUIStore((state) => state.setEditingNode);
   const canvasMode = useUIStore((state) => state.canvasMode);
   const setCanvasMode = useUIStore((state) => state.setCanvasMode);
+  const undo = useMapStore((state) => state.undo);
+  const redo = useMapStore((state) => state.redo);
+  const historyIndex = useMapStore((state) => state.historyIndex);
+  const historyLength = useMapStore((state) => state.history.length);
 
   const handleAddRoot = () => {
     if (canvasMode === 'hand') setCanvasMode('select');
@@ -50,17 +54,46 @@ export default function Toolbar() {
           onClick={() => setCanvasMode('select')}
           title="선택"
           isActive={canvasMode === 'select'}
-          className={cn('h-8 rounded-[10px] px-3', canvasMode === 'select' && 'bg-primary/20 text-(--mm-acc-fg)')}
+          className={cn(
+            'h-8 rounded-[10px] px-3',
+            canvasMode === 'select' && 'bg-primary/20 text-(--mm-acc-fg)'
+          )}
         >
           <MousePointer2 size={15} />
         </IconButton>
         <IconButton
-          onClick={() => { setCanvasMode('hand'); setSelectedNode(null); setEditingNode(null); }}
+          onClick={() => {
+            setCanvasMode('hand');
+            setSelectedNode(null);
+            setEditingNode(null);
+          }}
           title="이동"
           isActive={canvasMode === 'hand'}
-          className={cn('h-8 rounded-[10px] px-3', canvasMode === 'hand' && 'bg-primary/20 text-(--mm-acc-fg)')}
+          className={cn(
+            'h-8 rounded-[10px] px-3',
+            canvasMode === 'hand' && 'bg-primary/20 text-(--mm-acc-fg)'
+          )}
         >
           <Hand size={15} />
+        </IconButton>
+
+        <div className="bg-border mx-0.5 h-4 w-px shrink-0" />
+
+        <IconButton
+          onClick={undo}
+          title="실행 취소"
+          disabled={historyIndex <= 0}
+          className="h-8 rounded-[10px] px-3"
+        >
+          <Undo2 size={15} />
+        </IconButton>
+        <IconButton
+          onClick={redo}
+          title="다시 실행"
+          disabled={historyIndex >= historyLength - 1}
+          className="h-8 rounded-[10px] px-3"
+        >
+          <Redo2 size={15} />
         </IconButton>
       </FloatingPanel>
     </div>

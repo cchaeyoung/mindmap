@@ -40,6 +40,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const setHoveredNode = useUIStore((state) => state.setHoveredNode);
   const memoPanelNodeId = useUIStore((state) => state.memoPanelNodeId);
   const setMemoPanelNodeId = useUIStore((state) => state.setMemoPanelNode);
+  const isPlacing = useUIStore((state) => state.isPlacing);
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const nodes = useMapStore((state) => state.nodes);
@@ -187,7 +188,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
         ref={containerRef}
         className={cn(
           'h-full w-full outline-none',
-          canvasMode === 'hand' ? 'cursor-grab active:cursor-grabbing' : ''
+          isPlacing ? 'cursor-crosshair' : canvasMode === 'hand' ? 'cursor-grab active:cursor-grabbing' : ''
         )}
         onMouseMove={handleContainerMouseMove}
         onMouseLeave={() => setHoveredNode(null)}

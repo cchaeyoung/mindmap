@@ -109,6 +109,7 @@ export function useKeyboardShortcuts() {
       if (e.key.toLowerCase() === 'n' && !hasModifier) {
         e.preventDefault();
         setIsPlacing(true);
+        setSelectedNode(null);
         return;
       }
     };

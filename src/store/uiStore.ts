@@ -17,6 +17,10 @@ interface UIStore {
   setDraggingNode: (id: string | null) => void;
   memoPanelNodeId: string | null;
   setMemoPanelNode: (id: string | null) => void;
+  isPlacing: boolean;
+  setIsPlacing: (v: boolean) => void;
+  placingPos: { x: number; y: number } | null;
+  setPlacingPos: (pos: { x: number; y: number } | null) => void;
 }
 
 export const useUIStore = create<UIStore>((set) => ({
@@ -36,4 +40,8 @@ export const useUIStore = create<UIStore>((set) => ({
   setDraggingNode: (id) => set({ draggingNodeId: id }),
   memoPanelNodeId: null,
   setMemoPanelNode: (id) => set({ memoPanelNodeId: id }),
+  isPlacing: false,
+  setIsPlacing: (v) => set({ isPlacing: v }),
+  placingPos: null,
+  setPlacingPos: (pos) => set({ placingPos: pos }),
 }));

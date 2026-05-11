@@ -3,7 +3,12 @@
 import { Stage, Layer } from 'react-konva';
 import { KonvaEventObject } from 'konva/lib/Node';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { NODE_SIZE_SCALE, NODE_STYLE } from '@/constants/node';
+import {
+  NODE_DEFAULT_COLOR_INDEX,
+  NODE_DEFAULT_SHAPE,
+  NODE_SIZE_SCALE,
+  NODE_STYLE,
+} from '@/constants/node';
 import { measureNodeWidth } from '@/utils/node';
 import { useMapStore } from '@/store/mapStore';
 import { useCanvasStore } from '@/store/canvasStore';
@@ -40,6 +45,10 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const setHoveredNode = useUIStore((state) => state.setHoveredNode);
   const memoPanelNodeId = useUIStore((state) => state.memoPanelNodeId);
   const setMemoPanelNodeId = useUIStore((state) => state.setMemoPanelNode);
+  const isPlacing = useUIStore((state) => state.isPlacing);
+  const setIsPlacing = useUIStore((state) => state.setIsPlacing);
+  const placingPos = useUIStore((state) => state.placingPos);
+  const setPlacingPos = useUIStore((state) => state.setPlacingPos);
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const nodes = useMapStore((state) => state.nodes);
@@ -60,6 +69,14 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
 
   const handleContainerMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
+      if (isPlacing) {
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        const worldX = (e.clientX - rect.left - cam.x) / cam.zoom;
+        const worldY = (e.clientY - rect.top - cam.y) / cam.zoom;
+        setPlacingPos({ x: worldX, y: worldY });
+        return;
+      }
       if (isDragging || e.buttons !== 0) return;
       const rect = containerRef.current?.getBoundingClientRect();
       if (!rect) return;
@@ -93,7 +110,16 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
       }
       if (hoveredNodeId !== null) setHoveredNode(null);
     },
-    [nodes, cam, setHoveredNode, hoveredNodeId, isDragging, selectedNodeId]
+    [
+      nodes,
+      cam,
+      setHoveredNode,
+      hoveredNodeId,
+      isDragging,
+      selectedNodeId,
+      isPlacing,
+      setPlacingPos,
+    ]
   );
 
   const handleDeleteNode = useCallback(
@@ -187,11 +213,66 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
         ref={containerRef}
         className={cn(
           'h-full w-full outline-none',
-          canvasMode === 'hand' ? 'cursor-grab active:cursor-grabbing' : ''
+          isPlacing
+            ? 'cursor-crosshair'
+            : canvasMode === 'hand'
+              ? 'cursor-grab active:cursor-grabbing'
+              : ''
         )}
         onMouseMove={handleContainerMouseMove}
-        onMouseLeave={() => setHoveredNode(null)}
+        onMouseLeave={() => {
+          setHoveredNode(null);
+          if (isPlacing) setPlacingPos(null);
+        }}
+        onClick={(e) => {
+          if (!isPlacing) return;
+          const rect = containerRef.current?.getBoundingClientRect();
+          if (!rect) return;
+          const worldX = (e.clientX - rect.left - cam.x) / cam.zoom;
+          const worldY = (e.clientY - rect.top - cam.y) / cam.zoom;
+          const newId = addNode({
+            x: worldX,
+            y: worldY,
+            label: '',
+            parentId: null,
+            colorIndex: NODE_DEFAULT_COLOR_INDEX,
+            size: 'M',
+            shape: NODE_DEFAULT_SHAPE,
+          });
+          setIsPlacing(false);
+          setPlacingPos(null);
+          setSelectedNode(newId);
+          setEditingNode(newId);
+        }}
       >
+        {isPlacing &&
+          placingPos &&
+          (() => {
+            const style = NODE_STYLE['root'];
+            const scale = NODE_SIZE_SCALE['M'];
+            const nodeW = measureNodeWidth('새 항목', 'root', 'M');
+            const nodeH = style.fontSize * scale * 1.4 + style.paddingY * scale * 2;
+            const w = nodeW * cam.zoom;
+            const h = nodeH * cam.zoom;
+            const screenX = placingPos.x * cam.zoom + cam.x;
+            const screenY = placingPos.y * cam.zoom + cam.y;
+            return (
+              <div
+                style={{
+                  position: 'absolute',
+                  left: screenX - w / 2,
+                  top: screenY - h / 2,
+                  width: w,
+                  height: h,
+                  borderRadius: h / 2,
+                  border: '2px solid var(--mm-acc-fg)',
+                  background: 'color-mix(in srgb, var(--mm-acc-fg) 12%, transparent)',
+                  opacity: 0.5,
+                  pointerEvents: 'none',
+                }}
+              />
+            );
+          })()}
         {addButtonPositions.map((pos) => (
           <NodeAddButton
             key={`${pos.nodeId}-${pos.direction}`}

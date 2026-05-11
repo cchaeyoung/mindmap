@@ -1,7 +1,5 @@
 'use client';
 
-import { NODE_DEFAULT_COLOR_INDEX, NODE_DEFAULT_SHAPE } from '@/constants/node';
-import { useCanvasStore } from '@/store/canvasStore';
 import { useMapStore } from '@/store/mapStore';
 import { useUIStore } from '@/store/uiStore';
 import { measureNodeWidth } from '@/utils/node';
@@ -17,10 +15,10 @@ export function useKeyboardShortcuts() {
   const setSelectedNode = useUIStore((state) => state.setSelectedNode);
   const setEditingNode = useUIStore((state) => state.setEditingNode);
   const setCanvasMode = useUIStore((state) => state.setCanvasMode);
+  const isPlacing = useUIStore((state) => state.isPlacing);
+  const setIsPlacing = useUIStore((state) => state.setIsPlacing);
   const undo = useMapStore((state) => state.undo);
   const redo = useMapStore((state) => state.redo);
-  const cam = useCanvasStore((state) => state.cam);
-  const stageSize = useCanvasStore((state) => state.stageSize);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -46,9 +44,9 @@ export function useKeyboardShortcuts() {
         setEditingNode(selectedNodeId);
         return;
       }
-      if (e.key === 'Escape' && selectedNodeId) {
-        setSelectedNode(null);
-        return;
+      if (e.key === 'Escape') {
+        if (isPlacing) { setIsPlacing(false); return; }
+        if (selectedNodeId) { setSelectedNode(null); return; }
       }
       if (e.key.toLowerCase() === 'v' && !hasModifier) {
         setCanvasMode('select');
@@ -110,20 +108,7 @@ export function useKeyboardShortcuts() {
       }
       if (e.key.toLowerCase() === 'n' && !hasModifier) {
         e.preventDefault();
-        setCanvasMode('select');
-        const centerX = (-cam.x + stageSize.width / 2) / cam.zoom;
-        const centerY = (-cam.y + stageSize.height / 2) / cam.zoom;
-        const newId = addNode({
-          x: centerX,
-          y: centerY,
-          label: '',
-          parentId: null,
-          colorIndex: NODE_DEFAULT_COLOR_INDEX,
-          size: 'M',
-          shape: NODE_DEFAULT_SHAPE,
-        });
-        setSelectedNode(newId);
-        setEditingNode(newId);
+        setIsPlacing(true);
         return;
       }
     };
@@ -142,7 +127,7 @@ export function useKeyboardShortcuts() {
     undo,
     setCanvasMode,
     setEditingNode,
-    cam,
-    stageSize,
+    setIsPlacing,
+    isPlacing,
   ]);
 }

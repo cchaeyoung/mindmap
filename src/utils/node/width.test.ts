@@ -31,4 +31,16 @@ describe('measureNodeWidth', () => {
     const bold = measureNodeWidth('테스트', 'root', 'M', true);
     expect(bold).toBeGreaterThanOrEqual(normal);
   });
+
+  it('italic이 적용되면 너비가 늘어난다', () => {
+    const normal = measureNodeWidth('테스트', 'root', 'M', false, false);
+    const italic = measureNodeWidth('테스트', 'root', 'M', false, true);
+    expect(italic).toBeGreaterThanOrEqual(normal);
+  });
+
+  it('child 노드에서 bold가 적용된다', () => {
+    const normal = measureNodeWidth('테스트', 'child', 'M', false);
+    const bold = measureNodeWidth('테스트', 'child', 'M', true);
+    expect(bold).toBeGreaterThanOrEqual(normal);
+  });
 });

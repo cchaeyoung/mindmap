@@ -46,6 +46,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const memoPanelNodeId = useUIStore((state) => state.memoPanelNodeId);
   const setMemoPanelNodeId = useUIStore((state) => state.setMemoPanelNode);
   const isPlacing = useUIStore((state) => state.isPlacing);
+  const setIsPlacing = useUIStore((state) => state.setIsPlacing);
   const placingPos = useUIStore((state) => state.placingPos);
   const setPlacingPos = useUIStore((state) => state.setPlacingPos);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -238,8 +239,8 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             size: 'M',
             shape: NODE_DEFAULT_SHAPE,
           });
-          useUIStore.getState().setIsPlacing(false);
-          useUIStore.getState().setPlacingPos(null);
+          setIsPlacing(false);
+          setPlacingPos(null);
           setSelectedNode(newId);
           setEditingNode(newId);
         }}

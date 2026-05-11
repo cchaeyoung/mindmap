@@ -45,15 +45,23 @@ export function useKeyboardShortcuts() {
         return;
       }
       if (e.key === 'Escape') {
-        if (isPlacing) { setIsPlacing(false); return; }
-        if (selectedNodeId) { setSelectedNode(null); return; }
+        if (isPlacing) {
+          setIsPlacing(false);
+          return;
+        }
+        if (selectedNodeId) {
+          setSelectedNode(null);
+          return;
+        }
       }
       if (e.key.toLowerCase() === 'v' && !hasModifier) {
         setCanvasMode('select');
+        setIsPlacing(false);
         return;
       }
       if (e.key.toLowerCase() === 'h' && !hasModifier) {
         setCanvasMode('hand');
+        setIsPlacing(false);
         setSelectedNode(null);
         setEditingNode(null);
         return;

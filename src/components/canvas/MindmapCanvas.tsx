@@ -219,7 +219,10 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
               : ''
         )}
         onMouseMove={handleContainerMouseMove}
-        onMouseLeave={() => setHoveredNode(null)}
+        onMouseLeave={() => {
+          setHoveredNode(null);
+          if (isPlacing) setPlacingPos(null);
+        }}
         onClick={(e) => {
           if (!isPlacing) return;
           const rect = containerRef.current?.getBoundingClientRect();

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useMapStore } from './mapStore';
+import { useUIStore } from './uiStore';
 
 const nodeBase = {
   x: 0,
@@ -104,5 +105,19 @@ describe('undo / redo', () => {
     const index = useMapStore.getState().historyIndex;
     useMapStore.getState().redo();
     expect(useMapStore.getState().historyIndex).toBe(index);
+  });
+
+  it('undo 시 삭제된 노드가 selectedNodeId이면 선택을 해제한다', () => {
+    const id = useMapStore.getState().addNode(nodeBase);
+    useUIStore.setState({ selectedNodeId: id });
+    useMapStore.getState().undo();
+    expect(useUIStore.getState().selectedNodeId).toBeNull();
+  });
+
+  it('undo 시 삭제된 노드가 editingNodeId이면 편집을 해제한다', () => {
+    const id = useMapStore.getState().addNode(nodeBase);
+    useUIStore.setState({ editingNodeId: id });
+    useMapStore.getState().undo();
+    expect(useUIStore.getState().editingNodeId).toBeNull();
   });
 });

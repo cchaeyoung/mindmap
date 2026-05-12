@@ -39,6 +39,13 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
     useNodeRefs();
   const groupRef = useRef<Konva.Group>(null);
   const prevPos = useRef({ x: node.x, y: node.y });
+  const animFrameRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (animFrameRef.current !== null) cancelAnimationFrame(animFrameRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (groupRef.current) registerNode(node.id, groupRef.current);
@@ -189,10 +196,12 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
         const y = e.target.y();
         const descendants = getDescendants(node.id);
 
-        const findRoot = (n: typeof node): typeof node | undefined => {
+        const findRoot = (n: typeof node, visited = new Set<string>()): typeof node | undefined => {
           if (!n.parentId) return n;
+          if (visited.has(n.id)) return undefined;
+          visited.add(n.id);
           const parent = nodes.find((p) => p.id === n.parentId);
-          return parent ? findRoot(parent) : undefined;
+          return parent ? findRoot(parent, visited) : undefined;
         };
 
         if (findRoot(node)?.autoLayout) {
@@ -282,7 +291,7 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
             nodeRefs.current.get(node.id)?.getLayer()?.draw();
 
             if (elapsed < DURATION) {
-              requestAnimationFrame(tick);
+              animFrameRef.current = requestAnimationFrame(tick);
             } else {
               setIsDragging(false);
               const { updateNodes: batchUpdate } = useMapStore.getState();
@@ -293,7 +302,7 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
             }
           };
 
-          requestAnimationFrame(tick);
+          animFrameRef.current = requestAnimationFrame(tick);
         } else {
           setIsDragging(false);
           updateNode(node.id, { x, y }, { skipHistory: true });

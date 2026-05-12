@@ -56,8 +56,10 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const deleteNode = useMapStore((state) => state.deleteNode);
   const updateNode = useMapStore((state) => state.updateNode);
   const applyAutoLayout = useMapStore((state) => state.applyAutoLayout);
+  const isMounted = useRef(false);
 
   useEffect(() => {
+    if (!isMounted.current) { isMounted.current = true; return; }
     applyAutoLayout();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodes.length, nodes.filter((n) => n.autoLayout).length]);

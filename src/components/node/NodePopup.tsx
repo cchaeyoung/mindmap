@@ -367,7 +367,7 @@ export default function NodePopup({
               title={autoLayout ? '자동 정렬 끄기' : '자동 정렬 켜기'}
               onClick={() => onAutoLayoutChange?.(!autoLayout)}
               isActive={autoLayout}
-              className={`h-6.5 w-6.5 rounded-[7px] ${autoLayout ? 'bg-primary/18 text-(--mm-acc-fg)' : ''}`}
+              className={`h-6.5 w-6.5 rounded-[7px] ${autoLayout ? 'bg-primary/18 text-primary' : ''}`}
             >
               <Network size={12} />
             </IconButton>

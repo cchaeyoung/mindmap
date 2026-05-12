@@ -5,6 +5,7 @@ import { useMapStore } from '@/store/mapStore';
 import { useUIStore } from '@/store/uiStore';
 import type { MindmapNode } from '@/types';
 import { hexToRgba, resolveColorByTheme } from '@/utils/node';
+import { computeLayout } from '@/utils/layout/autoLayout';
 import Konva from 'konva';
 import { useTheme } from 'next-themes';
 import { useEffect, useRef } from 'react';
@@ -26,6 +27,7 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
   const setDraggingNode = useUIStore((state) => state.setDraggingNode);
   const draggingNodeId = useUIStore((state) => state.draggingNodeId);
   const updateNode = useMapStore((state) => state.updateNode);
+  const updateNodes = useMapStore((state) => state.updateNodes);
   const saveHistory = useMapStore((state) => state.saveHistory);
   const nodes = useMapStore((state) => state.nodes);
   const cam = useCanvasStore((state) => state.cam);
@@ -37,11 +39,25 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
     useNodeRefs();
   const groupRef = useRef<Konva.Group>(null);
   const prevPos = useRef({ x: node.x, y: node.y });
+  const animFrameRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (animFrameRef.current !== null) cancelAnimationFrame(animFrameRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (groupRef.current) registerNode(node.id, groupRef.current);
     return () => unregisterNode(node.id);
   }, [node.id]);
+
+  useEffect(() => {
+    if (groupRef.current) {
+      groupRef.current.position({ x: node.x, y: node.y });
+      groupRef.current.getLayer()?.batchDraw();
+    }
+  }, [node.x, node.y]);
 
   const getDescendants = (id: string): string[] => {
     const children = nodes.filter((n) => n.parentId === id).map((n) => n.id);
@@ -174,22 +190,131 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
         }
       }}
       onDragEnd={(e) => {
-        setIsDragging(false);
         setDraggingNode(null);
 
         const x = e.target.x();
         const y = e.target.y();
         const descendants = getDescendants(node.id);
 
-        updateNode(node.id, { x, y }, { skipHistory: true });
-        descendants.forEach((id) => {
-          const ref = nodeRefs.current.get(id);
-          if (ref) {
-            const pos = ref.position();
-            updateNode(id, { x: pos.x, y: pos.y }, { skipHistory: true });
-          }
-        });
-        saveHistory();
+        const findRoot = (n: typeof node, visited = new Set<string>()): typeof node | undefined => {
+          if (!n.parentId) return n;
+          if (visited.has(n.id)) return undefined;
+          visited.add(n.id);
+          const parent = nodes.find((p) => p.id === n.parentId);
+          return parent ? findRoot(parent, visited) : undefined;
+        };
+
+        if (findRoot(node)?.autoLayout) {
+          const fromPositions = new Map<string, { x: number; y: number }>();
+          nodeRefs.current.forEach((ref, id) => {
+            fromPositions.set(id, { ...ref.position() });
+          });
+
+          const dragUpdates: { id: string; changes: { x: number; y: number } }[] = [
+            { id: node.id, changes: { x, y } },
+            ...descendants.flatMap((id) => {
+              const ref = nodeRefs.current.get(id);
+              if (!ref) return [];
+              const pos = ref.position();
+              return [{ id, changes: { x: pos.x, y: pos.y } }];
+            }),
+          ];
+          updateNodes(dragUpdates);
+
+          const layoutMap = computeLayout(useMapStore.getState().nodes);
+
+          const DURATION = 300;
+          let startTime: number | null = null;
+          const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
+
+          const tick = (timestamp: number) => {
+            if (!startTime) startTime = timestamp;
+            const elapsed = timestamp - startTime;
+            const t = easeInOut(Math.min(elapsed / DURATION, 1));
+
+            layoutMap.forEach((target, id) => {
+              const ref = nodeRefs.current.get(id);
+              const from = fromPositions.get(id) ?? target;
+              if (!ref) return;
+              ref.position({
+                x: from.x + (target.x - from.x) * t,
+                y: from.y + (target.y - from.y) * t,
+              });
+            });
+
+            nodes.forEach((n) => {
+              if (!n.parentId) return;
+              const childRef = nodeRefs.current.get(n.id);
+              const parentRef = nodeRefs.current.get(n.parentId);
+              if (!childRef || !parentRef) return;
+              const childPos = childRef.position();
+              const parentPos = parentRef.position();
+              const parentData = nodes.find((p) => p.id === n.parentId);
+              const pWidth = parentData?.width ?? n.width;
+              const isLeft = n.direction === 'left';
+              const x1 = isLeft ? parentPos.x - pWidth / 2 : parentPos.x + pWidth / 2;
+              const x2 = isLeft ? childPos.x + n.width / 2 : childPos.x - n.width / 2;
+              const midX = x1 + (x2 - x1) * 0.5;
+              edgeRefs.current
+                .get(n.id)
+                ?.forEach((line) =>
+                  line.points([
+                    x1,
+                    parentPos.y,
+                    midX,
+                    parentPos.y,
+                    midX,
+                    childPos.y,
+                    x2,
+                    childPos.y,
+                  ])
+                );
+            });
+
+            const nodeLay = layoutMap.get(node.id);
+            const nodeFrom = fromPositions.get(node.id);
+            if (nodeLay && nodeFrom) {
+              const curX = nodeFrom.x + (nodeLay.x - nodeFrom.x) * t;
+              const curY = nodeFrom.y + (nodeLay.y - nodeFrom.y) * t;
+              const c = camRef.current;
+              const screenY = c.y + curY * c.zoom;
+              if (addButtonRightRef.current) {
+                addButtonRightRef.current.style.left = `${c.x + (curX + node.width / 2) * c.zoom + 21}px`;
+                addButtonRightRef.current.style.top = `${screenY}px`;
+              }
+              if (addButtonLeftRef.current) {
+                addButtonLeftRef.current.style.left = `${c.x + (curX - node.width / 2) * c.zoom - 21}px`;
+                addButtonLeftRef.current.style.top = `${screenY}px`;
+              }
+            }
+
+            nodeRefs.current.get(node.id)?.getLayer()?.draw();
+
+            if (elapsed < DURATION) {
+              animFrameRef.current = requestAnimationFrame(tick);
+            } else {
+              const { updateNodes: batchUpdate } = useMapStore.getState();
+              const updates: { id: string; changes: { x: number; y: number } }[] = [];
+              layoutMap.forEach((pos, id) => updates.push({ id, changes: pos }));
+              batchUpdate(updates);
+              saveHistory();
+              setIsDragging(false);
+            }
+          };
+
+          animFrameRef.current = requestAnimationFrame(tick);
+        } else {
+          setIsDragging(false);
+          updateNode(node.id, { x, y }, { skipHistory: true });
+          descendants.forEach((id) => {
+            const ref = nodeRefs.current.get(id);
+            if (ref) {
+              const pos = ref.position();
+              updateNode(id, { x: pos.x, y: pos.y }, { skipHistory: true });
+            }
+          });
+          saveHistory();
+        }
       }}
     >
       {isSelected && tier === 'root' && (

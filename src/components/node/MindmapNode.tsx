@@ -293,12 +293,12 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
             if (elapsed < DURATION) {
               animFrameRef.current = requestAnimationFrame(tick);
             } else {
-              setIsDragging(false);
               const { updateNodes: batchUpdate } = useMapStore.getState();
               const updates: { id: string; changes: { x: number; y: number } }[] = [];
               layoutMap.forEach((pos, id) => updates.push({ id, changes: pos }));
               batchUpdate(updates);
               saveHistory();
+              setIsDragging(false);
             }
           };
 

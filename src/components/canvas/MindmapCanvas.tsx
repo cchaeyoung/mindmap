@@ -60,7 +60,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   useEffect(() => {
     applyAutoLayout();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nodes.length]);
+  }, [nodes.length, nodes.filter((n) => n.autoLayout).length]);
 
   useEffect(() => {
     if (!containerRef.current) return;

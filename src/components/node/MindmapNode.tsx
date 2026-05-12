@@ -210,6 +210,19 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
             const ref = nodeRefs.current.get(n.id);
             if (ref) ref.position({ x: n.x, y: n.y });
           });
+          const updatedNode = updatedNodes.find((n) => n.id === node.id);
+          if (updatedNode) {
+            const c = camRef.current;
+            const screenY = c.y + updatedNode.y * c.zoom;
+            if (addButtonRightRef.current) {
+              addButtonRightRef.current.style.left = `${c.x + (updatedNode.x + updatedNode.width / 2) * c.zoom + 21}px`;
+              addButtonRightRef.current.style.top = `${screenY}px`;
+            }
+            if (addButtonLeftRef.current) {
+              addButtonLeftRef.current.style.left = `${c.x + (updatedNode.x - updatedNode.width / 2) * c.zoom - 21}px`;
+              addButtonLeftRef.current.style.top = `${screenY}px`;
+            }
+          }
           nodeRefs.current.get(node.id)?.getLayer()?.batchDraw();
         }
 

@@ -27,6 +27,7 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
   const draggingNodeId = useUIStore((state) => state.draggingNodeId);
   const updateNode = useMapStore((state) => state.updateNode);
   const saveHistory = useMapStore((state) => state.saveHistory);
+  const applyAutoLayout = useMapStore((state) => state.applyAutoLayout);
   const nodes = useMapStore((state) => state.nodes);
   const cam = useCanvasStore((state) => state.cam);
   const camRef = useRef(cam);
@@ -42,6 +43,13 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
     if (groupRef.current) registerNode(node.id, groupRef.current);
     return () => unregisterNode(node.id);
   }, [node.id]);
+
+  useEffect(() => {
+    if (groupRef.current) {
+      groupRef.current.position({ x: node.x, y: node.y });
+      groupRef.current.getLayer()?.batchDraw();
+    }
+  }, [node.x, node.y]);
 
   const getDescendants = (id: string): string[] => {
     const children = nodes.filter((n) => n.parentId === id).map((n) => n.id);
@@ -189,6 +197,22 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
             updateNode(id, { x: pos.x, y: pos.y }, { skipHistory: true });
           }
         });
+
+        const findRoot = (n: typeof node): typeof node | undefined => {
+          if (!n.parentId) return n;
+          const parent = nodes.find((p) => p.id === n.parentId);
+          return parent ? findRoot(parent) : undefined;
+        };
+        if (findRoot(node)?.autoLayout) {
+          applyAutoLayout();
+          const updatedNodes = useMapStore.getState().nodes;
+          updatedNodes.forEach((n) => {
+            const ref = nodeRefs.current.get(n.id);
+            if (ref) ref.position({ x: n.x, y: n.y });
+          });
+          nodeRefs.current.get(node.id)?.getLayer()?.batchDraw();
+        }
+
         saveHistory();
       }}
     >

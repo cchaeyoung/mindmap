@@ -55,6 +55,12 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const addNode = useMapStore((state) => state.addNode);
   const deleteNode = useMapStore((state) => state.deleteNode);
   const updateNode = useMapStore((state) => state.updateNode);
+  const applyAutoLayout = useMapStore((state) => state.applyAutoLayout);
+
+  useEffect(() => {
+    applyAutoLayout();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nodes.length]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -335,6 +341,9 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
             onUnderlineChange={(v) => updateNode(selectedNode.id, { underline: v })}
             onStrikethroughChange={(v) => updateNode(selectedNode.id, { strikethrough: v })}
             hasMemo={Boolean(selectedNode.memo?.trim())}
+            isRoot={selectedNode.parentId === null}
+            autoLayout={selectedNode.autoLayout}
+            onAutoLayoutChange={(v) => updateNode(selectedNode.id, { autoLayout: v })}
           />
         )}
         {editingNodeId && (

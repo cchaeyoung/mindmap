@@ -1,7 +1,7 @@
 import IconButton from '@/components/common/IconButton';
 import { SIDEBAR_WIDTH } from '@/constants/layout';
 import { NODE_COLORS_DARK, NODE_COLORS_LIGHT, TEXT_COLORS } from '@/constants/node';
-import { FileText, Pencil, Trash2 } from 'lucide-react';
+import { FileText, Network, Pencil, Trash2 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useUIStore } from '@/store/uiStore';
@@ -30,6 +30,9 @@ interface Props {
   strikethrough?: boolean;
   onMemoOpen: () => void;
   hasMemo: boolean;
+  isRoot?: boolean;
+  autoLayout?: boolean;
+  onAutoLayoutChange?: (v: boolean) => void;
 }
 
 export default function NodePopup({
@@ -56,6 +59,9 @@ export default function NodePopup({
   strikethrough,
   onMemoOpen,
   hasMemo,
+  isRoot,
+  autoLayout,
+  onAutoLayoutChange,
 }: Props) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [sizePaletteOpen, setSizePaletteOpen] = useState(false);
@@ -342,13 +348,32 @@ export default function NodePopup({
           <Pencil size={12} />
         </IconButton>
         <div className="relative">
-          <IconButton title="메모" onClick={onMemoOpen} isActive={!!memoPanelNodeId} className={`h-6.5 w-6.5 rounded-[7px] ${memoPanelNodeId ? 'bg-primary/18 text-primary' : ''}`}>
+          <IconButton
+            title="메모"
+            onClick={onMemoOpen}
+            isActive={!!memoPanelNodeId}
+            className={`h-6.5 w-6.5 rounded-[7px] ${memoPanelNodeId ? 'bg-primary/18 text-primary' : ''}`}
+          >
             <FileText size={12} />
           </IconButton>
           {hasMemo && (
             <span className="bg-primary absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full" />
           )}
         </div>
+        {isRoot && (
+          <>
+            <div className="bg-border mx-1 h-4 w-px shrink-0" />
+            <IconButton
+              title={autoLayout ? '자동 정렬 끄기' : '자동 정렬 켜기'}
+              onClick={() => onAutoLayoutChange?.(!autoLayout)}
+              isActive={autoLayout}
+              className={`h-6.5 w-6.5 rounded-[7px] ${autoLayout ? 'bg-primary/18 text-(--mm-acc-fg)' : ''}`}
+            >
+              <Network size={12} />
+            </IconButton>
+          </>
+        )}
+        <div className="bg-border mx-1 h-4 w-px shrink-0" />
         <IconButton
           title="삭제 (Del)"
           onClick={onDelete}

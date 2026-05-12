@@ -2,6 +2,7 @@ import { Edge, MindmapNode } from '@/types';
 import { measureNodeWidth } from '@/utils/node';
 import { create } from 'zustand';
 import { useUIStore } from './uiStore';
+import { computeLayout } from '@/utils/layout/autoLayout';
 
 interface MapStore {
   nodes: MindmapNode[];
@@ -16,6 +17,7 @@ interface MapStore {
   addNode: (node: Omit<MindmapNode, 'id' | 'width'>) => string;
   updateNode: (id: string, changes: Partial<MindmapNode>, opts?: { skipHistory?: boolean }) => void;
   deleteNode: (id: string) => void;
+  applyAutoLayout: () => void;
 }
 
 export const useMapStore = create<MapStore>((set, get) => ({
@@ -80,7 +82,10 @@ export const useMapStore = create<MapStore>((set, get) => ({
     const tier = node.parentId === null ? 'root' : 'child';
     const width = measureNodeWidth(node.label || '새 항목', tier, node.size);
     set((state) => ({
-      nodes: [...state.nodes, { ...node, id, width }],
+      nodes: [
+        ...state.nodes,
+        { ...node, id, width, autoLayout: node.parentId === null ? true : node.autoLayout },
+      ],
     }));
     get().saveHistory();
     set({ justAddedNodeId: id });
@@ -105,5 +110,16 @@ export const useMapStore = create<MapStore>((set, get) => ({
       };
     });
     get().saveHistory();
+  },
+
+  applyAutoLayout: () => {
+    const { nodes } = get();
+    const layout = computeLayout(nodes);
+    set({
+      nodes: nodes.map((n) => {
+        const pos = layout.get(n.id);
+        return pos ? { ...n, x: pos.x, y: pos.y } : n;
+      }),
+    });
   },
 }));

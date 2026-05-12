@@ -16,6 +16,7 @@ interface MapStore {
   redo: () => void;
   addNode: (node: Omit<MindmapNode, 'id' | 'width'>) => string;
   updateNode: (id: string, changes: Partial<MindmapNode>, opts?: { skipHistory?: boolean }) => void;
+  updateNodes: (updates: { id: string; changes: Partial<MindmapNode> }[]) => void;
   deleteNode: (id: string) => void;
   applyAutoLayout: () => void;
 }
@@ -95,6 +96,16 @@ export const useMapStore = create<MapStore>((set, get) => ({
   updateNode: (id, changes, opts) => {
     set((state) => ({ nodes: state.nodes.map((n) => (n.id === id ? { ...n, ...changes } : n)) }));
     if (!opts?.skipHistory) get().saveHistory();
+  },
+
+  updateNodes: (updates) => {
+    const map = new Map(updates.map(({ id, changes }) => [id, changes]));
+    set((state) => ({
+      nodes: state.nodes.map((n) => {
+        const changes = map.get(n.id);
+        return changes ? { ...n, ...changes } : n;
+      }),
+    }));
   },
 
   deleteNode: (id) => {

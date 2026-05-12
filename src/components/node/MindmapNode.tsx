@@ -27,6 +27,7 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
   const setDraggingNode = useUIStore((state) => state.setDraggingNode);
   const draggingNodeId = useUIStore((state) => state.draggingNodeId);
   const updateNode = useMapStore((state) => state.updateNode);
+  const updateNodes = useMapStore((state) => state.updateNodes);
   const saveHistory = useMapStore((state) => state.saveHistory);
   const nodes = useMapStore((state) => state.nodes);
   const cam = useCanvasStore((state) => state.cam);
@@ -200,14 +201,16 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
             fromPositions.set(id, { ...ref.position() });
           });
 
-          updateNode(node.id, { x, y }, { skipHistory: true });
-          descendants.forEach((id) => {
-            const ref = nodeRefs.current.get(id);
-            if (ref) {
+          const dragUpdates: { id: string; changes: { x: number; y: number } }[] = [
+            { id: node.id, changes: { x, y } },
+            ...descendants.flatMap((id) => {
+              const ref = nodeRefs.current.get(id);
+              if (!ref) return [];
               const pos = ref.position();
-              updateNode(id, { x: pos.x, y: pos.y }, { skipHistory: true });
-            }
-          });
+              return [{ id, changes: { x: pos.x, y: pos.y } }];
+            }),
+          ];
+          updateNodes(dragUpdates);
 
           const layoutMap = computeLayout(useMapStore.getState().nodes);
 
@@ -282,8 +285,10 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
               requestAnimationFrame(tick);
             } else {
               setIsDragging(false);
-              const { updateNode: update } = useMapStore.getState();
-              layoutMap.forEach((pos, id) => update(id, pos, { skipHistory: true }));
+              const { updateNodes: batchUpdate } = useMapStore.getState();
+              const updates: { id: string; changes: { x: number; y: number } }[] = [];
+              layoutMap.forEach((pos, id) => updates.push({ id, changes: pos }));
+              batchUpdate(updates);
               saveHistory();
             }
           };

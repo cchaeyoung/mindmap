@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { authSchema, type AuthValues } from '@/lib/validations/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import OAuthButtons from './OAuthButtons';
 
 interface Props {
@@ -19,12 +19,14 @@ export default function AuthForm({ mode, onModeChange }: Props) {
     register,
     handleSubmit,
     reset,
-    getValues,
+    control,
     formState: { errors, isValid, dirtyFields },
   } = useForm<AuthValues>({
     resolver: zodResolver(authSchema),
     mode: 'onTouched',
   });
+
+  const confirmPasswordFilled = !!useWatch({ control, name: 'confirmPassword' });
 
   const switchMode = () => {
     onModeChange(isLogin ? 'signup' : 'login');
@@ -73,10 +75,7 @@ export default function AuthForm({ mode, onModeChange }: Props) {
         {!isLogin && (
           <div className="flex flex-col gap-1">
             <Input
-              {...register('confirmPassword', {
-                required: '비밀번호 확인을 입력해주세요',
-                validate: (val) => val === getValues('password') || '비밀번호가 일치하지 않습니다',
-              })}
+              {...register('confirmPassword')}
               placeholder="비밀번호 확인"
               type="password"
               maxLength={100}
@@ -94,7 +93,7 @@ export default function AuthForm({ mode, onModeChange }: Props) {
 
       <Button
         type="submit"
-        disabled={!isValid}
+        disabled={!isValid || (!isLogin && !confirmPasswordFilled)}
         className="bg-primary/90 hover:bg-primary h-auto w-full rounded-[11px] py-[11px] text-[13.5px] font-semibold"
       >
         {isLogin ? '로그인' : '회원가입'}

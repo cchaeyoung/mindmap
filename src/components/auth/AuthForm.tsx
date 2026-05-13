@@ -2,7 +2,9 @@
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { createClient } from '@/lib/supabase/client';
 import { authSchema, type AuthValues } from '@/lib/validations/auth';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
@@ -12,9 +14,10 @@ import OAuthButtons from './OAuthButtons';
 interface Props {
   mode: 'login' | 'signup';
   onModeChange: (mode: 'login' | 'signup') => void;
+  onSuccess: () => void;
 }
 
-export default function AuthForm({ mode, onModeChange }: Props) {
+export default function AuthForm({ mode, onModeChange, onSuccess }: Props) {
   const isLogin = mode === 'login';
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -24,7 +27,8 @@ export default function AuthForm({ mode, onModeChange }: Props) {
     handleSubmit,
     reset,
     control,
-    formState: { errors, isValid, dirtyFields },
+    setError,
+    formState: { errors, isValid, dirtyFields, isSubmitting },
   } = useForm<AuthValues>({
     resolver: zodResolver(authSchema),
     mode: 'onTouched',
@@ -37,8 +41,37 @@ export default function AuthForm({ mode, onModeChange }: Props) {
     reset();
   };
 
+  const onSubmit = async (data: AuthValues) => {
+    const supabase = createClient();
+
+    if (isLogin) {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+      if (error) {
+        setError('root', { message: '이메일 또는 비밀번호가 올바르지 않습니다' });
+        return;
+      }
+    } else {
+      const { error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+      });
+      if (error) {
+        const msg = error.message.includes('already registered')
+          ? '이미 가입된 이메일입니다'
+          : '회원가입에 실패했습니다. 다시 시도해주세요';
+        setError('root', { message: msg });
+        return;
+      }
+    }
+
+    onSuccess();
+  };
+
   return (
-    <form onSubmit={handleSubmit(() => {})} className="flex flex-col gap-[16px]">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-[16px]">
       <OAuthButtons />
 
       <div className="flex items-center gap-3">
@@ -115,12 +148,16 @@ export default function AuthForm({ mode, onModeChange }: Props) {
         )}
       </div>
 
+      {errors.root && (
+        <p className="text-destructive text-center text-[11.5px]">{errors.root.message}</p>
+      )}
+
       <Button
         type="submit"
-        disabled={!isValid || (!isLogin && !confirmPasswordFilled)}
+        disabled={!isValid || (!isLogin && !confirmPasswordFilled) || isSubmitting}
         className="bg-primary/90 hover:bg-primary h-auto w-full rounded-[11px] py-[11px] text-[13.5px] font-semibold"
       >
-        {isLogin ? '로그인' : '회원가입'}
+        {isSubmitting ? '처리 중...' : isLogin ? '로그인' : '회원가입'}
       </Button>
 
       <p className="text-muted-foreground text-center text-[12px]">

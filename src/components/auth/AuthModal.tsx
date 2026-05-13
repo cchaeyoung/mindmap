@@ -56,7 +56,12 @@ export default function AuthModal() {
           </div>
         </div>
 
-        <AuthForm key={String(authModalOpen)} mode={mode} onModeChange={setMode} />
+        <AuthForm
+          key={String(authModalOpen)}
+          mode={mode}
+          onModeChange={setMode}
+          onSuccess={close}
+        />
       </div>
     </div>
   );

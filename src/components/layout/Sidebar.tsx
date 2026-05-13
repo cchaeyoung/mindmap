@@ -1,7 +1,8 @@
 'use client';
 
-import { LogOut, PanelLeftClose, PanelLeftOpen, Plus } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 import { useAuthStore } from '@/store/authStore';
+import { LogOut, PanelLeftClose, PanelLeftOpen, Plus } from 'lucide-react';
 
 interface SidebarProps {
   open: boolean;
@@ -11,6 +12,10 @@ interface SidebarProps {
 export default function Sidebar({ open, onToggle }: SidebarProps) {
   const user = useAuthStore((state) => state.user);
   const setAuthModalOpen = useAuthStore((state) => state.setAuthModalOpen);
+
+  const handleSignOut = async () => {
+    await createClient().auth.signOut();
+  };
 
   return (
     <>
@@ -57,21 +62,24 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
         {/* 유저 영역 */}
         <div
           onClick={() => !user && setAuthModalOpen(true)}
-          className="border-sidebar-border hover:bg-accent flex shrink-0 cursor-pointer items-center gap-2.5 border-t px-3.5 py-3 transition-all"
+          className={`border-sidebar-border flex shrink-0 items-center gap-2.5 border-t px-3.5 py-3 transition-all ${!user ? 'hover:bg-accent cursor-pointer' : ''}`}
         >
           <div className="border-primary/35 bg-primary/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-[1.5px] text-[13px] font-semibold text-(--mm-acc-fg)">
             {user ? user.email?.[0].toUpperCase() : '?'}
           </div>
-          <div className="flex-1">
-            <div className="text-foreground text-[12px] font-medium">
+          <div className="min-w-0 flex-1">
+            <div className="text-foreground truncate text-[12px] font-medium" title={user?.email}>
               {user ? user.email : '게스트'}
             </div>
-            <div className="text-muted-foreground text-[10.5px]">
-              {user ? user.email : '로그인하기'}
-            </div>
+            {!user && (
+              <div className="text-muted-foreground text-[10.5px]">로그인하기</div>
+            )}
           </div>
           {user && (
-            <button className="text-muted-foreground hover:bg-destructive/15 flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-[7px] transition-all hover:text-red-400">
+            <button
+              onClick={(e) => { e.stopPropagation(); handleSignOut(); }}
+              className="text-muted-foreground hover:bg-destructive/15 flex h-6.5 w-6.5 shrink-0 cursor-pointer items-center justify-center rounded-[7px] transition-all hover:text-red-400"
+            >
               <LogOut size={13} />
             </button>
           )}

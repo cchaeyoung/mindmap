@@ -1,6 +1,7 @@
 'use client';
 
 import ThemeToggle from '@/components/common/ThemeToggle';
+import AuthModal from '@/components/auth/AuthModal';
 import { useUIStore } from '@/store/uiStore';
 import Sidebar from './Sidebar';
 
@@ -22,6 +23,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <div className="fixed top-4 right-4 z-30">
         <ThemeToggle />
       </div>
+      <AuthModal />
     </div>
   );
 }

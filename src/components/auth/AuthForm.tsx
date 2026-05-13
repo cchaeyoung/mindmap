@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { authSchema, type AuthValues } from '@/lib/validations/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import OAuthButtons from './OAuthButtons';
 
@@ -14,6 +16,8 @@ interface Props {
 
 export default function AuthForm({ mode, onModeChange }: Props) {
   const isLogin = mode === 'login';
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -59,14 +63,24 @@ export default function AuthForm({ mode, onModeChange }: Props) {
         </div>
 
         <div className="flex flex-col gap-1">
-          <Input
-            {...register('password')}
-            placeholder="비밀번호"
-            type="password"
-            maxLength={100}
-            aria-invalid={!!errors.password && !!dirtyFields.password}
-            className="rounded-[10px] px-[13px] py-[10px] text-[13.5px]"
-          />
+          <div className="relative">
+            <Input
+              {...register('password')}
+              placeholder="비밀번호"
+              type={showPassword ? 'text' : 'password'}
+              maxLength={100}
+              aria-invalid={!!errors.password && !!dirtyFields.password}
+              className="rounded-[10px] px-[13px] py-[10px] pr-[38px] text-[13.5px]"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="text-muted-foreground hover:text-foreground absolute top-1/2 right-[11px] -translate-y-1/2 transition-colors"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+            </button>
+          </div>
           {errors.password && dirtyFields.password && (
             <p className="text-destructive px-1 text-[11.5px]">{errors.password.message}</p>
           )}
@@ -74,14 +88,24 @@ export default function AuthForm({ mode, onModeChange }: Props) {
 
         {!isLogin && (
           <div className="flex flex-col gap-1">
-            <Input
-              {...register('confirmPassword')}
-              placeholder="비밀번호 확인"
-              type="password"
-              maxLength={100}
-              aria-invalid={!!errors.confirmPassword && !!dirtyFields.confirmPassword}
-              className="rounded-[10px] px-[13px] py-[10px] text-[13.5px]"
-            />
+            <div className="relative">
+              <Input
+                {...register('confirmPassword')}
+                placeholder="비밀번호 확인"
+                type={showConfirmPassword ? 'text' : 'password'}
+                maxLength={100}
+                aria-invalid={!!errors.confirmPassword && !!dirtyFields.confirmPassword}
+                className="rounded-[10px] px-[13px] py-[10px] pr-[38px] text-[13.5px]"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((v) => !v)}
+                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-[11px] -translate-y-1/2 transition-colors"
+                tabIndex={-1}
+              >
+                {showConfirmPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            </div>
             {errors.confirmPassword && dirtyFields.confirmPassword && (
               <p className="text-destructive px-1 text-[11.5px]">
                 {errors.confirmPassword.message}

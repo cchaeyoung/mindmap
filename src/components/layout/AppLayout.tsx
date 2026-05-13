@@ -16,9 +16,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="bg-background relative h-screen w-screen overflow-hidden">
       <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
-      <main className="relative h-screen w-screen overflow-hidden">
-        {children}
-      </main>
+      <main className="relative h-screen w-screen overflow-hidden">{children}</main>
 
       <div className="fixed top-4 right-4 z-30">
         <ThemeToggle />

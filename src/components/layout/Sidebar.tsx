@@ -14,7 +14,11 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
   const setAuthModalOpen = useAuthStore((state) => state.setAuthModalOpen);
 
   const handleSignOut = async () => {
-    await createClient().auth.signOut();
+    try {
+      await createClient().auth.signOut();
+    } catch (error) {
+      console.error('로그아웃 실패:', error);
+    }
   };
 
   return (
@@ -71,13 +75,14 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
             <div className="text-foreground truncate text-[12px] font-medium" title={user?.email}>
               {user ? user.email : '게스트'}
             </div>
-            {!user && (
-              <div className="text-muted-foreground text-[10.5px]">로그인하기</div>
-            )}
+            {!user && <div className="text-muted-foreground text-[10.5px]">로그인하기</div>}
           </div>
           {user && (
             <button
-              onClick={(e) => { e.stopPropagation(); handleSignOut(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSignOut();
+              }}
               className="text-muted-foreground hover:bg-destructive/15 flex h-6.5 w-6.5 shrink-0 cursor-pointer items-center justify-center rounded-[7px] transition-all hover:text-red-400"
             >
               <LogOut size={13} />

@@ -69,7 +69,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
           className={`border-sidebar-border flex shrink-0 items-center gap-2.5 border-t px-3.5 py-3 transition-all ${!user ? 'hover:bg-accent cursor-pointer' : ''}`}
         >
           <div className="border-primary/35 bg-primary/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-[1.5px] text-[13px] font-semibold text-(--mm-acc-fg)">
-            {user ? user.email?.[0].toUpperCase() : '?'}
+            {user ? (user.email?.[0] ?? '?').toUpperCase() : '?'}
           </div>
           <div className="min-w-0 flex-1">
             <div className="text-foreground truncate text-[12px] font-medium" title={user?.email}>

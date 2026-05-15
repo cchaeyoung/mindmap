@@ -2,14 +2,24 @@
 
 import { createClient } from '@/lib/supabase/client';
 
+const redirectTo = () => `${window.location.origin}/auth/callback`;
+
 async function signInWithGoogle() {
   const supabase = createClient();
   await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${window.location.origin}/auth/callback`,
+      redirectTo: redirectTo(),
       queryParams: { prompt: 'select_account' },
     },
+  });
+}
+
+async function signInWithGitHub() {
+  const supabase = createClient();
+  await supabase.auth.signInWithOAuth({
+    provider: 'github',
+    options: { redirectTo: redirectTo() },
   });
 }
 
@@ -43,6 +53,7 @@ export default function OAuthButtons() {
       </button>
       <button
         type="button"
+        onClick={signInWithGitHub}
         className="border-border hover:bg-accent flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-[11px] border py-2.5 text-[13px] font-medium transition-all"
       >
         <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">

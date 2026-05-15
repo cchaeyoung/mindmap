@@ -1,34 +1,27 @@
 'use client';
 
 import { createClient } from '@/lib/supabase/client';
+import type { Provider } from '@supabase/supabase-js';
 
 const redirectTo = () => `${window.location.origin}/auth/callback`;
 
-async function signInWithGoogle() {
-  const supabase = createClient();
-  await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: redirectTo(),
-      queryParams: { prompt: 'select_account' },
-    },
-  });
-}
-
-async function signInWithGitHub() {
-  const supabase = createClient();
-  await supabase.auth.signInWithOAuth({
-    provider: 'github',
-    options: { redirectTo: redirectTo() },
-  });
-}
-
 export default function OAuthButtons() {
+  const handleOAuth = async (provider: Provider) => {
+    const supabase = createClient();
+    await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: redirectTo(),
+        ...(provider === 'google' && { queryParams: { prompt: 'select_account' } }),
+      },
+    });
+  };
+
   return (
     <div className="flex gap-2.5">
       <button
         type="button"
-        onClick={signInWithGoogle}
+        onClick={() => handleOAuth('google')}
         className="border-border hover:bg-accent flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-[11px] border py-2.5 text-[13px] font-medium transition-all"
       >
         <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
@@ -53,7 +46,7 @@ export default function OAuthButtons() {
       </button>
       <button
         type="button"
-        onClick={signInWithGitHub}
+        onClick={() => handleOAuth('github')}
         className="border-border hover:bg-accent flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-[11px] border py-2.5 text-[13px] font-medium transition-all"
       >
         <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">

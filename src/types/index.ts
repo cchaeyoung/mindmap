@@ -23,3 +23,18 @@ export interface Edge {
   fromId: string;
   toId: string;
 }
+
+export interface Mindmap {
+  id: string;
+  user_id: string;
+  title: string;
+  nodes: MindmapNode[];
+  edges: Edge[];
+  created_at: string;
+  updated_at: string;
+}
+
+export type MindmapListItem = Pick<
+  Mindmap,
+  'id' | 'user_id' | 'title' | 'created_at' | 'updated_at'
+>;

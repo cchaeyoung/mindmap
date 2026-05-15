@@ -40,7 +40,7 @@ export default function AuthModal() {
           transform: authModalOpen ? 'translateY(0) scale(1)' : 'translateY(14px) scale(0.97)',
           transition: 'transform 0.28s cubic-bezier(0.22,1,0.36,1)',
         }}
-        className="bg-popover border-border flex flex-col gap-[18px] rounded-[22px] border p-[32px_28px_28px] shadow-[0_32px_80px_var(--mm-shadow)]"
+        className="bg-popover border-border flex flex-col gap-4.5 rounded-[22px] border p-[32px_28px_28px] shadow-[0_32px_80px_var(--mm-shadow)]"
       >
         {/* 헤더 */}
         <div className="relative text-center">

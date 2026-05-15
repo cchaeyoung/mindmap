@@ -75,7 +75,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-2 py-1 [&::-webkit-scrollbar]:hidden">
+        <div className="[&::-webkit-scrollbar-thumb]:bg-border flex-1 overflow-y-auto px-2 py-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full">
           {user &&
             maps.map((map) => (
               <MindmapItem

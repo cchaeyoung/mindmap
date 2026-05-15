@@ -16,6 +16,7 @@ interface Props {
 
 export default function MindmapItem({ map, isActive, onClick, onRename, onDelete }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [dropUp, setDropUp] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -51,6 +52,10 @@ export default function MindmapItem({ map, isActive, onClick, onRename, onDelete
         <IconButton
           onClick={(e) => {
             e.stopPropagation();
+            if (!menuOpen && menuRef.current) {
+              const rect = menuRef.current.getBoundingClientRect();
+              setDropUp(window.innerHeight - rect.bottom < 100);
+            }
             setMenuOpen((v) => !v);
           }}
           className={`h-5.5 w-5.5 rounded-[6px] transition-opacity ${menuOpen ? 'bg-accent text-foreground opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
@@ -59,7 +64,9 @@ export default function MindmapItem({ map, isActive, onClick, onRename, onDelete
         </IconButton>
 
         {menuOpen && (
-          <div className="border-border bg-card absolute top-full right-0 z-50 mt-1 w-34 rounded-[10px] border p-1 shadow-[0_8px_24px_var(--mm-shadow)] backdrop-blur-xl">
+          <div
+            className={`border-border absolute right-0 z-50 w-34 rounded-[10px] border bg-(--mm-menu) p-1 shadow-[0_8px_24px_var(--mm-shadow)] ${dropUp ? 'bottom-full mb-1' : 'top-full mt-1'}`}
+          >
             <button
               type="button"
               onClick={(e) => {

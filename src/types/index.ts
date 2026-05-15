@@ -33,3 +33,8 @@ export interface Mindmap {
   created_at: string;
   updated_at: string;
 }
+
+export type MindmapListItem = Pick<
+  Mindmap,
+  'id' | 'user_id' | 'title' | 'created_at' | 'updated_at'
+>;

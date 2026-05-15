@@ -2,7 +2,10 @@
 
 import { createClient } from '@/lib/supabase/client';
 import { useAuthStore } from '@/store/authStore';
+import { MindmapListItem } from '@/types';
 import { LogOut, PanelLeftClose, PanelLeftOpen, Plus } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import MindmapItem from '@/components/sidebar/MindmapItem';
 
 interface SidebarProps {
   open: boolean;
@@ -12,6 +15,17 @@ interface SidebarProps {
 export default function Sidebar({ open, onToggle }: SidebarProps) {
   const user = useAuthStore((state) => state.user);
   const setAuthModalOpen = useAuthStore((state) => state.setAuthModalOpen);
+  const [maps, setMaps] = useState<MindmapListItem[]>([]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    createClient()
+      .from('maps')
+      .select('id, title, updated_at, created_at, user_id')
+      .order('updated_at', { ascending: false })
+      .then(({ data }) => setMaps((data as MindmapListItem[]) ?? []));
+  }, [user?.id]);
 
   const handleSignOut = async () => {
     try {
@@ -61,7 +75,19 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-2 py-1 [&::-webkit-scrollbar]:hidden" />
+        <div className="flex-1 overflow-y-auto px-2 py-1 [&::-webkit-scrollbar]:hidden">
+          {user &&
+            maps.map((map) => (
+              <MindmapItem
+                key={map.id}
+                map={map}
+                isActive={false}
+                onClick={() => {}}
+                onRename={() => {}}
+                onDelete={() => {}}
+              />
+            ))}
+        </div>
 
         {/* 유저 영역 */}
         <div

@@ -4,8 +4,9 @@ import IconButton from '@/components/common/IconButton';
 import { createClient } from '@/lib/supabase/client';
 import { useAuthStore } from '@/store/authStore';
 import { MindmapListItem } from '@/types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { LogOut, PanelLeftClose, PanelLeftOpen, Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import MindmapItem from '@/components/sidebar/MindmapItem';
 
 interface SidebarProps {
@@ -13,22 +14,75 @@ interface SidebarProps {
   onToggle: () => void;
 }
 
+const fetchMaps = async (): Promise<MindmapListItem[]> => {
+  const { data } = await createClient()
+    .from('maps')
+    .select('id, title, updated_at, created_at, user_id')
+    .order('updated_at', { ascending: false });
+  return (data as MindmapListItem[]) ?? [];
+};
+
 export default function Sidebar({ open, onToggle }: SidebarProps) {
   const user = useAuthStore((state) => state.user);
   const setAuthModalOpen = useAuthStore((state) => state.setAuthModalOpen);
-  const [maps, setMaps] = useState<MindmapListItem[]>([]);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (!user?.id) return;
+  const { data: maps = [] } = useQuery({
+    queryKey: ['maps', user?.id],
+    queryFn: fetchMaps,
+    enabled: !!user?.id,
+  });
 
-    createClient()
-      .from('maps')
-      .select('id, title, updated_at, created_at, user_id')
-      .order('updated_at', { ascending: false })
-      .then(({ data }) => setMaps((data as MindmapListItem[]) ?? []));
-  }, [user?.id]);
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await createClient()
+        .from('maps')
+        .insert({ user_id: user!.id, title: '새 마인드맵', nodes: [], edges: [] })
+        .select('id, title, updated_at, created_at, user_id')
+        .single();
+      if (error || !data) throw error;
+      return data as MindmapListItem;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(['maps', user?.id], (old: MindmapListItem[] = []) => [data, ...old]);
+      setEditingId(data.id);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await createClient().from('maps').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['maps', user?.id] }),
+    onError: () => queryClient.invalidateQueries({ queryKey: ['maps', user?.id] }),
+  });
+
+  const renameMutation = useMutation({
+    mutationFn: async ({ id, title }: { id: string; title: string }) => {
+      const { error } = await createClient().from('maps').update({ title }).eq('id', id);
+      if (error) throw error;
+    },
+    onMutate: ({ id, title }) => {
+      const previous = queryClient.getQueryData<MindmapListItem[]>(['maps', user?.id]);
+      queryClient.setQueryData(['maps', user?.id], (old: MindmapListItem[]) =>
+        old.map((m) => (m.id === id ? { ...m, title } : m))
+      );
+      queryClient.cancelQueries({ queryKey: ['maps', user?.id] });
+      return { previous };
+    },
+    onError: (_, __, context) => {
+      queryClient.setQueryData(['maps', user?.id], context?.previous);
+    },
+  });
+
+  const handleRenameConfirm = (id: string, title: string) => {
+    const trimmed = title.trim();
+    setEditingId(null);
+    if (!trimmed) return;
+    renameMutation.mutate({ id, title: trimmed });
+  };
 
   const handleSignOut = async () => {
     try {
@@ -36,40 +90,6 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
     } catch (error) {
       console.error('로그아웃 실패:', error);
     }
-  };
-
-  const handleCreate = async () => {
-    if (!user?.id) return;
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from('maps')
-      .insert({ user_id: user.id, title: '새 마인드맵', nodes: [], edges: [] })
-      .select('id, title, updated_at, created_at, user_id')
-      .single();
-
-    if (error || !data) return;
-    setMaps((prev) => [data as MindmapListItem, ...prev]);
-    setEditingId(data.id);
-  };
-
-  const handleDelete = async (id: string) => {
-    setIsDeleting(true);
-    const supabase = createClient();
-    const { error } = await supabase.from('maps').delete().eq('id', id);
-    if (error) {
-      setIsDeleting(false);
-      return;
-    }
-    setMaps((prev) => prev.filter((m) => m.id !== id));
-    requestAnimationFrame(() => setIsDeleting(false));
-  };
-
-  const handleRenameConfirm = async (id: string, title: string) => {
-    const trimmed = title.trim();
-    setEditingId(null);
-    if (!trimmed) return;
-    setMaps((prev) => prev.map((m) => (m.id === id ? { ...m, title: trimmed } : m)));
-    await createClient().from('maps').update({ title: trimmed }).eq('id', id);
   };
 
   return (
@@ -83,7 +103,6 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
         </button>
       )}
 
-      {/* 사이드바 */}
       <aside
         className="border-sidebar-border bg-sidebar fixed top-0 left-0 z-55 flex h-screen w-60 flex-col border-r transition-transform duration-280"
         style={{
@@ -105,7 +124,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
             내 마인드맵
           </span>
           <IconButton
-            onClick={handleCreate}
+            onClick={() => createMutation.mutate()}
             className="hover:bg-primary/15 hover:text-primary h-5.5 w-5.5 rounded-[6px]"
           >
             <Plus size={14} />
@@ -113,7 +132,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
         </div>
 
         <div
-          className={`[&::-webkit-scrollbar-thumb]:bg-border flex-1 overflow-y-auto px-2 py-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full ${isDeleting ? 'pointer-events-none' : ''}`}
+          className={`[&::-webkit-scrollbar-thumb]:bg-border flex-1 overflow-y-auto px-2 py-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full ${deleteMutation.isPending ? 'pointer-events-none' : ''}`}
         >
           {user &&
             maps.map((map) => (
@@ -126,7 +145,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
                 onRenameStart={() => setEditingId(map.id)}
                 onRename={handleRenameConfirm}
                 onRenameCancel={() => setEditingId(null)}
-                onDelete={handleDelete}
+                onDelete={(id) => deleteMutation.mutate(id)}
               />
             ))}
         </div>

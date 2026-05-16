@@ -17,6 +17,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
   const user = useAuthStore((state) => state.user);
   const setAuthModalOpen = useAuthStore((state) => state.setAuthModalOpen);
   const [maps, setMaps] = useState<MindmapListItem[]>([]);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -47,6 +48,18 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
 
     if (error || !data) return;
     setMaps((prev) => [data as MindmapListItem, ...prev]);
+  };
+
+  const handleDelete = async (id: string) => {
+    setIsDeleting(true);
+    const supabase = createClient();
+    const { error } = await supabase.from('maps').delete().eq('id', id);
+    if (error) {
+      setIsDeleting(false);
+      return;
+    }
+    setMaps((prev) => prev.filter((m) => m.id !== id));
+    requestAnimationFrame(() => setIsDeleting(false));
   };
 
   return (
@@ -89,7 +102,9 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
           </IconButton>
         </div>
 
-        <div className="[&::-webkit-scrollbar-thumb]:bg-border flex-1 overflow-y-auto px-2 py-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full">
+        <div
+          className={`[&::-webkit-scrollbar-thumb]:bg-border flex-1 overflow-y-auto px-2 py-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full ${isDeleting ? 'pointer-events-none' : ''}`}
+        >
           {user &&
             maps.map((map) => (
               <MindmapItem
@@ -98,7 +113,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
                 isActive={false}
                 onClick={() => {}}
                 onRename={() => {}}
-                onDelete={() => {}}
+                onDelete={handleDelete}
               />
             ))}
         </div>

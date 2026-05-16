@@ -33,7 +33,7 @@ export default function MindmapItem({ map, isActive, onClick, onRename, onDelete
   return (
     <div
       onClick={onClick}
-      className={`group relative mb-0.5 flex cursor-pointer items-center gap-2.5 rounded-[10px] px-2.5 py-2.25 transition-all ${
+      className={`group relative mb-0.5 flex cursor-pointer items-center gap-2.5 rounded-[10px] px-2.5 py-2.25 transition-colors ${
         isActive || menuOpen ? 'bg-accent' : 'hover:bg-accent'
       }`}
     >

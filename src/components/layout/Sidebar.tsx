@@ -69,9 +69,9 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
       queryClient.setQueryData(['maps', user?.id], (old: MindmapListItem[]) =>
         old.map((m) => (m.id === id ? { ...m, title } : m))
       );
-      queryClient.cancelQueries({ queryKey: ['maps', user?.id] });
       return { previous };
     },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['maps', user?.id] }),
     onError: (_, __, context) => {
       queryClient.setQueryData(['maps', user?.id], context?.previous);
     },

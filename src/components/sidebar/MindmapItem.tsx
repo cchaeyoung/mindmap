@@ -32,6 +32,7 @@ export default function MindmapItem({
   const menuRef = useRef<HTMLDivElement>(null);
   const [editValue, setEditValue] = useState(map.title);
   const inputRef = useRef<HTMLInputElement>(null);
+  const cancelledRef = useRef(false);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -70,9 +71,18 @@ export default function MindmapItem({
               onChange={(e) => setEditValue(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') onRename(map.id, editValue);
-                if (e.key === 'Escape') onRenameCancel();
+                if (e.key === 'Escape') {
+                  cancelledRef.current = true;
+                  onRenameCancel();
+                }
               }}
-              onBlur={() => onRename(map.id, editValue)}
+              onBlur={() => {
+                if (cancelledRef.current) {
+                  cancelledRef.current = false;
+                  return;
+                }
+                onRename(map.id, editValue);
+              }}
               onClick={(e) => e.stopPropagation()}
               className="text-foreground w-full border-0 bg-transparent p-0 text-[12.5px] leading-none font-medium outline-none"
             />

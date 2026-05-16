@@ -48,6 +48,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
       queryClient.setQueryData(['maps', user?.id], (old: MindmapListItem[] = []) => [data, ...old]);
       setEditingId(data.id);
     },
+    onError: () => queryClient.invalidateQueries({ queryKey: ['maps', user?.id] }),
   });
 
   const deleteMutation = useMutation({

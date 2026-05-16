@@ -18,6 +18,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
   const setAuthModalOpen = useAuthStore((state) => state.setAuthModalOpen);
   const [maps, setMaps] = useState<MindmapListItem[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -48,6 +49,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
 
     if (error || !data) return;
     setMaps((prev) => [data as MindmapListItem, ...prev]);
+    setEditingId(data.id);
   };
 
   const handleDelete = async (id: string) => {
@@ -60,6 +62,14 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
     }
     setMaps((prev) => prev.filter((m) => m.id !== id));
     requestAnimationFrame(() => setIsDeleting(false));
+  };
+
+  const handleRenameConfirm = async (id: string, title: string) => {
+    const trimmed = title.trim();
+    setEditingId(null);
+    if (!trimmed) return;
+    setMaps((prev) => prev.map((m) => (m.id === id ? { ...m, title: trimmed } : m)));
+    await createClient().from('maps').update({ title: trimmed }).eq('id', id);
   };
 
   return (
@@ -111,8 +121,11 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
                 key={map.id}
                 map={map}
                 isActive={false}
+                isEditing={editingId === map.id}
                 onClick={() => {}}
-                onRename={() => {}}
+                onRenameStart={() => setEditingId(map.id)}
+                onRename={handleRenameConfirm}
+                onRenameCancel={() => setEditingId(null)}
                 onDelete={handleDelete}
               />
             ))}

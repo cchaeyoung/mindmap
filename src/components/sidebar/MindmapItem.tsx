@@ -9,15 +9,29 @@ import { useEffect, useRef, useState } from 'react';
 interface Props {
   map: MindmapListItem;
   isActive: boolean;
+  isEditing: boolean;
   onClick: () => void;
+  onRenameStart: () => void;
   onRename: (id: string, title: string) => void;
+  onRenameCancel: () => void;
   onDelete: (id: string) => void;
 }
 
-export default function MindmapItem({ map, isActive, onClick, onRename, onDelete }: Props) {
+export default function MindmapItem({
+  map,
+  isActive,
+  isEditing,
+  onClick,
+  onRenameStart,
+  onRename,
+  onRenameCancel,
+  onDelete,
+}: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropUp, setDropUp] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [editValue, setEditValue] = useState(map.title);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -29,6 +43,12 @@ export default function MindmapItem({ map, isActive, onClick, onRename, onDelete
     document.addEventListener('mousedown', close);
     return () => document.removeEventListener('mousedown', close);
   }, [menuOpen]);
+
+  useEffect(() => {
+    if (!isEditing) return;
+    inputRef.current?.focus();
+    inputRef.current?.select();
+  }, [isEditing]);
 
   return (
     <div
@@ -42,7 +62,26 @@ export default function MindmapItem({ map, isActive, onClick, onRename, onDelete
       </div>
 
       <div className="min-w-0 flex-1">
-        <div className="text-foreground truncate text-[12.5px] font-medium">{map.title}</div>
+        <div className="flex h-4.5 items-center">
+          {isEditing ? (
+            <input
+              ref={inputRef}
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') onRename(map.id, editValue);
+                if (e.key === 'Escape') onRenameCancel();
+              }}
+              onBlur={() => onRename(map.id, editValue)}
+              onClick={(e) => e.stopPropagation()}
+              className="text-foreground w-full border-0 bg-transparent p-0 text-[12.5px] leading-none font-medium outline-none"
+            />
+          ) : (
+            <div className="text-foreground truncate text-[12.5px] leading-none font-medium">
+              {map.title}
+            </div>
+          )}
+        </div>
         <div className="text-muted-foreground mt-px text-[10.5px]">
           {formatDate(map.updated_at)}
         </div>
@@ -71,7 +110,7 @@ export default function MindmapItem({ map, isActive, onClick, onRename, onDelete
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                onRename(map.id, map.title);
+                onRenameStart();
                 setMenuOpen(false);
               }}
               className="hover:bg-accent text-foreground flex w-full cursor-pointer items-center gap-2 rounded-[7px] px-2.5 py-1.5 text-[12px]"

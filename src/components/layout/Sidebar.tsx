@@ -1,5 +1,6 @@
 'use client';
 
+import IconButton from '@/components/common/IconButton';
 import { createClient } from '@/lib/supabase/client';
 import { useAuthStore } from '@/store/authStore';
 import { MindmapListItem } from '@/types';
@@ -35,6 +36,19 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
     }
   };
 
+  const handleCreate = async () => {
+    if (!user?.id) return;
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('maps')
+      .insert({ user_id: user.id, title: '새 마인드맵', nodes: [], edges: [] })
+      .select('id, title, updated_at, created_at, user_id')
+      .single();
+
+    if (error || !data) return;
+    setMaps((prev) => [data as MindmapListItem, ...prev]);
+  };
+
   return (
     <>
       {!open && (
@@ -57,12 +71,9 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
         {/* 헤더 */}
         <div className="border-sidebar-border flex shrink-0 items-center border-b px-3 pt-3.25 pb-2.75">
           <span className="text-foreground flex-1 text-[13px] font-semibold">mindmap</span>
-          <button
-            onClick={onToggle}
-            className="text-muted-foreground hover:bg-accent hover:text-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-all"
-          >
+          <IconButton onClick={onToggle} className="h-7 w-7 rounded-lg">
             <PanelLeftClose size={16} />
-          </button>
+          </IconButton>
         </div>
 
         {/* 맵 목록 */}
@@ -70,9 +81,12 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
           <span className="text-muted-foreground text-[10px] font-semibold tracking-[0.7px]">
             내 마인드맵
           </span>
-          <button className="text-muted-foreground hover:text-primary hover:bg-primary/15 flex h-5.5 w-5.5 items-center justify-center rounded-[6px] transition-all">
+          <IconButton
+            onClick={handleCreate}
+            className="hover:bg-primary/15 hover:text-primary h-5.5 w-5.5 rounded-[6px]"
+          >
             <Plus size={14} />
-          </button>
+          </IconButton>
         </div>
 
         <div className="[&::-webkit-scrollbar-thumb]:bg-border flex-1 overflow-y-auto px-2 py-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full">

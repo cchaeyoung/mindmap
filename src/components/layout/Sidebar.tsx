@@ -109,6 +109,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
       const { error } = await createClient().from('maps').update({ nodes, edges }).eq('id', mapId);
       if (error) throw error;
     },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['maps', user?.id] }),
   });
 
   const handleRenameConfirm = (id: string, title: string) => {

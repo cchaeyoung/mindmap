@@ -19,6 +19,7 @@ interface MapStore {
   updateNodes: (updates: { id: string; changes: Partial<MindmapNode> }[]) => void;
   deleteNode: (id: string) => void;
   applyAutoLayout: () => void;
+  loadMap: (nodes: MindmapNode[], edges: Edge[]) => void;
 }
 
 export const useMapStore = create<MapStore>((set, get) => ({
@@ -131,6 +132,16 @@ export const useMapStore = create<MapStore>((set, get) => ({
         const pos = layout.get(n.id);
         return pos ? { ...n, x: pos.x, y: pos.y } : n;
       }),
+    });
+  },
+
+  loadMap: (nodes, edges) => {
+    set({
+      nodes,
+      edges,
+      history: [nodes],
+      historyIndex: 0,
+      justAddedNodeId: null,
     });
   },
 }));

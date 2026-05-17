@@ -6,8 +6,10 @@ import { useAuthStore } from '@/store/authStore';
 import { MindmapListItem } from '@/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { LogOut, PanelLeftClose, PanelLeftOpen, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import MindmapItem from '@/components/sidebar/MindmapItem';
+import { useMapStore } from '@/store/mapStore';
 
 interface SidebarProps {
   open: boolean;
@@ -27,12 +29,24 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
   const setAuthModalOpen = useAuthStore((state) => state.setAuthModalOpen);
   const [editingId, setEditingId] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const nodes = useMapStore((s) => s.nodes);
+  const edges = useMapStore((s) => s.edges);
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const mapId = pathname.startsWith('/map/') ? pathname.split('/map/')[1] : null;
 
   const { data: maps = [] } = useQuery({
     queryKey: ['maps', user?.id],
     queryFn: fetchMaps,
     enabled: !!user?.id,
   });
+
+  useEffect(() => {
+    if (!mapId && maps.length > 0) {
+      router.replace(`/map/${maps[0].id}`);
+    }
+  }, [maps, mapId, router]);
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -47,6 +61,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
     onSuccess: (data) => {
       queryClient.setQueryData(['maps', user?.id], (old: MindmapListItem[] = []) => [data, ...old]);
       setEditingId(data.id);
+      router.push(`/map/${data.id}`);
     },
     onError: () => queryClient.invalidateQueries({ queryKey: ['maps', user?.id] }),
   });
@@ -56,7 +71,17 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
       const { error } = await createClient().from('maps').delete().eq('id', id);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['maps', user?.id] }),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: ['maps', user?.id] });
+      if (mapId === id) {
+        const remaining = maps.filter((m) => m.id !== id);
+        if (remaining.length > 0) {
+          router.push(`/map/${remaining[0].id}`);
+        } else {
+          router.push('/');
+        }
+      }
+    },
     onError: () => queryClient.invalidateQueries({ queryKey: ['maps', user?.id] }),
   });
 
@@ -78,6 +103,15 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
     },
   });
 
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      if (!mapId) return;
+      const { error } = await createClient().from('maps').update({ nodes, edges }).eq('id', mapId);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['maps', user?.id] }),
+  });
+
   const handleRenameConfirm = (id: string, title: string) => {
     const trimmed = title.trim();
     setEditingId(null);
@@ -91,6 +125,13 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
     } catch (error) {
       console.error('로그아웃 실패:', error);
     }
+  };
+
+  const handleMapClick = async (newMapId: string) => {
+    if (mapId && mapId !== newMapId) {
+      await saveMutation.mutateAsync();
+    }
+    router.push(`/map/${newMapId}`);
   };
 
   return (
@@ -140,9 +181,9 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
               <MindmapItem
                 key={map.id}
                 map={map}
-                isActive={false}
+                isActive={mapId === map.id}
                 isEditing={editingId === map.id}
-                onClick={() => {}}
+                onClick={() => handleMapClick(map.id)}
                 onRenameStart={() => setEditingId(map.id)}
                 onRename={handleRenameConfirm}
                 onRenameCancel={() => setEditingId(null)}

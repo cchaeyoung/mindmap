@@ -59,7 +59,10 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const isMounted = useRef(false);
 
   useEffect(() => {
-    if (!isMounted.current) { isMounted.current = true; return; }
+    if (!isMounted.current) {
+      isMounted.current = true;
+      return;
+    }
     applyAutoLayout();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodes.length, nodes.filter((n) => n.autoLayout).length]);
@@ -357,41 +360,43 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
           />
         )}
         {memoPanelNodeId && <MemoPanel nodeId={memoPanelNodeId} />}
-        <Stage
-          width={size.width}
-          height={size.height}
-          x={cam.x}
-          y={cam.y}
-          scaleX={cam.zoom}
-          scaleY={cam.zoom}
-          onWheel={onWheel}
-          onMouseDown={(e) => {
-            if (e.evt.button === 0 && e.target === e.target.getStage() && canvasMode === 'select')
-              setSelectedNode(null);
-            if (canvasMode === 'hand') onMouseDown(e);
-          }}
-          onMouseMove={onMouseMove}
-          onMouseUp={onMouseUp}
-          onMouseLeave={onMouseUp}
-        >
-          <Layer>
-            {nodes
-              .filter((node) => node.parentId !== null)
-              .map((node) => {
-                const parent = nodes.find((n) => n.id === node.parentId);
-                if (!parent) return null;
-                return <Edge key={node.id} fromNode={parent} toNode={node} />;
-              })}
-            {nodes.map((node) => (
-              <MindmapNode
-                key={node.id}
-                node={node}
-                isSelected={node.id === selectedNodeId}
-                isEditing={node.id === editingNodeId}
-              />
-            ))}
-          </Layer>
-        </Stage>
+        {size.width > 0 && size.height > 0 && (
+          <Stage
+            width={size.width}
+            height={size.height}
+            x={cam.x}
+            y={cam.y}
+            scaleX={cam.zoom}
+            scaleY={cam.zoom}
+            onWheel={onWheel}
+            onMouseDown={(e) => {
+              if (e.evt.button === 0 && e.target === e.target.getStage() && canvasMode === 'select')
+                setSelectedNode(null);
+              if (canvasMode === 'hand') onMouseDown(e);
+            }}
+            onMouseMove={onMouseMove}
+            onMouseUp={onMouseUp}
+            onMouseLeave={onMouseUp}
+          >
+            <Layer>
+              {nodes
+                .filter((node) => node.parentId !== null)
+                .map((node) => {
+                  const parent = nodes.find((n) => n.id === node.parentId);
+                  if (!parent) return null;
+                  return <Edge key={node.id} fromNode={parent} toNode={node} />;
+                })}
+              {nodes.map((node) => (
+                <MindmapNode
+                  key={node.id}
+                  node={node}
+                  isSelected={node.id === selectedNodeId}
+                  isEditing={node.id === editingNodeId}
+                />
+              ))}
+            </Layer>
+          </Stage>
+        )}
       </div>
     </NodeRefsProvider>
   );

@@ -6,9 +6,11 @@ import ZoomControls from '@/components/canvas/ZoomControls';
 import Toolbar from '@/components/canvas/Toolbar';
 import { useCanvas } from '@/hooks/useCanvas';
 import { useLoadMap } from '@/hooks/useLoadMap';
+import { useAutoSave } from '@/hooks/useAutoSave';
 
 export default function Home() {
-  useLoadMap();
+  const { mapId } = useLoadMap();
+  useAutoSave(mapId);
   const { cam, handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, zoomBy } = useCanvas();
 
   return (

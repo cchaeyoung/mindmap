@@ -9,6 +9,7 @@ import { LogOut, PanelLeftClose, PanelLeftOpen, Plus } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import MindmapItem from '@/components/sidebar/MindmapItem';
+import { useMapStore } from '@/store/mapStore';
 
 interface SidebarProps {
   open: boolean;
@@ -28,6 +29,8 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
   const setAuthModalOpen = useAuthStore((state) => state.setAuthModalOpen);
   const [editingId, setEditingId] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const nodes = useMapStore((s) => s.nodes);
+  const edges = useMapStore((s) => s.edges);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -100,6 +103,14 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
     },
   });
 
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      if (!mapId) return;
+      const { error } = await createClient().from('maps').update({ nodes, edges }).eq('id', mapId);
+      if (error) throw error;
+    },
+  });
+
   const handleRenameConfirm = (id: string, title: string) => {
     const trimmed = title.trim();
     setEditingId(null);
@@ -113,6 +124,13 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
     } catch (error) {
       console.error('로그아웃 실패:', error);
     }
+  };
+
+  const handleMapClick = async (newMapId: string) => {
+    if (mapId && mapId !== newMapId) {
+      await saveMutation.mutateAsync();
+    }
+    router.push(`/map/${newMapId}`);
   };
 
   return (
@@ -164,7 +182,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
                 map={map}
                 isActive={mapId === map.id}
                 isEditing={editingId === map.id}
-                onClick={() => router.push(`/map/${map.id}`)}
+                onClick={() => handleMapClick(map.id)}
                 onRenameStart={() => setEditingId(map.id)}
                 onRename={handleRenameConfirm}
                 onRenameCancel={() => setEditingId(null)}

@@ -2,15 +2,15 @@ import { createClient } from '@/lib/supabase/client';
 import { useMapStore } from '@/store/mapStore';
 import { Edge, MindmapNode } from '@/types';
 import { useQuery } from '@tanstack/react-query';
-import { useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export function useLoadMap() {
-  const searchParams = useSearchParams();
-  const mapId = searchParams.get('map');
+  const { id: mapId } = useParams<{ id: string }>();
   const loadMap = useMapStore((s) => s.loadMap);
+  const router = useRouter();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['map', mapId],
     queryFn: async () => {
       const { data, error } = await createClient()
@@ -22,11 +22,16 @@ export function useLoadMap() {
       return data as { nodes: MindmapNode[]; edges: Edge[] };
     },
     enabled: !!mapId,
+    staleTime: 0,
   });
 
   useEffect(() => {
     if (data) loadMap(data.nodes, data.edges);
   }, [data, loadMap]);
+
+  useEffect(() => {
+    if (isError) router.replace('/');
+  }, [isError, router]);
 
   return { mapId, isLoading };
 }

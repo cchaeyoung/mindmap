@@ -19,7 +19,10 @@ export function useLoadMap() {
         .eq('id', mapId!)
         .single();
       if (error) throw error;
-      return data as { nodes: MindmapNode[]; edges: Edge[] };
+      return {
+        nodes: Array.isArray(data?.nodes) ? (data.nodes as MindmapNode[]) : [],
+        edges: Array.isArray(data?.edges) ? (data.edges as Edge[]) : [],
+      };
     },
     enabled: !!mapId,
     staleTime: 0,

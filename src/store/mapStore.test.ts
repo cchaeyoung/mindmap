@@ -125,3 +125,30 @@ describe('undo / redo', () => {
     expect(useUIStore.getState().editingNodeId).toBeNull();
   });
 });
+
+describe('loadMap', () => {
+  it('nodes와 edges를 교체한다', () => {
+    useMapStore.getState().addNode(makeNode());
+    const newNodes = [{ ...makeNode(), id: 'abc', width: 100, autoLayout: false }];
+    const newEdges = [{ id: 'edge-1', fromId: 'abc', toId: 'def' }];
+    useMapStore.getState().loadMap(newNodes, newEdges);
+    expect(useMapStore.getState().nodes).toEqual(newNodes);
+    expect(useMapStore.getState().edges).toEqual(newEdges);
+  });
+
+  it('히스토리를 초기화한다', () => {
+    useMapStore.getState().addNode(makeNode());
+    const newNodes = [{ ...makeNode(), id: 'abc', width: 100, autoLayout: false }];
+    useMapStore.getState().loadMap(newNodes, []);
+    expect(useMapStore.getState().history).toEqual([newNodes]);
+    expect(useMapStore.getState().historyIndex).toBe(0);
+  });
+
+  it('loadMap 후 undo를 해도 이전 맵 상태로 돌아가지 않는다', () => {
+    useMapStore.getState().addNode(makeNode());
+    const newNodes = [{ ...makeNode(), id: 'abc', width: 100, autoLayout: false }];
+    useMapStore.getState().loadMap(newNodes, []);
+    useMapStore.getState().undo();
+    expect(useMapStore.getState().nodes).toEqual(newNodes);
+  });
+});

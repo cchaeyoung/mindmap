@@ -10,6 +10,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import MindmapItem from '@/components/sidebar/MindmapItem';
 import { flushAutoSave } from '@/hooks/useAutoSave';
+import { useMapStore } from '@/store/mapStore';
 
 interface SidebarProps {
   open: boolean;
@@ -32,6 +33,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const mapId = pathname.startsWith('/map/') ? pathname.split('/map/')[1] : null;
+  const hasLocalWork = useMapStore((state) => state.hasLocalWork);
 
   const { data: maps = [] } = useQuery({
     queryKey: ['maps', user?.id],
@@ -39,11 +41,13 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
     enabled: !!user?.id,
   });
 
+  const hasLocalMap = hasLocalWork && (!user || maps.length === 0);
+
   useEffect(() => {
-    if (!mapId && maps.length > 0) {
+    if (!mapId && maps.length > 0 && !hasLocalWork) {
       router.replace(`/map/${maps[0].id}`);
     }
-  }, [maps, mapId, router]);
+  }, [maps, mapId, router, hasLocalWork]);
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -69,7 +73,9 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
       if (error) throw error;
     },
     onSuccess: (_, id) => {
-      queryClient.invalidateQueries({ queryKey: ['maps', user?.id] });
+      queryClient.setQueryData(['maps', user?.id], (old: MindmapListItem[] = []) =>
+        old.filter((m) => m.id !== id)
+      );
       if (mapId === id) {
         const remaining = maps.filter((m) => m.id !== id);
         if (remaining.length > 0) {
@@ -111,6 +117,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
     try {
       await flushAutoSave();
       await createClient().auth.signOut();
+      useMapStore.getState().loadMap([], []);
       router.push('/');
     } catch (error) {
       console.error('로그아웃 실패:', error);
@@ -167,6 +174,24 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
         <div
           className={`[&::-webkit-scrollbar-thumb]:bg-border flex-1 overflow-y-auto px-2 py-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full ${deleteMutation.isPending ? 'pointer-events-none' : ''}`}
         >
+          {hasLocalMap && (
+            <MindmapItem
+              map={{
+                id: '',
+                title: '새 마인드맵',
+                updated_at: new Date().toISOString(),
+                created_at: new Date().toISOString(),
+                user_id: '',
+              }}
+              isActive={true}
+              isEditing={false}
+              onClick={() => {}}
+              onRenameStart={() => {}}
+              onRename={() => {}}
+              onRenameCancel={() => {}}
+              onDelete={() => {}}
+            />
+          )}
           {user &&
             maps.map((map) => (
               <MindmapItem

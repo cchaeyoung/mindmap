@@ -7,15 +7,14 @@ import Toolbar from '@/components/canvas/Toolbar';
 import { useCanvas } from '@/hooks/useCanvas';
 import { useCreateFirstMap } from '@/hooks/useCreateFirstMap';
 import { useMapStore } from '@/store/mapStore';
-import { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
 
 export default function Home() {
   const { cam, handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, zoomBy } = useCanvas();
-  useCreateFirstMap();
-
-  useEffect(() => {
+  useLayoutEffect(() => {
     useMapStore.getState().loadMap([], []);
   }, []);
+  useCreateFirstMap();
 
   return (
     <AppLayout>

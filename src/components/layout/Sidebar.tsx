@@ -9,7 +9,7 @@ import { LogOut, PanelLeftClose, PanelLeftOpen, Plus } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import MindmapItem from '@/components/sidebar/MindmapItem';
-import { useMapStore } from '@/store/mapStore';
+import { flushAutoSave } from '@/hooks/useAutoSave';
 
 interface SidebarProps {
   open: boolean;
@@ -29,9 +29,6 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
   const setAuthModalOpen = useAuthStore((state) => state.setAuthModalOpen);
   const [editingId, setEditingId] = useState<string | null>(null);
   const queryClient = useQueryClient();
-  const nodes = useMapStore((s) => s.nodes);
-  const edges = useMapStore((s) => s.edges);
-
   const router = useRouter();
   const pathname = usePathname();
   const mapId = pathname.startsWith('/map/') ? pathname.split('/map/')[1] : null;
@@ -103,15 +100,6 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
     },
   });
 
-  const saveMutation = useMutation({
-    mutationFn: async () => {
-      if (!mapId) return;
-      const { error } = await createClient().from('maps').update({ nodes, edges }).eq('id', mapId);
-      if (error) throw error;
-    },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['maps', user?.id] }),
-  });
-
   const handleRenameConfirm = (id: string, title: string) => {
     const trimmed = title.trim();
     setEditingId(null);
@@ -121,7 +109,9 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
 
   const handleSignOut = async () => {
     try {
+      await flushAutoSave();
       await createClient().auth.signOut();
+      router.push('/');
     } catch (error) {
       console.error('로그아웃 실패:', error);
     }
@@ -129,7 +119,8 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
 
   const handleMapClick = async (newMapId: string) => {
     if (mapId && mapId !== newMapId) {
-      await saveMutation.mutateAsync();
+      await flushAutoSave();
+      queryClient.invalidateQueries({ queryKey: ['maps', user?.id] });
     }
     router.push(`/map/${newMapId}`);
   };

@@ -196,7 +196,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
               onRenameStart={() => {}}
               onRename={() => {}}
               onRenameCancel={() => {}}
-              onDelete={() => {}}
+              onDelete={() => useMapStore.getState().loadMap([], [])}
             />
           )}
           {user &&

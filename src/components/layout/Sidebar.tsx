@@ -109,6 +109,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
 
   const handleSignOut = async () => {
     try {
+      await flushAutoSave();
       await createClient().auth.signOut();
       router.push('/');
     } catch (error) {

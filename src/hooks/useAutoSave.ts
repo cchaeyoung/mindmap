@@ -74,6 +74,7 @@ export function useAutoSave(mapId: string | null) {
     return () => {
       unsubscribe();
       if (debounceTimer) clearTimeout(debounceTimer);
+      if (pendingFlush) pendingFlush();
       pendingFlush = null;
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };

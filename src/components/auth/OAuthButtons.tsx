@@ -1,27 +1,56 @@
 'use client';
 
 import { createClient } from '@/lib/supabase/client';
+import { useAuthStore } from '@/store/authStore';
 import type { Provider } from '@supabase/supabase-js';
-import { useState } from 'react';
-
-const redirectTo = () => `${window.location.origin}/auth/callback`;
+import { useEffect, useState } from 'react';
 
 export default function OAuthButtons() {
   const [loading, setLoading] = useState(false);
+  const setUser = useAuthStore((state) => state.setUser);
+  const setAuthModalOpen = useAuthStore((state) => state.setAuthModalOpen);
+
+  useEffect(() => {
+    const handleMessage = async (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return;
+      if (e.data?.type !== 'OAUTH_COMPLETE') return;
+      const {
+        data: { session },
+      } = await createClient().auth.getSession();
+      setUser(session?.user ?? null);
+      setAuthModalOpen(false);
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [setUser, setAuthModalOpen]);
 
   const handleOAuth = async (provider: Provider) => {
     if (loading) return;
     setLoading(true);
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await createClient().auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: redirectTo(),
+          redirectTo: `${window.location.origin}/auth/callback?popup=true`,
+          skipBrowserRedirect: true,
           ...(provider === 'google' && { queryParams: { prompt: 'select_account' } }),
         },
       });
-      if (error) console.error('OAuth 오류:', error.message);
+      if (error || !data.url) return;
+
+      const w = 500,
+        h = 600;
+      const left = window.screenX + (window.outerWidth - w) / 2;
+      const top = window.screenY + (window.outerHeight - h) / 2;
+      const popup = window.open(
+        data.url,
+        'oauth',
+        `width=${w},height=${h},left=${left},top=${top}`
+      );
+
+      if (!popup) {
+        window.location.href = data.url;
+      }
     } finally {
       setLoading(false);
     }

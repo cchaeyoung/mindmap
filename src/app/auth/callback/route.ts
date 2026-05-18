@@ -5,6 +5,7 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
   const error = searchParams.get('error');
+  const isPopup = searchParams.get('popup') === 'true';
 
   if (error || !code) {
     return NextResponse.redirect(origin);
@@ -18,5 +19,5 @@ export async function GET(request: Request) {
     return NextResponse.redirect(origin);
   }
 
-  return NextResponse.redirect(origin);
+  return NextResponse.redirect(isPopup ? `${origin}/auth/close` : origin);
 }

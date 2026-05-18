@@ -7,11 +7,14 @@ import Toolbar from '@/components/canvas/Toolbar';
 import { useCanvas } from '@/hooks/useCanvas';
 import { useLoadMap } from '@/hooks/useLoadMap';
 import { useAutoSave } from '@/hooks/useAutoSave';
+import { useUIStore } from '@/store/uiStore';
+import SaveStatus from '@/components/canvas/SaveStatus';
 
 export default function Home() {
   const { mapId } = useLoadMap();
-  useAutoSave(mapId);
+  const { status } = useAutoSave(mapId);
   const { cam, handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, zoomBy } = useCanvas();
+  const sidebarOpen = useUIStore((s) => s.sidebarOpen);
 
   return (
     <AppLayout>
@@ -21,6 +24,7 @@ export default function Home() {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
       />
+      <SaveStatus status={status} sidebarOpen={sidebarOpen} />
       <ZoomControls zoom={cam.zoom} zoomBy={zoomBy} />
       <Toolbar />
     </AppLayout>

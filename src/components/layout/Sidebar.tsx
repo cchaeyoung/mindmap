@@ -122,6 +122,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
   const handleSignOut = async () => {
     try {
       await createClient().auth.signOut();
+      router.push('/');
     } catch (error) {
       console.error('로그아웃 실패:', error);
     }

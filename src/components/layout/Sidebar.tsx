@@ -34,6 +34,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const mapId = pathname.startsWith('/map/') ? pathname.split('/map/')[1] : null;
   const hasLocalWork = useMapStore((state) => state.hasLocalWork);
+  const localMapActive = useMapStore((state) => state.localMapActive);
 
   const { data: maps = [] } = useQuery({
     queryKey: ['maps', user?.id],
@@ -41,7 +42,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
     enabled: !!user?.id,
   });
 
-  const hasLocalMap = hasLocalWork && (!user || maps.length === 0);
+  const hasLocalMap = localMapActive && (!user || (maps.length === 0 && hasLocalWork));
 
   useEffect(() => {
     if (!mapId && maps.length > 0 && !hasLocalWork) {
@@ -164,8 +165,14 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
             내 마인드맵
           </span>
           <IconButton
-            onClick={() => createMutation.mutate()}
-            className="hover:bg-primary/15 hover:text-primary h-5.5 w-5.5 rounded-[6px]"
+            onClick={() => {
+              if (!user) {
+                if (!localMapActive) useMapStore.getState().startLocalMap();
+                return;
+              }
+              createMutation.mutate();
+            }}
+            className={`hover:bg-primary/15 hover:text-primary h-5.5 w-5.5 rounded-[6px] ${!user && localMapActive ? 'cursor-not-allowed opacity-30' : ''}`}
           >
             <Plus size={14} />
           </IconButton>

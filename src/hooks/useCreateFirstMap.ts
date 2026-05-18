@@ -37,6 +37,7 @@ export function useCreateFirstMap() {
           data as MindmapListItem,
           ...old,
         ]);
+        queryClient.invalidateQueries({ queryKey: ['maps', user.id] });
         if (mountedRef.current) router.push(`/map/${data.id}`);
       });
   }, [user, justAddedNodeId, router, queryClient]);

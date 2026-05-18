@@ -32,7 +32,10 @@ export function useAutoSave(mapId: string | null) {
     let snapshot: { nodes: MindmapNode[]; edges: Edge[] } | null = null;
 
     const save = async () => {
-      debounceTimer = null;
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+        debounceTimer = null;
+      }
       pendingFlush = null;
       const { nodes, edges } = useMapStore.getState();
       const { error } = await createClient().from('maps').update({ nodes, edges }).eq('id', mapId);

@@ -31,8 +31,11 @@ export function useCreateFirstMap() {
       .insert({ user_id: user.id, title: '새 마인드맵', nodes, edges })
       .select('id, title, updated_at, created_at, user_id')
       .single()
-      .then(({ data }) => {
-        if (!data) return;
+      .then(({ data, error }) => {
+        if (error || !data) {
+          savedRef.current = false;
+          return;
+        }
         queryClient.setQueryData(['maps', user.id], (old: MindmapListItem[] = []) => [
           data as MindmapListItem,
           ...old,

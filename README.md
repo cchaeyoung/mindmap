@@ -8,7 +8,7 @@
 
 <br />
 
-[![Demo](https://img.shields.io/badge/🔗%20Demo-black?style=for-the-badge)](https://mindot.vercel.app)
+[![Demo](https://img.shields.io/badge/🔗%20Demo-black?style=for-the-badge)](https://mindot-map.vercel.app)
 
 <br />
 
@@ -27,6 +27,7 @@
 **Mind** + **Dot** — 생각을 점으로 연결하다.
 
 Mindot은 생각과 아이디어를 연결하고 시각화하는 마인드맵 도구입니다.
+
 노드와 연결선을 통해 복잡한 흐름을 직관적으로 정리할 수 있습니다.
 
 <br />
@@ -122,11 +123,4 @@ Mindot은 생각과 아이디어를 연결하고 시각화하는 마인드맵 �
 pnpm install
 cp .env.example .env.local
 pnpm dev
-```
-
-`.env.local` 에 Supabase 프로젝트의 URL과 anon key를 입력하세요.
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
 ```

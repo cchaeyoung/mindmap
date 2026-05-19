@@ -1,6 +1,7 @@
 'use client';
 
 import IconButton from '@/components/common/IconButton';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { useAuthStore } from '@/store/authStore';
 import { MindmapListItem } from '@/types';
@@ -152,7 +153,24 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
       >
         {/* 헤더 */}
         <div className="border-sidebar-border flex shrink-0 items-center border-b px-3 pt-3.25 pb-2.75">
-          <span className="text-foreground flex-1 text-[13px] font-semibold">mindmap</span>
+          <div className="flex flex-1 items-center">
+            <Image
+              src="/logo-light.svg"
+              alt="Mindot"
+              width={93}
+              height={16}
+              className="block dark:hidden"
+              unoptimized
+            />
+            <Image
+              src="/logo-dark.svg"
+              alt="Mindot"
+              width={93}
+              height={16}
+              className="hidden dark:block"
+              unoptimized
+            />
+          </div>
           <IconButton onClick={onToggle} className="h-7 w-7 rounded-lg">
             <PanelLeftClose size={16} />
           </IconButton>

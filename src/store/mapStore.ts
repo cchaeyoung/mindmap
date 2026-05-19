@@ -10,6 +10,7 @@ interface MapStore {
   history: MindmapNode[][];
   historyIndex: number;
   justAddedNodeId: string | null;
+  hasLocalWork: boolean;
   saveHistory: () => void;
   confirmNodeCreation: () => void;
   undo: () => void;
@@ -28,6 +29,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
   history: [[]],
   historyIndex: 0,
   justAddedNodeId: null,
+  hasLocalWork: false,
 
   saveHistory: () => {
     const { nodes, history, historyIndex } = get();
@@ -90,7 +92,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
       ],
     }));
     get().saveHistory();
-    set({ justAddedNodeId: id });
+    set({ justAddedNodeId: id, hasLocalWork: true });
     return id;
   },
 
@@ -142,6 +144,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
       history: [nodes],
       historyIndex: 0,
       justAddedNodeId: null,
+      hasLocalWork: false,
     });
   },
 }));

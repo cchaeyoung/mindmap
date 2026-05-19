@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   const isPopup = searchParams.get('popup') === 'true';
 
   if (error || !code) {
-    return NextResponse.redirect(origin);
+    return NextResponse.redirect(isPopup ? `${origin}/auth/close` : origin);
   }
 
   const supabase = await createClient();
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
 
   if (sessionError) {
     console.error('OAuth 세션 교환 실패:', sessionError.message);
-    return NextResponse.redirect(origin);
+    return NextResponse.redirect(isPopup ? `${origin}/auth/close` : origin);
   }
 
   return NextResponse.redirect(isPopup ? `${origin}/auth/close` : origin);

@@ -9,6 +9,7 @@ import AuthForm from './AuthForm';
 export default function AuthModal() {
   const authModalOpen = useAuthStore((state) => state.authModalOpen);
   const setAuthModalOpen = useAuthStore((state) => state.setAuthModalOpen);
+  const authModalMessage = useAuthStore((state) => state.authModalMessage);
   const [mode, setMode] = useState<'login' | 'signup'>('login');
 
   const close = () => {
@@ -37,6 +38,7 @@ export default function AuthModal() {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: 380,
+          willChange: 'transform',
           transform: authModalOpen ? 'translateY(0) scale(1)' : 'translateY(14px) scale(0.97)',
           transition: 'transform 0.28s cubic-bezier(0.22,1,0.36,1)',
         }}
@@ -54,6 +56,11 @@ export default function AuthModal() {
           <div className="text-foreground text-[20px] font-bold tracking-[-0.4px]">
             {mode === 'login' ? '로그인' : '회원가입'}
           </div>
+          {authModalMessage && mode === 'login' && (
+            <p className="text-muted-foreground mt-1.5 text-[12.5px]">
+              로그인하면 {authModalMessage}
+            </p>
+          )}
         </div>
 
         <AuthForm

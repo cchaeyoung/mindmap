@@ -184,8 +184,10 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
           <IconButton
             onClick={() => {
               if (user) createMutation.mutate();
+              else setAuthModalOpen(true, '저장하고 여러 맵을 만들 수 있어요');
             }}
-            className="hover:bg-primary/15 hover:text-primary h-5.5 w-5.5 rounded-[6px]"
+            title="새 마인드맵"
+            className={`hover:bg-primary/15 hover:text-primary h-5.5 w-5.5 rounded-[6px] ${!user && !hasLocalMap ? 'invisible' : ''}`}
           >
             <Plus size={14} />
           </IconButton>

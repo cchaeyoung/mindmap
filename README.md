@@ -64,51 +64,51 @@ Mindot은 생각과 아이디어를 연결하고 시각화하는 마인드맵 �
   <tr>
     <td align="center"><b>Framework</b></td>
     <td>
-      <img src="https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=next.js&logoColor=white" />
+      <img src="https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=next.js&logoColor=white" alt="Next.js badge" />
     </td>
   </tr>
   <tr>
     <td align="center"><b>Language</b></td>
     <td>
-      <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" />
+      <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript badge" />
     </td>
   </tr>
   <tr>
     <td align="center"><b>Canvas</b></td>
     <td>
-      <img src="https://img.shields.io/badge/React--Konva-FF6B6B?style=flat-square" />
+      <img src="https://img.shields.io/badge/React--Konva-FF6B6B?style=flat-square" alt="React Konva badge" />
     </td>
   </tr>
   <tr>
     <td align="center"><b>상태관리</b></td>
     <td>
-      <img src="https://img.shields.io/badge/Zustand-433E38?style=flat-square" />
-      <img src="https://img.shields.io/badge/TanStack_Query-FF4154?style=flat-square&logo=reactquery&logoColor=white" />
+      <img src="https://img.shields.io/badge/Zustand-433E38?style=flat-square" alt="Zustand badge" />
+      <img src="https://img.shields.io/badge/TanStack_Query-FF4154?style=flat-square&logo=reactquery&logoColor=white" alt="TanStack Query badge" />
     </td>
   </tr>
   <tr>
     <td align="center"><b>스타일</b></td>
     <td>
-      <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" />
+      <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS badge" />
     </td>
   </tr>
   <tr>
     <td align="center"><b>Auth / DB</b></td>
     <td>
-      <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=white" />
+      <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=white" alt="Supabase badge" />
     </td>
   </tr>
   <tr>
     <td align="center"><b>테스트</b></td>
     <td>
-      <img src="https://img.shields.io/badge/Vitest-6E9F18?style=flat-square&logo=vitest&logoColor=white" />
+      <img src="https://img.shields.io/badge/Vitest-6E9F18?style=flat-square&logo=vitest&logoColor=white" alt="Vitest badge" />
     </td>
   </tr>
   <tr>
     <td align="center"><b>CI/CD</b></td>
     <td>
-      <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white" />
-      <img src="https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white" />
+      <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white" alt="GitHub Actions badge" />
+      <img src="https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white" alt="Vercel badge" />
     </td>
   </tr>
 </table>

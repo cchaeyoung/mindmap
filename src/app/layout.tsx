@@ -10,6 +10,7 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://mindot-map.vercel.app'),
   title: 'Mindot',
   description: '생각을 연결하고 시각화하는 마인드맵 도구',
   openGraph: {

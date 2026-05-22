@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 import { Providers } from './providers';
+import { SITE_URL } from '@/constants/site';
 
 const pretendard = localFont({
   src: '../../node_modules/pretendard/dist/web/variable/woff2/PretendardVariable.woff2',
@@ -10,7 +11,7 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://mindot-map.vercel.app'),
+  metadataBase: new URL(SITE_URL),
   verification: {
     google: 'HOaiyz-ll1z1EsY7knSfzSRrD6Uw8y39BE7iXIVddhU',
   },
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Mindot',
     description: '생각을 연결하고 시각화하는 마인드맵 도구',
-    url: 'https://mindot-map.vercel.app',
+    url: SITE_URL,
     siteName: 'Mindot',
     type: 'website',
     images: [{ url: '/og-image.png', width: 1200, height: 630 }],

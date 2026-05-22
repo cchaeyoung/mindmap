@@ -16,21 +16,24 @@ export default function Toolbar() {
   const redo = useMapStore((state) => state.redo);
   const historyIndex = useMapStore((state) => state.historyIndex);
   const historyLength = useMapStore((state) => state.history.length);
+  const sidebarOpen = useUIStore((state) => state.sidebarOpen);
   const isMac =
     typeof navigator !== 'undefined' && navigator.platform.toUpperCase().includes('MAC');
 
-
   return (
-    <div className="fixed bottom-5.5 left-1/2 z-20 -translate-x-1/2">
+    <div
+      style={{ marginLeft: sidebarOpen ? 120 : 0 }}
+      className="fixed bottom-5.5 left-1/2 z-20 -translate-x-1/2 transition-[margin] duration-[280ms]"
+    >
       <FloatingPanel className="flex items-center gap-0.5 rounded-[14px] p-1">
         <IconButton
-          onClick={() => { setIsPlacing(true); setSelectedNode(null); }}
+          onClick={() => {
+            setIsPlacing(true);
+            setSelectedNode(null);
+          }}
           title="새 항목 추가 (N)"
           isActive={isPlacing}
-          className={cn(
-            'h-8 rounded-[10px] px-3',
-            isPlacing && 'bg-primary/20 text-(--mm-acc-fg)'
-          )}
+          className={cn('h-8 rounded-[10px] px-3', isPlacing && 'bg-primary/20 text-(--mm-acc-fg)')}
         >
           <Plus size={15} />
         </IconButton>
@@ -38,7 +41,10 @@ export default function Toolbar() {
         <div className="bg-border mx-0.5 h-4 w-px shrink-0" />
 
         <IconButton
-          onClick={() => { setCanvasMode('select'); setIsPlacing(false); }}
+          onClick={() => {
+            setCanvasMode('select');
+            setIsPlacing(false);
+          }}
           title="선택 (V)"
           isActive={canvasMode === 'select' && !isPlacing}
           className={cn(

@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   verification: {
     google: 'HOaiyz-ll1z1EsY7knSfzSRrD6Uw8y39BE7iXIVddhU',
   },
+  other: {
+    'naver-site-verification': '76892db30192cc1fe5c6be03825b0da608a94aba',
+  },
   title: 'Mindot',
   description: '생각을 연결하고 시각화하는 마인드맵 도구',
   openGraph: {

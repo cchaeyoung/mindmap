@@ -10,6 +10,7 @@ export function useGuestBeforeUnload() {
     if (!user && nodes.length > 0) {
       const handler = (e: BeforeUnloadEvent) => {
         e.preventDefault();
+        e.returnValue = '';
       };
       window.addEventListener('beforeunload', handler);
       return () => window.removeEventListener('beforeunload', handler);

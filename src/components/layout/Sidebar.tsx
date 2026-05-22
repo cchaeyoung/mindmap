@@ -184,7 +184,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
           <IconButton
             onClick={() => {
               if (user) createMutation.mutate();
-              else setAuthModalOpen(true, '저장하고 여러 맵을 만들 수 있어요');
+              else setAuthModalOpen(true, '저장하고 여러 마인드맵을 만들 수 있어요');
             }}
             title="새 마인드맵"
             className={`hover:bg-primary/15 hover:text-primary h-5.5 w-5.5 rounded-[6px] ${!user && !hasLocalMap ? 'invisible' : ''}`}
@@ -231,31 +231,38 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
         </div>
 
         {/* 유저 영역 */}
-        <div
-          onClick={() => !user && setAuthModalOpen(true)}
-          className={`border-sidebar-border flex shrink-0 items-center gap-2.5 border-t px-3.5 py-3 transition-all ${!user ? 'hover:bg-accent cursor-pointer' : ''}`}
-        >
-          <div className="border-primary/35 bg-primary/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-[1.5px] text-[13px] font-semibold text-(--mm-acc-fg)">
-            {user ? (user.email?.[0] ?? '?').toUpperCase() : '?'}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-foreground truncate text-[12px] font-medium" title={user?.email}>
-              {user ? user.email : '게스트'}
-            </div>
-            {!user && <div className="text-muted-foreground text-[10.5px]">로그인하기</div>}
-          </div>
-          {user && (
+        {!user ? (
+          <div className="border-sidebar-border flex shrink-0 flex-col gap-2.5 border-t p-3.5">
+            <p className="text-muted-foreground text-[11.5px]">
+              로그인하면 마인드맵을 저장하고
+              <br />
+              이어서 작업할 수 있어요
+            </p>
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSignOut();
-              }}
+              onClick={() => setAuthModalOpen(true)}
+              className="bg-primary/15 hover:bg-primary/20 text-primary flex w-full cursor-pointer items-center justify-center rounded-[9px] py-2 text-[12px] font-semibold transition-colors"
+            >
+              로그인
+            </button>
+          </div>
+        ) : (
+          <div className="border-sidebar-border flex shrink-0 items-center gap-2.5 border-t px-3.5 py-3">
+            <div className="border-primary/35 bg-primary/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-[1.5px] text-[13px] font-semibold text-(--mm-acc-fg)">
+              {(user.email?.[0] ?? '?').toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-foreground truncate text-[12px] font-medium" title={user.email}>
+                {user.email}
+              </div>
+            </div>
+            <button
+              onClick={handleSignOut}
               className="text-muted-foreground hover:bg-destructive/15 flex h-6.5 w-6.5 shrink-0 cursor-pointer items-center justify-center rounded-[7px] transition-all hover:text-red-400"
             >
               <LogOut size={13} />
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </aside>
     </>
   );

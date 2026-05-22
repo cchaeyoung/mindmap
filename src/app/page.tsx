@@ -8,13 +8,17 @@ import { useCanvas } from '@/hooks/useCanvas';
 import { useCreateFirstMap } from '@/hooks/useCreateFirstMap';
 import { useMapStore } from '@/store/mapStore';
 import { useLayoutEffect } from 'react';
+import EmptyCanvasHint from '@/components/canvas/EmptyCanvasHint';
+import { useGuestBeforeUnload } from '@/hooks/useGuestBeforeUnload';
 
 export default function Home() {
   const { cam, handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, zoomBy } = useCanvas();
+
   useLayoutEffect(() => {
     useMapStore.getState().loadMap([], []);
   }, []);
   useCreateFirstMap();
+  useGuestBeforeUnload();
 
   return (
     <AppLayout>
@@ -24,6 +28,7 @@ export default function Home() {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
       />
+      <EmptyCanvasHint />
       <ZoomControls zoom={cam.zoom} zoomBy={zoomBy} />
       <Toolbar />
     </AppLayout>

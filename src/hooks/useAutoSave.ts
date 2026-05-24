@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useMapStore } from '@/store/mapStore';
 import { Edge, MindmapNode } from '@/types';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 const DEBOUNCE_MS = 500;
 
@@ -44,6 +45,7 @@ export function useAutoSave(mapId: string | null) {
           isRollingBack = true;
           useMapStore.getState().loadMap(snapshot.nodes, snapshot.edges);
         }
+        toast.error('저장하지 못했습니다.', { id: 'autosave-error' });
       } else {
         snapshot = { nodes, edges };
       }

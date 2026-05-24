@@ -4,11 +4,12 @@ import { useEffect } from 'react';
 
 export default function Close() {
   useEffect(() => {
+    const error = new URLSearchParams(window.location.search).get('error');
     if (window.opener) {
-      window.opener.postMessage({ type: 'OAUTH_COMPLETE' }, window.location.origin);
+      window.opener.postMessage({ type: 'OAUTH_COMPLETE', error }, window.location.origin);
       window.close();
     } else {
-      window.location.href = '/';
+      window.location.href = error ? `/?error=${error}` : '/';
     }
   }, []);
 

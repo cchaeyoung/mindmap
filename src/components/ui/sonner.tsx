@@ -28,7 +28,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         style: {
           fontSize: '12.5px',
           padding: '10px 12px',
-          maxWidth: '280px',
+          maxWidth: '320px',
           gap: '8px',
           boxShadow: '0 4px 20px var(--mm-shadow)',
         },

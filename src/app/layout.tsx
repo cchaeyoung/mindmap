@@ -42,7 +42,7 @@ export default function RootLayout({
     <html lang="ko" suppressHydrationWarning>
       <body className={pretendard.variable}>
         <Providers>{children}</Providers>
-        <Toaster />
+        <Toaster position="top-right" offset={{ top: 72, right: 16 }} />
         <Analytics />
         <SpeedInsights />
       </body>

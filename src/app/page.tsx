@@ -10,6 +10,7 @@ import { useMapStore } from '@/store/mapStore';
 import { useLayoutEffect } from 'react';
 import EmptyCanvasHint from '@/components/canvas/EmptyCanvasHint';
 import { useGuestBeforeUnload } from '@/hooks/useGuestBeforeUnload';
+import { useErrorToast } from '@/hooks/useErrorToast';
 
 export default function Home() {
   const { cam, handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, zoomBy } = useCanvas();
@@ -19,6 +20,7 @@ export default function Home() {
   }, []);
   useCreateFirstMap();
   useGuestBeforeUnload();
+  useErrorToast();
 
   return (
     <AppLayout>

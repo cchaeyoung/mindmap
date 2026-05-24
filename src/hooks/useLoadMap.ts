@@ -33,7 +33,7 @@ export function useLoadMap() {
   }, [data, loadMap]);
 
   useEffect(() => {
-    if (isError) router.replace('/');
+    if (isError) router.replace('/?error=map-not-found');
   }, [isError, router]);
 
   return { mapId, isLoading };

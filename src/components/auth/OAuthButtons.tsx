@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useAuthStore } from '@/store/authStore';
 import type { Provider } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 export default function OAuthButtons() {
   const [loading, setLoading] = useState(false);
@@ -14,6 +15,10 @@ export default function OAuthButtons() {
     const handleMessage = async (e: MessageEvent) => {
       if (e.origin !== window.location.origin) return;
       if (e.data?.type !== 'OAUTH_COMPLETE') return;
+      if (e.data?.error) {
+        toast.error('로그인에 실패했습니다. 다시 시도해주세요.', { id: 'oauth-error' });
+        return;
+      }
       const {
         data: { session },
       } = await createClient().auth.getSession();
@@ -36,7 +41,10 @@ export default function OAuthButtons() {
           ...(provider === 'google' && { queryParams: { prompt: 'select_account' } }),
         },
       });
-      if (error || !data.url) return;
+      if (error || !data.url) {
+        toast.error('로그인에 실패했습니다. 다시 시도해주세요.', { id: 'oauth-error' });
+        return;
+      }
 
       const w = 500,
         h = 600;

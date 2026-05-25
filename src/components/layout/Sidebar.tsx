@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import MindmapItem from '@/components/sidebar/MindmapItem';
 import { flushAutoSave } from '@/hooks/useAutoSave';
 import { useMapStore } from '@/store/mapStore';
+import { toast } from 'sonner';
 
 interface SidebarProps {
   open: boolean;
@@ -65,7 +66,10 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
       setEditingId(data.id);
       router.push(`/map/${data.id}`);
     },
-    onError: () => queryClient.invalidateQueries({ queryKey: ['maps', user?.id] }),
+    onError: () => {
+      queryClient.invalidateQueries({ queryKey: ['maps', user?.id] });
+      toast.error('마인드맵을 만들지 못했습니다.');
+    },
   });
 
   const deleteMutation = useMutation({
@@ -86,7 +90,10 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
         }
       }
     },
-    onError: () => queryClient.invalidateQueries({ queryKey: ['maps', user?.id] }),
+    onError: () => {
+      queryClient.invalidateQueries({ queryKey: ['maps', user?.id] });
+      toast.error('마인드맵을 삭제하지 못했습니다.');
+    },
   });
 
   const renameMutation = useMutation({
@@ -104,6 +111,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['maps', user?.id] }),
     onError: (_, __, context) => {
       queryClient.setQueryData(['maps', user?.id], context?.previous);
+      toast.error('이름을 변경하지 못했습니다.');
     },
   });
 
@@ -122,6 +130,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
       router.push('/');
     } catch (error) {
       console.error('로그아웃 실패:', error);
+      toast.error('로그아웃에 실패했습니다. 다시 시도해주세요.');
     }
   };
 

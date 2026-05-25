@@ -9,7 +9,7 @@ export default function Close() {
       window.opener.postMessage({ type: 'OAUTH_COMPLETE', error }, window.location.origin);
       window.close();
     } else {
-      window.location.href = error ? `/?error=${error}` : '/';
+      window.location.href = error ? `/?error=${encodeURIComponent(error)}` : '/';
     }
   }, []);
 

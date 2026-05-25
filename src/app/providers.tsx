@@ -1,6 +1,7 @@
 'use client';
 
 import AuthProvider from '@/providers/AuthProvider';
+import { Toaster } from '@/components/ui/sonner';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'next-themes';
 import { useState } from 'react';
@@ -24,6 +25,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>{children}</AuthProvider>
       </QueryClientProvider>
+      <Toaster position="top-right" offset={{ top: 72, right: 16 }} />
     </ThemeProvider>
   );
 }

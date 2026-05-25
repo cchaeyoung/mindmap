@@ -5,7 +5,6 @@ import { Providers } from './providers';
 import { SITE_URL } from '@/constants/site';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { Toaster } from '@/components/ui/sonner';
 
 const pretendard = localFont({
   src: '../../node_modules/pretendard/dist/web/variable/woff2/PretendardVariable.woff2',
@@ -42,7 +41,6 @@ export default function RootLayout({
     <html lang="ko" suppressHydrationWarning>
       <body className={pretendard.variable}>
         <Providers>{children}</Providers>
-        <Toaster position="top-right" offset={{ top: 72, right: 16 }} />
         <Analytics />
         <SpeedInsights />
       </body>

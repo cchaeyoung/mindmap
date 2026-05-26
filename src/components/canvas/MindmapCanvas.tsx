@@ -10,6 +10,7 @@ import {
   NODE_STYLE,
 } from '@/constants/node';
 import { measureNodeWidth } from '@/utils/node';
+import { computeNewNodePosition } from '@/utils/layout/autoLayout';
 import { useMapStore } from '@/store/mapStore';
 import { useCanvasStore } from '@/store/canvasStore';
 import MindmapNode from '@/components/node/MindmapNode';
@@ -146,10 +147,11 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     const targetNode = nodes.find((n) => n.id === nodeId) ?? null;
     if (!targetNode) return;
     if (canvasMode === 'hand') setCanvasMode('select');
-    const children = nodes.filter((n) => n.parentId === targetNode.id);
+    const newNodeWidth = measureNodeWidth('새 항목', 'child', 'M');
+    const { x, y } = computeNewNodePosition(nodes, nodeId, direction, newNodeWidth);
     const newId = addNode({
-      x: direction === 'right' ? targetNode.x + 200 : targetNode.x - 200,
-      y: targetNode.y + children.length * 80,
+      x,
+      y,
       label: '',
       parentId: targetNode.id,
       colorIndex: targetNode.colorIndex,

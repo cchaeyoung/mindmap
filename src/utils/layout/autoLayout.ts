@@ -101,3 +101,49 @@ export function computeLayout(nodes: MindmapNode[]): Map<string, { x: number; y:
   }
   return result;
 }
+
+export function computeNewNodePosition(
+  nodes: MindmapNode[],
+  parentId: string,
+  direction: 'left' | 'right',
+  newNodeWidth: number
+): { x: number; y: number } {
+  const parent = nodes.find((n) => n.id === parentId);
+  if (!parent) return { x: 0, y: 0 };
+
+  let root = parent;
+  while (root.parentId !== null) {
+    const p = nodes.find((n) => n.id === root.parentId);
+    if (!p) break;
+    root = p;
+  }
+
+  if (root.autoLayout !== false) {
+    const children = nodes.filter((n) => n.parentId === parentId);
+    return {
+      x: direction === 'right' ? parent.x + 200 : parent.x - 200,
+      y: parent.y + children.length * 80,
+    };
+  }
+
+  const x =
+    direction === 'right'
+      ? parent.x + parent.width / 2 + HORIZONTAL_GAP + newNodeWidth / 2
+      : parent.x - parent.width / 2 - HORIZONTAL_GAP - newNodeWidth / 2;
+
+  const sameDirectionSiblings = nodes.filter(
+    (n) => n.parentId === parentId && n.direction === direction
+  );
+
+  let y: number;
+  if (sameDirectionSiblings.length === 0) {
+    y = parent.y;
+  } else {
+    const lastSibling = sameDirectionSiblings[sameDirectionSiblings.length - 1];
+    const lastSiblingH = subtreeHeight(lastSibling.id, nodes);
+    const newNodeH = nodeHeight({ size: 'M', parentId } as MindmapNode);
+    y = lastSibling.y + lastSiblingH / 2 + VERTICAL_GAP + newNodeH / 2;
+  }
+
+  return { x, y };
+}

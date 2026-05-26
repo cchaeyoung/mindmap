@@ -139,10 +139,14 @@ export function computeNewNodePosition(
   if (sameDirectionSiblings.length === 0) {
     y = parent.y;
   } else {
-    const lastSibling = sameDirectionSiblings[sameDirectionSiblings.length - 1];
-    const lastSiblingH = subtreeHeight(lastSibling.id, nodes);
+    const bottomSibling = sameDirectionSiblings.reduce((bottom, s) =>
+      s.y + subtreeHeight(s.id, nodes) / 2 > bottom.y + subtreeHeight(bottom.id, nodes) / 2
+        ? s
+        : bottom
+    );
+    const bottomSiblingH = subtreeHeight(bottomSibling.id, nodes);
     const newNodeH = nodeHeight({ size: 'M', parentId } as MindmapNode);
-    y = lastSibling.y + lastSiblingH / 2 + VERTICAL_GAP + newNodeH / 2;
+    y = bottomSibling.y + bottomSiblingH / 2 + VERTICAL_GAP + newNodeH / 2;
   }
 
   return { x, y };

@@ -114,6 +114,14 @@ describe('computeNewNodePosition', () => {
     expect(x).toBe(-(60 + 80 + 50));
   });
 
+  it('배열 순서가 아닌 y 기준 가장 아래 형제를 기준으로 배치한다', () => {
+    const root = makeNode({ id: 'root', parentId: null, x: 0, y: 0, autoLayout: false });
+    const c1 = makeNode({ id: 'c1', parentId: 'root', direction: 'right', x: 230, y: 200 });
+    const c2 = makeNode({ id: 'c2', parentId: 'root', direction: 'right', x: 230, y: 0 });
+    const { y } = computeNewNodePosition([root, c1, c2], 'root', 'right', 100);
+    expect(y).toBeGreaterThan(200);
+  });
+
   it('오토레이아웃 OFF에서 반대 방향 형제는 y 계산에 영향을 주지 않는다', () => {
     const root = makeNode({ id: 'root', parentId: null, x: 0, y: 0, autoLayout: false });
     const l1 = makeNode({ id: 'l1', parentId: 'root', direction: 'left', x: -230, y: 200 });

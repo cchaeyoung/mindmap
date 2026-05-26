@@ -3,6 +3,7 @@
 import { useMapStore } from '@/store/mapStore';
 import { useUIStore } from '@/store/uiStore';
 import { measureNodeWidth } from '@/utils/node';
+import { computeNewNodePosition, centerSiblings } from '@/utils/layout/autoLayout';
 import { useEffect } from 'react';
 
 export function useKeyboardShortcuts() {
@@ -68,13 +69,15 @@ export function useKeyboardShortcuts() {
       }
       if (e.key === 'Tab' && selectedNodeId) {
         e.preventDefault();
-        const node = nodes.find((n) => n.id === selectedNodeId);
+        const latestNodes = useMapStore.getState().nodes;
+        const node = latestNodes.find((n) => n.id === selectedNodeId);
         if (!node) return;
         const dir = node.direction ?? 'right';
-        const children = nodes.filter((n) => n.parentId === node.id);
+        const newNodeWidth = measureNodeWidth('새 항목', 'child', 'M');
+        const { x, y } = computeNewNodePosition(latestNodes, node.id, dir, newNodeWidth);
         const newId = addNode({
-          x: dir === 'right' ? node.x + 200 : node.x - 200,
-          y: node.y + children.length * 80,
+          x,
+          y,
           label: '',
           parentId: node.id,
           colorIndex: node.colorIndex,
@@ -82,6 +85,21 @@ export function useKeyboardShortcuts() {
           shape: node.shape,
           direction: dir,
         });
+        let root = node;
+        while (root.parentId !== null) {
+          const p = latestNodes.find((n) => n.id === root.parentId);
+          if (!p) break;
+          root = p;
+        }
+        if (root.autoLayout === false) {
+          const afterAddNodes = useMapStore.getState().nodes;
+          const reordered = centerSiblings(afterAddNodes, node.id, dir);
+          if (reordered.length > 0) {
+            useMapStore
+              .getState()
+              .updateNodes(reordered.map(({ id, y: newY }) => ({ id, changes: { y: newY } })));
+          }
+        }
         setCanvasMode('select');
         setSelectedNode(newId);
         setEditingNode(newId);

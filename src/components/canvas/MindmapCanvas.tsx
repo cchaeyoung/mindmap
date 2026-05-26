@@ -145,11 +145,12 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   );
 
   const handleAddChild = (nodeId: string, direction: 'left' | 'right') => {
-    const targetNode = nodes.find((n) => n.id === nodeId) ?? null;
+    const currentNodes = useMapStore.getState().nodes;
+    const targetNode = currentNodes.find((n) => n.id === nodeId) ?? null;
     if (!targetNode) return;
     if (canvasMode === 'hand') setCanvasMode('select');
     const newNodeWidth = measureNodeWidth('새 항목', 'child', 'M');
-    const { x, y } = computeNewNodePosition(nodes, nodeId, direction, newNodeWidth);
+    const { x, y } = computeNewNodePosition(currentNodes, nodeId, direction, newNodeWidth);
     const newId = addNode({
       x,
       y,
@@ -163,7 +164,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
 
     let root = targetNode;
     while (root.parentId !== null) {
-      const p = nodes.find((n) => n.id === root.parentId);
+      const p = currentNodes.find((n) => n.id === root.parentId);
       if (!p) break;
       root = p;
     }

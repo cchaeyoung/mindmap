@@ -101,3 +101,88 @@ export function computeLayout(nodes: MindmapNode[]): Map<string, { x: number; y:
   }
   return result;
 }
+
+export function computeNewNodePosition(
+  nodes: MindmapNode[],
+  parentId: string,
+  direction: 'left' | 'right',
+  newNodeWidth: number
+): { x: number; y: number } {
+  const parent = nodes.find((n) => n.id === parentId);
+  if (!parent) return { x: 0, y: 0 };
+
+  let root = parent;
+  while (root.parentId !== null) {
+    const p = nodes.find((n) => n.id === root.parentId);
+    if (!p) break;
+    root = p;
+  }
+
+  if (root.autoLayout !== false) {
+    const children = nodes.filter((n) => n.parentId === parentId);
+    return {
+      x: direction === 'right' ? parent.x + 200 : parent.x - 200,
+      y: parent.y + children.length * 80,
+    };
+  }
+
+  const x =
+    direction === 'right'
+      ? parent.x + parent.width / 2 + HORIZONTAL_GAP + newNodeWidth / 2
+      : parent.x - parent.width / 2 - HORIZONTAL_GAP - newNodeWidth / 2;
+
+  const sameDirectionSiblings = nodes.filter(
+    (n) => n.parentId === parentId && n.direction === direction
+  );
+
+  let y: number;
+  if (sameDirectionSiblings.length === 0) {
+    y = parent.y;
+  } else {
+    const bottomSibling = sameDirectionSiblings.reduce((bottom, s) =>
+      s.y + subtreeHeight(s.id, nodes) / 2 > bottom.y + subtreeHeight(bottom.id, nodes) / 2
+        ? s
+        : bottom
+    );
+    const bottomSiblingH = subtreeHeight(bottomSibling.id, nodes);
+    const newNodeH = nodeHeight({ size: 'M', parentId } as MindmapNode);
+    y = bottomSibling.y + bottomSiblingH / 2 + VERTICAL_GAP + newNodeH / 2;
+  }
+
+  return { x, y };
+}
+
+function getDescendantIds(nodeId: string, nodes: MindmapNode[]): string[] {
+  const children = nodes.filter((n) => n.parentId === nodeId);
+  return children.flatMap((c) => [c.id, ...getDescendantIds(c.id, nodes)]);
+}
+
+export function centerSiblings(
+  nodes: MindmapNode[],
+  parentId: string,
+  direction: 'left' | 'right'
+): { id: string; y: number }[] {
+  const parent = nodes.find((n) => n.id === parentId);
+  if (!parent) return [];
+  const children = nodes
+    .filter((n) => n.parentId === parentId && n.direction === direction)
+    .sort((a, b) => a.y - b.y);
+  if (children.length === 0) return [];
+  const totalHeight =
+    children.reduce((sum, c) => sum + subtreeHeight(c.id, nodes), 0) +
+    (children.length - 1) * VERTICAL_GAP;
+  let currentY = parent.y - totalHeight / 2;
+  const result: { id: string; y: number }[] = [];
+  for (const child of children) {
+    const h = subtreeHeight(child.id, nodes);
+    const childY = currentY + h / 2;
+    const delta = childY - child.y;
+    result.push({ id: child.id, y: childY });
+    for (const descId of getDescendantIds(child.id, nodes)) {
+      const desc = nodes.find((n) => n.id === descId);
+      if (desc) result.push({ id: descId, y: desc.y + delta });
+    }
+    currentY += h + VERTICAL_GAP;
+  }
+  return result;
+}

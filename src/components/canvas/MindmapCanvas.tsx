@@ -10,6 +10,7 @@ import {
   NODE_STYLE,
 } from '@/constants/node';
 import { measureNodeWidth } from '@/utils/node';
+import { computeNewNodePosition, centerSiblings } from '@/utils/layout/autoLayout';
 import { useMapStore } from '@/store/mapStore';
 import { useCanvasStore } from '@/store/canvasStore';
 import MindmapNode from '@/components/node/MindmapNode';
@@ -55,6 +56,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const addNode = useMapStore((state) => state.addNode);
   const deleteNode = useMapStore((state) => state.deleteNode);
   const updateNode = useMapStore((state) => state.updateNode);
+  const updateNodes = useMapStore((state) => state.updateNodes);
   const applyAutoLayout = useMapStore((state) => state.applyAutoLayout);
   const isMounted = useRef(false);
 
@@ -143,13 +145,15 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   );
 
   const handleAddChild = (nodeId: string, direction: 'left' | 'right') => {
-    const targetNode = nodes.find((n) => n.id === nodeId) ?? null;
+    const currentNodes = useMapStore.getState().nodes;
+    const targetNode = currentNodes.find((n) => n.id === nodeId) ?? null;
     if (!targetNode) return;
     if (canvasMode === 'hand') setCanvasMode('select');
-    const children = nodes.filter((n) => n.parentId === targetNode.id);
+    const newNodeWidth = measureNodeWidth('새 항목', 'child', 'M');
+    const { x, y } = computeNewNodePosition(currentNodes, nodeId, direction, newNodeWidth);
     const newId = addNode({
-      x: direction === 'right' ? targetNode.x + 200 : targetNode.x - 200,
-      y: targetNode.y + children.length * 80,
+      x,
+      y,
       label: '',
       parentId: targetNode.id,
       colorIndex: targetNode.colorIndex,
@@ -157,6 +161,21 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
       shape: targetNode.shape,
       direction,
     });
+
+    let root = targetNode;
+    while (root.parentId !== null) {
+      const p = currentNodes.find((n) => n.id === root.parentId);
+      if (!p) break;
+      root = p;
+    }
+    if (root.autoLayout === false) {
+      const latestNodes = useMapStore.getState().nodes;
+      const reordered = centerSiblings(latestNodes, nodeId, direction);
+      if (reordered.length > 0) {
+        updateNodes(reordered.map(({ id, y: newY }) => ({ id, changes: { y: newY } })));
+      }
+    }
+
     setSelectedNode(newId);
     setEditingNode(newId);
   };

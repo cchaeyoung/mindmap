@@ -10,7 +10,7 @@ import {
   NODE_STYLE,
 } from '@/constants/node';
 import { measureNodeWidth } from '@/utils/node';
-import { computeNewNodePosition } from '@/utils/layout/autoLayout';
+import { computeNewNodePosition, centerSiblings } from '@/utils/layout/autoLayout';
 import { useMapStore } from '@/store/mapStore';
 import { useCanvasStore } from '@/store/canvasStore';
 import MindmapNode from '@/components/node/MindmapNode';
@@ -56,6 +56,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
   const addNode = useMapStore((state) => state.addNode);
   const deleteNode = useMapStore((state) => state.deleteNode);
   const updateNode = useMapStore((state) => state.updateNode);
+  const updateNodes = useMapStore((state) => state.updateNodes);
   const applyAutoLayout = useMapStore((state) => state.applyAutoLayout);
   const isMounted = useRef(false);
 
@@ -159,6 +160,21 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
       shape: targetNode.shape,
       direction,
     });
+
+    let root = targetNode;
+    while (root.parentId !== null) {
+      const p = nodes.find((n) => n.id === root.parentId);
+      if (!p) break;
+      root = p;
+    }
+    if (root.autoLayout === false) {
+      const latestNodes = useMapStore.getState().nodes;
+      const reordered = centerSiblings(latestNodes, nodeId, direction);
+      if (reordered.length > 0) {
+        updateNodes(reordered.map(({ id, y: newY }) => ({ id, changes: { y: newY } })));
+      }
+    }
+
     setSelectedNode(newId);
     setEditingNode(newId);
   };

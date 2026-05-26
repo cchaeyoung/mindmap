@@ -147,3 +147,28 @@ export function computeNewNodePosition(
 
   return { x, y };
 }
+
+export function centerSiblings(
+  nodes: MindmapNode[],
+  parentId: string,
+  direction: 'left' | 'right'
+): { id: string; y: number }[] {
+  const parent = nodes.find((n) => n.id === parentId);
+  if (!parent) return [];
+  const children = nodes
+    .filter((n) => n.parentId === parentId && n.direction === direction)
+    .sort((a, b) => a.y - b.y);
+  if (children.length === 0) return [];
+  const totalHeight =
+    children.reduce((sum, c) => sum + subtreeHeight(c.id, nodes), 0) +
+    (children.length - 1) * VERTICAL_GAP;
+  let currentY = parent.y - totalHeight / 2;
+  const result: { id: string; y: number }[] = [];
+  for (const child of children) {
+    const h = subtreeHeight(child.id, nodes);
+    const childY = currentY + h / 2;
+    result.push({ id: child.id, y: childY });
+    currentY += h + VERTICAL_GAP;
+  }
+  return result;
+}

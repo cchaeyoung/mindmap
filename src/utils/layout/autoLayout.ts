@@ -148,6 +148,11 @@ export function computeNewNodePosition(
   return { x, y };
 }
 
+function getDescendantIds(nodeId: string, nodes: MindmapNode[]): string[] {
+  const children = nodes.filter((n) => n.parentId === nodeId);
+  return children.flatMap((c) => [c.id, ...getDescendantIds(c.id, nodes)]);
+}
+
 export function centerSiblings(
   nodes: MindmapNode[],
   parentId: string,
@@ -167,7 +172,12 @@ export function centerSiblings(
   for (const child of children) {
     const h = subtreeHeight(child.id, nodes);
     const childY = currentY + h / 2;
+    const delta = childY - child.y;
     result.push({ id: child.id, y: childY });
+    for (const descId of getDescendantIds(child.id, nodes)) {
+      const desc = nodes.find((n) => n.id === descId);
+      if (desc) result.push({ id: descId, y: desc.y + delta });
+    }
     currentY += h + VERTICAL_GAP;
   }
   return result;

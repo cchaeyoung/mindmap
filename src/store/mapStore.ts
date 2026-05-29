@@ -16,6 +16,7 @@ interface MapStore {
   undo: () => void;
   redo: () => void;
   addNode: (node: Omit<MindmapNode, 'id' | 'width'>) => string;
+  addNodes: (nodes: MindmapNode[], edges: Edge[]) => void;
   updateNode: (id: string, changes: Partial<MindmapNode>, opts?: { skipHistory?: boolean }) => void;
   updateNodes: (updates: { id: string; changes: Partial<MindmapNode> }[]) => void;
   deleteNode: (id: string) => void;
@@ -94,6 +95,15 @@ export const useMapStore = create<MapStore>((set, get) => ({
     get().saveHistory();
     set({ justAddedNodeId: id, hasLocalWork: true });
     return id;
+  },
+
+  addNodes: (nodes, edges) => {
+    get().saveHistory();
+    set((state) => ({
+      nodes: [...state.nodes, ...nodes],
+      edges: [...state.edges, ...edges],
+      hasLocalWork: true,
+    }));
   },
 
   updateNode: (id, changes, opts) => {

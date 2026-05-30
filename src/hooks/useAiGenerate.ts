@@ -18,6 +18,12 @@ export function useAiGenerate() {
     const controller = new AbortController();
     abortRef.current = controller;
 
+    const idMap = new Map<string, string>();
+    const edges: Edge[] = [];
+    const { cam, stageSize } = useCanvasStore.getState();
+    const rootX = (stageSize.width / 2 - cam.x) / cam.zoom;
+    const rootY = (stageSize.height / 2 - cam.y) / cam.zoom;
+
     try {
       const res = await fetch('/api/ai/generate', {
         method: 'POST',
@@ -28,41 +34,54 @@ export function useAiGenerate() {
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-      const data = await res.json();
-      const idMap = new Map<string, string>();
-      const nodes: MindmapNode[] = [];
-      const edges: Edge[] = [];
+      const reader = res.body!.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
 
-      const { cam, stageSize } = useCanvasStore.getState();
-      const rootX = (stageSize.width / 2 - cam.x) / cam.zoom;
-      const rootY = (stageSize.height / 2 - cam.y) / cam.zoom;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-      for (const n of data.nodes) {
-        const id = crypto.randomUUID();
-        idMap.set(n.aiId, id);
-        const parentId = n.parentAiId ? (idMap.get(n.parentAiId) ?? null) : null;
-        const tier = parentId === null ? 'root' : 'child';
-        const size = 'M' as const;
-        const isRoot = parentId === null;
-        nodes.push({
-          id,
-          x: isRoot ? rootX : 0,
-          y: isRoot ? rootY : 0,
-          label: n.label,
-          width: measureNodeWidth(n.label, tier, size),
-          parentId,
-          colorIndex: isRoot ? NODE_DEFAULT_COLOR_INDEX : 0,
-          size,
-          shape: 'pill',
-          direction: n.direction,
-        });
-        if (parentId) {
-          edges.push({ id: crypto.randomUUID(), fromId: parentId, toId: id });
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') {
+            applyAutoLayout();
+            return;
+          }
+
+          const n = JSON.parse(data);
+          const id = crypto.randomUUID();
+          idMap.set(n.aiId, id);
+          const parentId = n.parentAiId ? (idMap.get(n.parentAiId) ?? null) : null;
+          const isRoot = parentId === null;
+          const tier = isRoot ? 'root' : 'child';
+          const size = 'M' as const;
+
+          const node: MindmapNode = {
+            id,
+            x: isRoot ? rootX : 0,
+            y: isRoot ? rootY : 0,
+            label: n.label,
+            width: measureNodeWidth(n.label, tier, size),
+            parentId,
+            colorIndex: isRoot ? NODE_DEFAULT_COLOR_INDEX : 0,
+            size,
+            shape: 'pill',
+            direction: n.direction,
+          };
+
+          if (parentId) {
+            edges.push({ id: crypto.randomUUID(), fromId: parentId, toId: id });
+          }
+
+          addNodes([node], parentId ? [edges[edges.length - 1]] : []);
         }
       }
-
-      addNodes(nodes, edges);
-      applyAutoLayout();
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') return;
       toast.error('AI 마인드맵 생성에 실패했습니다');

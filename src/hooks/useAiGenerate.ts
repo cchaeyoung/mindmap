@@ -19,6 +19,7 @@ export function useAiGenerate() {
     abortRef.current = controller;
 
     const idMap = new Map<string, string>();
+    const directionMap = new Map<string, 'left' | 'right'>();
     const edges: Edge[] = [];
     const { cam, stageSize } = useCanvasStore.getState();
     const rootX = (stageSize.width / 2 - cam.x) / cam.zoom;
@@ -62,6 +63,11 @@ export function useAiGenerate() {
           const tier = isRoot ? 'root' : 'child';
           const size = 'M' as const;
 
+          const resolvedDirection: 'left' | 'right' | undefined = n.parentAiId
+            ? (directionMap.get(n.parentAiId) ?? n.direction)
+            : n.direction;
+          if (resolvedDirection) directionMap.set(n.aiId, resolvedDirection);
+
           const node: MindmapNode = {
             id,
             x: isRoot ? rootX : 0,
@@ -72,7 +78,7 @@ export function useAiGenerate() {
             colorIndex: isRoot ? NODE_DEFAULT_COLOR_INDEX : 0,
             size,
             shape: 'pill',
-            direction: n.direction,
+            direction: resolvedDirection,
           };
 
           if (parentId) {

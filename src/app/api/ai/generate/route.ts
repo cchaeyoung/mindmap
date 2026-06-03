@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   const stream = new ReadableStream({
     async start(controller) {
       const result = streamObject({
-        model: google('gemini-3.5-flash'),
+        model: google('gemini-3.1-flash-lite'),
         schema: mindmapSchema,
         prompt: generateMindmapPrompt(topic),
         abortSignal: req.signal,
@@ -19,18 +19,22 @@ export async function POST(req: Request) {
       const sentIds = new Set<string>();
       for await (const partial of result.partialObjectStream) {
         const nodes = partial.nodes ?? [];
+
         for (const node of nodes) {
           if (
             node?.aiId &&
             node?.label &&
             node.parentAiId !== undefined &&
-            !sentIds.has(node.aiId)
+            (node.parentAiId === null || node.direction) &&
+            !sentIds.has(node.aiId) &&
+            (node.parentAiId === null || sentIds.has(node.parentAiId))
           ) {
             sentIds.add(node.aiId);
             controller.enqueue(encoder.encode(`data: ${JSON.stringify(node)}\n\n`));
           }
         }
       }
+
       controller.enqueue(encoder.encode('data: [DONE]\n\n'));
       controller.close();
     },

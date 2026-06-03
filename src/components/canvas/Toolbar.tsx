@@ -30,12 +30,16 @@ export default function Toolbar() {
   const isMac =
     typeof navigator !== 'undefined' && navigator.platform.toUpperCase().includes('MAC');
 
-  const initialSidebarOpen = useRef(sidebarOpen);
   useEffect(() => {
-    if (!wand2Ref.current) return;
-    const rect = wand2Ref.current.getBoundingClientRect();
-    setAnchorX(rect.left + rect.width / 2 - (initialSidebarOpen.current ? SIDEBAR_OFFSET : 0));
-  }, []);
+    const measure = () => {
+      if (!wand2Ref.current) return;
+      const rect = wand2Ref.current.getBoundingClientRect();
+      setAnchorX(rect.left + rect.width / 2 - (sidebarOpen ? SIDEBAR_OFFSET : 0));
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [sidebarOpen]);
 
   useEffect(() => {
     if (!aiPopoverOpen) return;

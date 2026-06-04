@@ -9,8 +9,10 @@ import { toast } from 'sonner';
 export function useAiGenerate() {
   const [isGenerating, setIsGenerating] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const addedNodeIdsRef = useRef<string[]>([]);
 
   const addNodes = useMapStore((state) => state.addNodes);
+  const deleteNodes = useMapStore((state) => state.deleteNodes);
   const applyAutoLayout = useMapStore((state) => state.applyAutoLayout);
 
   const handleGenerate = async (topic: string) => {
@@ -18,6 +20,7 @@ export function useAiGenerate() {
     const controller = new AbortController();
     abortRef.current = controller;
 
+    addedNodeIdsRef.current = [];
     const idMap = new Map<string, string>();
     const directionMap = new Map<string, 'left' | 'right'>();
     const edges: Edge[] = [];
@@ -85,11 +88,16 @@ export function useAiGenerate() {
             edges.push({ id: crypto.randomUUID(), fromId: parentId, toId: id });
           }
 
+          addedNodeIdsRef.current.push(id);
           addNodes([node], parentId ? [edges[edges.length - 1]] : []);
         }
       }
     } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') return;
+      if (err instanceof Error && err.name === 'AbortError') {
+        deleteNodes(addedNodeIdsRef.current);
+        addedNodeIdsRef.current = [];
+        return;
+      }
       toast.error('AI 마인드맵 생성에 실패했습니다');
     } finally {
       setIsGenerating(false);
@@ -99,8 +107,6 @@ export function useAiGenerate() {
 
   const handleCancel = () => {
     abortRef.current?.abort();
-    abortRef.current = null;
-    setIsGenerating(false);
   };
 
   return { isGenerating, handleGenerate, handleCancel };

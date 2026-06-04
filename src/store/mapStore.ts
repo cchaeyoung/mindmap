@@ -20,6 +20,7 @@ interface MapStore {
   updateNode: (id: string, changes: Partial<MindmapNode>, opts?: { skipHistory?: boolean }) => void;
   updateNodes: (updates: { id: string; changes: Partial<MindmapNode> }[]) => void;
   deleteNode: (id: string) => void;
+  deleteNodes: (ids: string[]) => void;
   applyAutoLayout: () => void;
   loadMap: (nodes: MindmapNode[], edges: Edge[]) => void;
 }
@@ -134,6 +135,14 @@ export const useMapStore = create<MapStore>((set, get) => ({
       };
     });
     get().saveHistory();
+  },
+
+  deleteNodes: (ids) => {
+    const idSet = new Set(ids);
+    set((state) => ({
+      nodes: state.nodes.filter((n) => !idSet.has(n.id)),
+      edges: state.edges.filter((e) => !idSet.has(e.fromId) && !idSet.has(e.toId)),
+    }));
   },
 
   applyAutoLayout: () => {

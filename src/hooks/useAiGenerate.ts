@@ -13,6 +13,7 @@ export function useAiGenerate() {
 
   const addNodes = useMapStore((state) => state.addNodes);
   const deleteNodes = useMapStore((state) => state.deleteNodes);
+  const saveHistory = useMapStore((state) => state.saveHistory);
   const applyAutoLayout = useMapStore((state) => state.applyAutoLayout);
 
   const handleGenerate = async (topic: string) => {
@@ -55,6 +56,7 @@ export function useAiGenerate() {
           const data = line.slice(6).trim();
           if (data === '[DONE]') {
             applyAutoLayout();
+            saveHistory();
             return;
           }
 
@@ -89,7 +91,7 @@ export function useAiGenerate() {
           }
 
           addedNodeIdsRef.current.push(id);
-          addNodes([node], parentId ? [edges[edges.length - 1]] : []);
+          addNodes([node], parentId ? [edges[edges.length - 1]] : [], { skipHistory: true });
         }
       }
     } catch (err) {

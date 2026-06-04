@@ -143,6 +143,13 @@ describe('deleteNodes', () => {
     useMapStore.getState().deleteNodes([id1]);
     expect(useMapStore.getState().edges).toHaveLength(0);
   });
+
+  it('부모 노드 삭제 시 자식 노드도 함께 삭제된다', () => {
+    const parentId = useMapStore.getState().addNode(makeNode());
+    useMapStore.getState().addNode({ ...makeNode(), parentId });
+    useMapStore.getState().deleteNodes([parentId]);
+    expect(useMapStore.getState().nodes).toHaveLength(0);
+  });
 });
 
 describe('addNodes', () => {

@@ -99,12 +99,12 @@ export const useMapStore = create<MapStore>((set, get) => ({
   },
 
   addNodes: (nodes, edges, opts) => {
-    if (!opts?.skipHistory) get().saveHistory();
     set((state) => ({
       nodes: [...state.nodes, ...nodes],
       edges: [...state.edges, ...edges],
       hasLocalWork: true,
     }));
+    if (!opts?.skipHistory) get().saveHistory();
   },
 
   updateNode: (id, changes, opts) => {
@@ -138,11 +138,17 @@ export const useMapStore = create<MapStore>((set, get) => ({
   },
 
   deleteNodes: (ids) => {
-    const idSet = new Set(ids);
-    set((state) => ({
-      nodes: state.nodes.filter((n) => !idSet.has(n.id)),
-      edges: state.edges.filter((e) => !idSet.has(e.fromId) && !idSet.has(e.toId)),
-    }));
+    const getAllDescendants = (targetId: string, nodes: MindmapNode[]): string[] => {
+      const children = nodes.filter((n) => n.parentId === targetId).map((n) => n.id);
+      return [...children, ...children.flatMap((childId) => getAllDescendants(childId, nodes))];
+    };
+    set((state) => {
+      const idSet = new Set([...ids, ...ids.flatMap((id) => getAllDescendants(id, state.nodes))]);
+      return {
+        nodes: state.nodes.filter((n) => !idSet.has(n.id)),
+        edges: state.edges.filter((e) => !idSet.has(e.fromId) && !idSet.has(e.toId)),
+      };
+    });
   },
 
   applyAutoLayout: () => {

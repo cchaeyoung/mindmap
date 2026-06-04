@@ -1,14 +1,14 @@
 export const generateMindmapPrompt = (topic: string) => `
-Generate a mindmap for the topic: "${topic}".
+Create a mindmap for: "${topic}".
+Think like an expert making a study guide — break the topic into all major aspects, then drill into specific concepts, tools, techniques, and examples.
 
-Structure:
-- Root node: aiId "root", parentAiId null, no direction field
-- Level-1 nodes (direct children of root): evenly split between direction "left" and "right"
-- All other nodes: set direction to match their level-1 ancestor's direction
+Structure rules:
+- Root node: exactly ONE node, aiId "root", parentAiId null
+- Level-1 nodes: direct children of root, evenly split direction "left" / "right"
+- All deeper nodes: direction must match their level-1 ancestor exactly
 
-Guidelines:
-- aiId must be unique across all nodes (e.g. "node-1", "node-2")
-- parentAiId must reference an existing aiId in the same response
-- label: concise noun or short phrase, under 15 characters
-- Number of nodes: choose naturally based on the topic
+Node rules:
+- aiId: unique string per node (e.g. "node-1", "node-2", ...)
+- label: concise noun or phrase, max 15 characters
+- Every node must carry meaningful information — avoid generic labels like "Overview" or "Details"
 `;

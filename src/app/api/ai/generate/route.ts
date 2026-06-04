@@ -1,10 +1,18 @@
 import { streamObject } from 'ai';
 import { google } from '@ai-sdk/google';
+import { z } from 'zod';
 import { mindmapSchema } from '@/lib/ai/schema';
 import { generateMindmapPrompt } from '@/lib/ai/prompts';
 
+const topicSchema = z.string().trim().min(1).max(200);
+
 export async function POST(req: Request) {
-  const { topic } = await req.json();
+  const body = await req.json();
+  const parsed = topicSchema.safeParse(body.topic);
+  if (!parsed.success) {
+    return new Response(JSON.stringify({ error: 'Invalid topic' }), { status: 400 });
+  }
+  const topic = parsed.data;
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
@@ -25,7 +33,7 @@ export async function POST(req: Request) {
             node?.aiId &&
             node?.label &&
             node.parentAiId !== undefined &&
-            (node.parentAiId === null || node.direction) &&
+            (node.parentAiId === null || node.direction || sentIds.has(node.parentAiId)) &&
             !sentIds.has(node.aiId) &&
             (node.parentAiId === null || sentIds.has(node.parentAiId))
           ) {

@@ -42,6 +42,7 @@ export function useAiGenerate() {
       const reader = res.body!.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
+      let doneSeen = false;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -55,9 +56,8 @@ export function useAiGenerate() {
           if (!line.startsWith('data: ')) continue;
           const data = line.slice(6).trim();
           if (data === '[DONE]') {
-            applyAutoLayout();
-            saveHistory();
-            return;
+            doneSeen = true;
+            break;
           }
 
           const n = JSON.parse(data);
@@ -93,6 +93,16 @@ export function useAiGenerate() {
           addedNodeIdsRef.current.push(id);
           addNodes([node], parentId ? [edges[edges.length - 1]] : [], { skipHistory: true });
         }
+        if (doneSeen) break;
+      }
+
+      if (doneSeen) {
+        applyAutoLayout();
+        saveHistory();
+      } else {
+        deleteNodes(addedNodeIdsRef.current);
+        addedNodeIdsRef.current = [];
+        toast.error('AI 마인드맵 생성에 실패했습니다');
       }
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') {

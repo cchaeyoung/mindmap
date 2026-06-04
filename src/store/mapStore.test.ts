@@ -126,6 +126,41 @@ describe('undo / redo', () => {
   });
 });
 
+describe('deleteNodes', () => {
+  it('여러 노드를 한번에 삭제한다', () => {
+    const id1 = useMapStore.getState().addNode(makeNode());
+    const id2 = useMapStore.getState().addNode(makeNode());
+    useMapStore.getState().addNode(makeNode());
+    useMapStore.getState().deleteNodes([id1, id2]);
+    expect(useMapStore.getState().nodes).toHaveLength(1);
+  });
+
+  it('삭제된 노드와 연결된 엣지도 제거된다', () => {
+    const id1 = useMapStore.getState().addNode(makeNode());
+    const id2 = useMapStore.getState().addNode(makeNode());
+    const edge = { id: 'edge-1', fromId: id1, toId: id2 };
+    useMapStore.setState({ edges: [edge] });
+    useMapStore.getState().deleteNodes([id1]);
+    expect(useMapStore.getState().edges).toHaveLength(0);
+  });
+});
+
+describe('addNodes', () => {
+  it('skipHistory 옵션이 있으면 히스토리를 저장하지 않는다', () => {
+    const indexBefore = useMapStore.getState().historyIndex;
+    const node = { ...makeNode(), id: 'n1', width: 100, autoLayout: false };
+    useMapStore.getState().addNodes([node], [], { skipHistory: true });
+    expect(useMapStore.getState().historyIndex).toBe(indexBefore);
+  });
+
+  it('skipHistory 없으면 히스토리를 저장한다', () => {
+    const indexBefore = useMapStore.getState().historyIndex;
+    const node = { ...makeNode(), id: 'n1', width: 100, autoLayout: false };
+    useMapStore.getState().addNodes([node], []);
+    expect(useMapStore.getState().historyIndex).toBe(indexBefore + 1);
+  });
+});
+
 describe('loadMap', () => {
   it('nodes와 edges를 교체한다', () => {
     useMapStore.getState().addNode(makeNode());

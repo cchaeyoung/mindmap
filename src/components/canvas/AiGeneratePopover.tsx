@@ -1,7 +1,7 @@
 'use client';
 
 import { Wand2, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SIDEBAR_EASE, SIDEBAR_OFFSET } from '@/constants/layout';
 
 interface Props {
@@ -22,6 +22,11 @@ export default function AiGeneratePopover({
   sidebarOpen,
 }: Props) {
   const [topic, setTopic] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (open) textareaRef.current?.focus();
+  }, [open]);
 
   const handleSubmit = () => {
     if (!topic.trim()) return;
@@ -66,10 +71,10 @@ export default function AiGeneratePopover({
           </p>
           <div className="border-border bg-accent/50 focus-within:border-primary/35 flex flex-col rounded-[12px] border transition-[border-color]">
             <textarea
+              ref={textareaRef}
               placeholder="마인드맵 주제를 입력하세요"
               value={topic}
               onChange={(e) => setTopic(e.target.value.slice(0, MAX_LENGTH))}
-              autoFocus
               rows={2}
               className="placeholder:text-muted-foreground/60 w-full resize-none bg-transparent px-3.5 pt-3 pb-1 text-[13px] leading-[1.7] outline-none"
             />

@@ -155,7 +155,7 @@ export default function Toolbar() {
           <IconButton
             onClick={undo}
             title={`실행 취소 (${isMac ? '⌘Z' : 'Ctrl+Z'})`}
-            disabled={historyIndex <= 0}
+            disabled={isGenerating || historyIndex <= 0}
             className="h-8 rounded-[10px] px-3"
           >
             <Undo2 size={15} />
@@ -163,7 +163,7 @@ export default function Toolbar() {
           <IconButton
             onClick={redo}
             title={`다시 실행 (${isMac ? '⌘⇧Z' : 'Ctrl+Shift+Z'})`}
-            disabled={historyIndex >= historyLength - 1}
+            disabled={isGenerating || historyIndex >= historyLength - 1}
             className="h-8 rounded-[10px] px-3"
           >
             <Redo2 size={15} />

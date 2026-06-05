@@ -7,8 +7,13 @@ import { generateMindmapPrompt } from '@/lib/ai/prompts';
 const topicSchema = z.string().trim().min(1).max(200);
 
 export async function POST(req: Request) {
-  const body = await req.json();
-  const parsed = topicSchema.safeParse(body.topic);
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400 });
+  }
+  const parsed = topicSchema.safeParse((body as Record<string, unknown>)?.topic);
   if (!parsed.success) {
     return new Response(JSON.stringify({ error: 'Invalid topic' }), { status: 400 });
   }
@@ -33,7 +38,9 @@ export async function POST(req: Request) {
             node?.aiId &&
             node?.label &&
             node.parentAiId !== undefined &&
-            (node.parentAiId === null || node.direction || sentIds.has(node.parentAiId)) &&
+            (node.parentAiId === null ||
+              node.direction ||
+              (node.parentAiId !== 'root' && sentIds.has(node.parentAiId))) &&
             !sentIds.has(node.aiId) &&
             (node.parentAiId === null || sentIds.has(node.parentAiId))
           ) {

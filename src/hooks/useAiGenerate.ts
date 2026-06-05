@@ -105,11 +105,9 @@ export function useAiGenerate() {
         toast.error('AI 마인드맵 생성에 실패했습니다');
       }
     } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') {
-        deleteNodes(addedNodeIdsRef.current);
-        addedNodeIdsRef.current = [];
-        return;
-      }
+      deleteNodes(addedNodeIdsRef.current);
+      addedNodeIdsRef.current = [];
+      if (err instanceof Error && err.name === 'AbortError') return;
       toast.error('AI 마인드맵 생성에 실패했습니다');
     } finally {
       setIsGenerating(false);

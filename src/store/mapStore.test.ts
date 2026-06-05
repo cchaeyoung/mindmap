@@ -16,7 +16,7 @@ beforeEach(() => {
   useMapStore.setState({
     nodes: [],
     edges: [],
-    history: [[]],
+    history: [{ nodes: [], edges: [] }],
     historyIndex: 0,
     justAddedNodeId: null,
   });
@@ -182,7 +182,7 @@ describe('loadMap', () => {
     useMapStore.getState().addNode(makeNode());
     const newNodes = [{ ...makeNode(), id: 'abc', width: 100, autoLayout: false }];
     useMapStore.getState().loadMap(newNodes, []);
-    expect(useMapStore.getState().history).toEqual([newNodes]);
+    expect(useMapStore.getState().history).toEqual([{ nodes: newNodes, edges: [] }]);
     expect(useMapStore.getState().historyIndex).toBe(0);
   });
 

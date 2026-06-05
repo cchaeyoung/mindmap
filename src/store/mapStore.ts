@@ -4,10 +4,12 @@ import { create } from 'zustand';
 import { useUIStore } from './uiStore';
 import { computeLayout } from '@/utils/layout/autoLayout';
 
+type HistorySnapshot = { nodes: MindmapNode[]; edges: Edge[] };
+
 interface MapStore {
   nodes: MindmapNode[];
   edges: Edge[];
-  history: MindmapNode[][];
+  history: HistorySnapshot[];
   historyIndex: number;
   justAddedNodeId: string | null;
   hasLocalWork: boolean;
@@ -28,30 +30,30 @@ interface MapStore {
 export const useMapStore = create<MapStore>((set, get) => ({
   nodes: [],
   edges: [],
-  history: [[]],
+  history: [{ nodes: [], edges: [] }],
   historyIndex: 0,
   justAddedNodeId: null,
   hasLocalWork: false,
 
   saveHistory: () => {
-    const { nodes, history, historyIndex } = get();
+    const { nodes, edges, history, historyIndex } = get();
     const trimmed = history.slice(0, historyIndex + 1);
-    const next = [...trimmed, [...nodes]].slice(-50);
+    const next = [...trimmed, { nodes: [...nodes], edges: [...edges] }].slice(-50);
     set({ history: next, historyIndex: next.length - 1 });
   },
 
   confirmNodeCreation: () => {
-    const { nodes, history, historyIndex } = get();
+    const { nodes, edges, history, historyIndex } = get();
     const updated = [...history];
-    updated[historyIndex] = [...nodes];
+    updated[historyIndex] = { nodes: [...nodes], edges: [...edges] };
     set({ history: updated, justAddedNodeId: null });
   },
 
   undo: () => {
     const { history, historyIndex } = get();
     if (historyIndex <= 0) return;
-    const newNodes = history[historyIndex - 1];
-    set({ nodes: newNodes, historyIndex: historyIndex - 1 });
+    const snapshot = history[historyIndex - 1];
+    set({ nodes: snapshot.nodes, edges: snapshot.edges, historyIndex: historyIndex - 1 });
     const {
       selectedNodeId,
       setSelectedNode,
@@ -60,16 +62,18 @@ export const useMapStore = create<MapStore>((set, get) => ({
       memoPanelNodeId,
       setMemoPanelNode,
     } = useUIStore.getState();
-    if (selectedNodeId && !newNodes.find((n) => n.id === selectedNodeId)) setSelectedNode(null);
-    if (editingNodeId && !newNodes.find((n) => n.id === editingNodeId)) setEditingNode(null);
-    if (memoPanelNodeId && !newNodes.find((n) => n.id === memoPanelNodeId)) setMemoPanelNode(null);
+    if (selectedNodeId && !snapshot.nodes.find((n) => n.id === selectedNodeId))
+      setSelectedNode(null);
+    if (editingNodeId && !snapshot.nodes.find((n) => n.id === editingNodeId)) setEditingNode(null);
+    if (memoPanelNodeId && !snapshot.nodes.find((n) => n.id === memoPanelNodeId))
+      setMemoPanelNode(null);
   },
 
   redo: () => {
     const { history, historyIndex } = get();
     if (historyIndex >= history.length - 1) return;
-    const newNodes = history[historyIndex + 1];
-    set({ nodes: newNodes, historyIndex: historyIndex + 1 });
+    const snapshot = history[historyIndex + 1];
+    set({ nodes: snapshot.nodes, edges: snapshot.edges, historyIndex: historyIndex + 1 });
     const {
       selectedNodeId,
       setSelectedNode,
@@ -78,9 +82,11 @@ export const useMapStore = create<MapStore>((set, get) => ({
       memoPanelNodeId,
       setMemoPanelNode,
     } = useUIStore.getState();
-    if (selectedNodeId && !newNodes.find((n) => n.id === selectedNodeId)) setSelectedNode(null);
-    if (editingNodeId && !newNodes.find((n) => n.id === editingNodeId)) setEditingNode(null);
-    if (memoPanelNodeId && !newNodes.find((n) => n.id === memoPanelNodeId)) setMemoPanelNode(null);
+    if (selectedNodeId && !snapshot.nodes.find((n) => n.id === selectedNodeId))
+      setSelectedNode(null);
+    if (editingNodeId && !snapshot.nodes.find((n) => n.id === editingNodeId)) setEditingNode(null);
+    if (memoPanelNodeId && !snapshot.nodes.find((n) => n.id === memoPanelNodeId))
+      setMemoPanelNode(null);
   },
 
   addNode: (node) => {
@@ -166,7 +172,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
     set({
       nodes,
       edges,
-      history: [nodes],
+      history: [{ nodes, edges }],
       historyIndex: 0,
       justAddedNodeId: null,
       hasLocalWork: false,

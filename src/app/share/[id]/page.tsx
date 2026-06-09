@@ -11,14 +11,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('maps')
     .select('title')
     .eq('id', id)
     .eq('is_public', true)
     .single();
 
-  if (!data) return {};
+  if (error || !data) return {};
 
   return {
     title: data.title,
@@ -32,14 +32,14 @@ export default async function SharePage({ params }: Props) {
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('maps')
     .select('title, nodes, edges')
     .eq('id', id)
     .eq('is_public', true)
     .single();
 
-  if (!data) notFound();
+  if (error || !data) notFound();
 
   return <ShareViewer nodes={data.nodes} edges={data.edges} title={data.title} />;
 }

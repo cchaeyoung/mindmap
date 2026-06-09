@@ -37,9 +37,13 @@ export function useShareMap() {
     },
   });
 
-  const copyLink = () => {
+  const copyLink = async () => {
     const url = `${window.location.origin}/share/${mapId}`;
-    navigator.clipboard.writeText(url);
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      toast.error('링크 복사에 실패했습니다');
+    }
   };
 
   return {

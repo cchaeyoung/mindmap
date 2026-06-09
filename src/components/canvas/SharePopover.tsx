@@ -2,7 +2,7 @@
 
 import { Check, Copy, Globe, Link2, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Switch } from '@/components/ui/switch';
 
 interface Props {
@@ -23,12 +23,20 @@ export default function SharePopover({
   mapId,
 }: Props) {
   const [copied, setCopied] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/share/${mapId}`;
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   const handleCopy = () => {
     onCopyLink();
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setCopied(false), 2000);
   };
 
   return (

@@ -22,7 +22,7 @@ export default function ShareViewer({ nodes, edges, title }: Props) {
   useEffect(() => {
     loadMap(nodes, edges);
     setCanvasMode('hand');
-  }, []);
+  }, [nodes, edges, loadMap, setCanvasMode]);
 
   return (
     <div className="relative h-screen w-screen">

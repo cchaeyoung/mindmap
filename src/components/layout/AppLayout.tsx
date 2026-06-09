@@ -1,6 +1,7 @@
 'use client';
 
 import ThemeToggle from '@/components/common/ThemeToggle';
+import ShareButton from '@/components/common/ShareButton';
 import AuthModal from '@/components/auth/AuthModal';
 import { useUIStore } from '@/store/uiStore';
 import Sidebar from './Sidebar';
@@ -18,7 +19,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
       <main className="relative h-screen w-screen overflow-hidden">{children}</main>
 
-      <div className="fixed top-4 right-4 z-30">
+      <div className="fixed top-4 right-4 z-30 flex items-center gap-2">
+        <ShareButton />
         <ThemeToggle />
       </div>
       <AuthModal />

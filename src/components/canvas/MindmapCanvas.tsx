@@ -30,9 +30,16 @@ interface Props {
   onMouseDown: (e: KonvaEventObject<MouseEvent>) => void;
   onMouseMove: (e: KonvaEventObject<MouseEvent>) => void;
   onMouseUp: () => void;
+  readOnly?: boolean;
 }
 
-export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMouseUp }: Props) {
+export default function MindMapCanvas({
+  onWheel,
+  onMouseDown,
+  onMouseMove,
+  onMouseUp,
+  readOnly = false,
+}: Props) {
   const cam = useCanvasStore((state) => state.cam);
   const setStageSize = useCanvasStore((state) => state.setStageSize);
   const selectedNodeId = useUIStore((state) => state.selectedNodeId);
@@ -90,6 +97,10 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
         setPlacingPos({ x: worldX, y: worldY });
         return;
       }
+      if (readOnly) {
+        if (hoveredNodeId !== null) setHoveredNode(null);
+        return;
+      }
       if (isDragging || e.buttons !== 0) return;
       const rect = containerRef.current?.getBoundingClientRect();
       if (!rect) return;
@@ -126,6 +137,7 @@ export default function MindMapCanvas({ onWheel, onMouseDown, onMouseMove, onMou
     [
       nodes,
       cam,
+      readOnly,
       setHoveredNode,
       hoveredNodeId,
       isDragging,

@@ -10,7 +10,7 @@ interface Props {
   isPublic: boolean;
   isPending: boolean;
   onToggle: (value: boolean) => void;
-  onCopyLink: () => void;
+  onCopyLink: () => Promise<boolean>;
   mapId: string;
 }
 
@@ -32,8 +32,9 @@ export default function SharePopover({
     };
   }, []);
 
-  const handleCopy = () => {
-    onCopyLink();
+  const handleCopy = async () => {
+    const success = await onCopyLink();
+    if (!success) return;
     setCopied(true);
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => setCopied(false), 2000);

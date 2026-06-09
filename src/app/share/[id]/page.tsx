@@ -1,9 +1,31 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import ShareViewer from '@/components/share/ShareViewer';
+import type { Metadata } from 'next';
 
 interface Props {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from('maps')
+    .select('title')
+    .eq('id', id)
+    .eq('is_public', true)
+    .single();
+
+  if (!data) return {};
+
+  return {
+    title: data.title,
+    openGraph: {
+      title: data.title,
+    },
+  };
 }
 
 export default async function SharePage({ params }: Props) {

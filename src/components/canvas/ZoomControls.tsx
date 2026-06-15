@@ -1,14 +1,16 @@
 'use client';
 
 import { ZOOM_STEP } from '@/constants/canvas';
+import { useCanvasStore } from '@/store/canvasStore';
 import { Minus, Plus } from 'lucide-react';
 
 interface Props {
-  zoom: number;
   zoomBy: (delta: number, cx: number, cy: number) => void;
 }
 
-export default function ZoomControls({ zoom, zoomBy }: Props) {
+export default function ZoomControls({ zoomBy }: Props) {
+  const zoom = useCanvasStore((s) => s.displayZoom);
+
   return (
     <div className="border-border bg-card fixed right-4.5 bottom-5.5 z-20 flex items-center gap-0.5 rounded-[12px] border p-0.75 shadow-md">
       <button

@@ -13,7 +13,7 @@ import { useGuestBeforeUnload } from '@/hooks/useGuestBeforeUnload';
 import { useErrorToast } from '@/hooks/useErrorToast';
 
 export default function Home() {
-  const { cam, stageRef, handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, zoomBy } =
+  const { stageRef, handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, zoomBy } =
     useCanvas();
 
   useLayoutEffect(() => {
@@ -33,7 +33,7 @@ export default function Home() {
         onMouseUp={handleMouseUp}
       />
       <EmptyCanvasHint />
-      <ZoomControls zoom={cam.zoom} zoomBy={zoomBy} />
+      <ZoomControls zoomBy={zoomBy} />
       <Toolbar />
     </AppLayout>
   );

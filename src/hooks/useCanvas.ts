@@ -9,6 +9,7 @@ const SYNC_DELAY = 150;
 export function useCanvas() {
   const cam = useCanvasStore((state) => state.cam);
   const setCam = useCanvasStore((state) => state.setCam);
+  const setDisplayZoom = useCanvasStore((state) => state.setDisplayZoom);
   const stageRef = useRef<Konva.Stage>(null);
   const isDragging = useRef(false);
   const lastPos = useRef({ x: 0, y: 0 });
@@ -38,12 +39,12 @@ export function useCanvas() {
         const currentZoom = stage.scaleX();
         const { x, y } = stage.position();
         const newZoom = Math.min(Math.max(currentZoom * factor, ZOOM_MIN), ZOOM_MAX);
+        const newX = cx - (cx - x) * (newZoom / currentZoom);
+        const newY = cy - (cy - y) * (newZoom / currentZoom);
         stage.scale({ x: newZoom, y: newZoom });
-        stage.position({
-          x: cx - (cx - x) * (newZoom / currentZoom),
-          y: cy - (cy - y) * (newZoom / currentZoom),
-        });
+        stage.position({ x: newX, y: newY });
         stage.batchDraw();
+        setDisplayZoom(newZoom);
         scheduleSync();
       } else {
         setCam((prev) => {

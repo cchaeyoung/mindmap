@@ -17,7 +17,7 @@ interface Props {
 export default function ShareViewer({ nodes, edges, title }: Props) {
   const loadMap = useMapStore((s) => s.loadMap);
   const setCanvasMode = useUIStore((s) => s.setCanvasMode);
-  const { cam, stageRef, handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, zoomBy } =
+  const { stageRef, handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, zoomBy } =
     useCanvas();
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export default function ShareViewer({ nodes, edges, title }: Props) {
           readOnly
         />
       </div>
-      <ZoomControls zoom={cam.zoom} zoomBy={zoomBy} />
+      <ZoomControls zoomBy={zoomBy} />
     </div>
   );
 }

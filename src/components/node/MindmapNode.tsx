@@ -30,11 +30,12 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
   const updateNodes = useMapStore((state) => state.updateNodes);
   const saveHistory = useMapStore((state) => state.saveHistory);
   const nodes = useMapStore((state) => state.nodes);
-  const cam = useCanvasStore((state) => state.cam);
-  const camRef = useRef(cam);
+  const camRef = useRef(useCanvasStore.getState().cam);
   useEffect(() => {
-    camRef.current = cam;
-  }, [cam]);
+    return useCanvasStore.subscribe((state) => {
+      camRef.current = state.cam;
+    });
+  }, []);
   const { nodeRefs, edgeRefs, registerNode, unregisterNode, addButtonRightRef, addButtonLeftRef } =
     useNodeRefs();
   const groupRef = useRef<Konva.Group>(null);

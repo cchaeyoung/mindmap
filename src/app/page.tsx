@@ -13,7 +13,8 @@ import { useGuestBeforeUnload } from '@/hooks/useGuestBeforeUnload';
 import { useErrorToast } from '@/hooks/useErrorToast';
 
 export default function Home() {
-  const { cam, handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, zoomBy } = useCanvas();
+  const { cam, stageRef, handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, zoomBy } =
+    useCanvas();
 
   useLayoutEffect(() => {
     useMapStore.getState().loadMap([], []);
@@ -25,6 +26,7 @@ export default function Home() {
   return (
     <AppLayout>
       <MindmapCanvas
+        stageRef={stageRef}
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}

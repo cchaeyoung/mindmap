@@ -17,7 +17,8 @@ interface Props {
 export default function ShareViewer({ nodes, edges, title }: Props) {
   const loadMap = useMapStore((s) => s.loadMap);
   const setCanvasMode = useUIStore((s) => s.setCanvasMode);
-  const { cam, handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, zoomBy } = useCanvas();
+  const { cam, stageRef, handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, zoomBy } =
+    useCanvas();
 
   useEffect(() => {
     loadMap(nodes, edges);
@@ -31,6 +32,7 @@ export default function ShareViewer({ nodes, edges, title }: Props) {
       </header>
       <div className="h-full pt-12">
         <MindmapCanvas
+          stageRef={stageRef}
           onWheel={handleWheel}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}

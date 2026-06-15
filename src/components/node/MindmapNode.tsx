@@ -30,11 +30,6 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
   const updateNodes = useMapStore((state) => state.updateNodes);
   const saveHistory = useMapStore((state) => state.saveHistory);
   const nodes = useMapStore((state) => state.nodes);
-  const cam = useCanvasStore((state) => state.cam);
-  const camRef = useRef(cam);
-  useEffect(() => {
-    camRef.current = cam;
-  }, [cam]);
   const { nodeRefs, edgeRefs, registerNode, unregisterNode, addButtonRightRef, addButtonLeftRef } =
     useNodeRefs();
   const groupRef = useRef<Konva.Group>(null);
@@ -175,7 +170,7 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
         });
 
         if (isSelected || hoveredNodeId === node.id || draggingNodeId === node.id) {
-          const c = camRef.current;
+          const c = useCanvasStore.getState().cam;
           const screenY = c.y + y * c.zoom;
           if (addButtonRightRef.current) {
             const screenX = c.x + (x + node.width / 2) * c.zoom + 21;
@@ -276,7 +271,7 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
             if (nodeLay && nodeFrom) {
               const curX = nodeFrom.x + (nodeLay.x - nodeFrom.x) * t;
               const curY = nodeFrom.y + (nodeLay.y - nodeFrom.y) * t;
-              const c = camRef.current;
+              const c = useCanvasStore.getState().cam;
               const screenY = c.y + curY * c.zoom;
               if (addButtonRightRef.current) {
                 addButtonRightRef.current.style.left = `${c.x + (curX + node.width / 2) * c.zoom + 21}px`;

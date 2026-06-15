@@ -13,19 +13,21 @@ import SaveStatus from '@/components/canvas/SaveStatus';
 export default function Home() {
   const { mapId } = useLoadMap();
   const { status } = useAutoSave(mapId);
-  const { cam, handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, zoomBy } = useCanvas();
+  const { stageRef, handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, zoomBy } =
+    useCanvas();
   const sidebarOpen = useUIStore((s) => s.sidebarOpen);
 
   return (
     <AppLayout>
       <MindmapCanvas
+        stageRef={stageRef}
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
       />
       <SaveStatus status={status} sidebarOpen={sidebarOpen} />
-      <ZoomControls zoom={cam.zoom} zoomBy={zoomBy} />
+      <ZoomControls zoomBy={zoomBy} />
       <Toolbar />
     </AppLayout>
   );

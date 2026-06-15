@@ -2,7 +2,8 @@
 
 import { Stage, Layer } from 'react-konva';
 import { KonvaEventObject } from 'konva/lib/Node';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import Konva from 'konva';
+import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 import {
   NODE_DEFAULT_COLOR_INDEX,
   NODE_DEFAULT_SHAPE,
@@ -31,6 +32,7 @@ interface Props {
   onMouseMove: (e: KonvaEventObject<MouseEvent>) => void;
   onMouseUp: () => void;
   readOnly?: boolean;
+  stageRef: RefObject<Konva.Stage | null>;
 }
 
 export default function MindMapCanvas({
@@ -39,6 +41,7 @@ export default function MindMapCanvas({
   onMouseMove,
   onMouseUp,
   readOnly = false,
+  stageRef,
 }: Props) {
   const cam = useCanvasStore((state) => state.cam);
   const setStageSize = useCanvasStore((state) => state.setStageSize);
@@ -393,6 +396,7 @@ export default function MindMapCanvas({
         {memoPanelNodeId && <MemoPanel nodeId={memoPanelNodeId} />}
         {size.width > 0 && size.height > 0 && (
           <Stage
+            ref={stageRef}
             width={size.width}
             height={size.height}
             x={cam.x}

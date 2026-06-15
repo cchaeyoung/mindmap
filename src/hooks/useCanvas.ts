@@ -2,7 +2,7 @@ import { ZOOM_MAX, ZOOM_MIN } from '@/constants/canvas';
 import { useCanvasStore } from '@/store/canvasStore';
 import { KonvaEventObject } from 'konva/lib/Node';
 import Konva from 'konva';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 const SYNC_DELAY = 150;
 
@@ -104,8 +104,21 @@ export function useCanvas() {
   const handleMouseUp = () => {
     if (!isDragging.current) return;
     isDragging.current = false;
+    if (syncTimerRef.current) {
+      clearTimeout(syncTimerRef.current);
+      syncTimerRef.current = null;
+    }
     syncCam();
   };
+
+  useEffect(() => {
+    return () => {
+      if (syncTimerRef.current) {
+        clearTimeout(syncTimerRef.current);
+        syncTimerRef.current = null;
+      }
+    };
+  }, []);
 
   // +/- 버튼
   const zoomBy = (delta: number, cx: number, cy: number) => {

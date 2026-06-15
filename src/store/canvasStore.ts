@@ -15,14 +15,16 @@ interface CanvasStore {
   setStageSize: (size: { width: number; height: number }) => void;
 }
 
+const initialCam: Cam = { x: 0, y: 0, zoom: 1 };
+
 export const useCanvasStore = create<CanvasStore>((set) => ({
-  cam: { x: 0, y: 0, zoom: 1 },
+  cam: initialCam,
   setCam: (updater) =>
     set((state) => {
       const newCam = typeof updater === 'function' ? updater(state.cam) : updater;
       return { cam: newCam, displayZoom: newCam.zoom };
     }),
-  displayZoom: 1,
+  displayZoom: initialCam.zoom,
   setDisplayZoom: (zoom) => set({ displayZoom: zoom }),
   stageSize: { width: 0, height: 0 },
   setStageSize: (size) => set({ stageSize: size }),

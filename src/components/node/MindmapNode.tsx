@@ -1,3 +1,4 @@
+import { LOD_CACHE, LOD_TEXT_FADE } from '@/constants/canvas';
 import { NODE_SIZE_SCALE, NODE_STYLE } from '@/constants/node';
 import { useNodeRefs } from '@/context/NodeRefsContext';
 import { useCanvasStore } from '@/store/canvasStore';
@@ -32,6 +33,14 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
   const nodes = useMapStore((state) => state.nodes);
   const { nodeRefs, edgeRefs, registerNode, unregisterNode, addButtonRightRef, addButtonLeftRef } =
     useNodeRefs();
+  const textOpacity = useCanvasStore((s) => {
+    const z = s.displayZoom;
+    if (z >= LOD_TEXT_FADE) return 1;
+    if (z <= LOD_CACHE) return 0;
+    return Math.round(((z - LOD_CACHE) / (LOD_TEXT_FADE - LOD_CACHE)) * 10) / 10;
+  });
+  const isCached = useCanvasStore((s) => s.cam.zoom < LOD_CACHE);
+
   const groupRef = useRef<Konva.Group>(null);
   const prevPos = useRef({ x: node.x, y: node.y });
   const animFrameRef = useRef<number | null>(null);
@@ -53,6 +62,21 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
       groupRef.current.getLayer()?.batchDraw();
     }
   }, [node.x, node.y]);
+
+  useEffect(() => {
+    const group = groupRef.current;
+    if (!group) return;
+    if (isCached) {
+      group.cache({ pixelRatio: 1 });
+    } else {
+      group.clearCache();
+    }
+  }, [isCached]);
+
+  useEffect(() => {
+    if (!isCached || !groupRef.current) return;
+    groupRef.current.cache({ pixelRatio: 1 });
+  }, [node.label, node.colorIndex, node.width, isCached]);
 
   const getDescendants = (id: string): string[] => {
     const children = nodes.filter((n) => n.parentId === id).map((n) => n.id);
@@ -358,7 +382,8 @@ export default function MindmapNode({ node, isSelected, isEditing }: Props) {
         offsetY={height / 2}
         align="center"
         verticalAlign="middle"
-        visible={!isEditing}
+        opacity={textOpacity}
+        visible={!isEditing && textOpacity > 0 && !isCached}
       />
       {node.memo &&
         node.memo.trim() &&

@@ -23,8 +23,12 @@ export default function SharePopover({
   mapId,
 }: Props) {
   const [copied, setCopied] = useState(false);
+  const [shareUrl, setShareUrl] = useState(`/share/${mapId}`);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/share/${mapId}`;
+
+  useEffect(() => {
+    setShareUrl(`${window.location.origin}/share/${mapId}`);
+  }, [mapId]);
 
   useEffect(() => {
     return () => {

@@ -5,3 +5,4 @@ export const SIDEBAR_WIDTH = 240;
 
 export const LOD_TEXT_FADE = 0.15;
 export const LOD_CACHE = 0.1;
+export const CULL_BUFFER = 300;

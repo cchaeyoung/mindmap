@@ -8,10 +8,11 @@ import { useEffect } from 'react';
 export function useCulling() {
   const { nodeRefs } = useNodeRefs();
   const liveCam = useCanvasStore((state) => state.liveCam);
+  const stageSize = useCanvasStore((state) => state.stageSize);
 
   useEffect(() => {
     const { x: camX, y: camY, zoom } = liveCam;
-    const { width: stageW, height: stageH } = useCanvasStore.getState().stageSize;
+    const { width: stageW, height: stageH } = stageSize;
 
     const viewLeft = -camX / zoom - CULL_BUFFER;
     const viewRight = (stageW - camX) / zoom + CULL_BUFFER;
@@ -41,5 +42,5 @@ export function useCulling() {
       ref.visible(inView);
       ref.listening(inView);
     });
-  }, [liveCam, nodeRefs]);
+  }, [liveCam, nodeRefs, stageSize]);
 }

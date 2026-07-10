@@ -25,6 +25,12 @@ import MemoPanel from '@/components/node/MemoPanel';
 import { cn } from '@/lib/utils';
 import type { MindmapNode as MindmapNodeType } from '@/types';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useCulling } from '@/hooks/useCulling';
+
+function CullingEffect() {
+  useCulling();
+  return null;
+}
 
 interface Props {
   onWheel: (e: KonvaEventObject<WheelEvent>) => void;
@@ -254,6 +260,7 @@ export default function MindMapCanvas({
 
   return (
     <NodeRefsProvider>
+      <CullingEffect />
       <div
         ref={containerRef}
         className={cn(

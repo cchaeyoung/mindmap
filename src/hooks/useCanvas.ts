@@ -9,6 +9,7 @@ const SYNC_DELAY = 150;
 export function useCanvas() {
   const cam = useCanvasStore((state) => state.cam);
   const setCam = useCanvasStore((state) => state.setCam);
+  const setLiveCam = useCanvasStore((state) => state.setLiveCam);
   const setDisplayZoom = useCanvasStore((state) => state.setDisplayZoom);
   const stageRef = useRef<Konva.Stage>(null);
   const isDragging = useRef(false);
@@ -45,6 +46,7 @@ export function useCanvas() {
         stage.position({ x: newX, y: newY });
         stage.batchDraw();
         setDisplayZoom(newZoom);
+        setLiveCam({ x: newX, y: newY, zoom: newZoom });
         scheduleSync();
       } else {
         setCam((prev) => {
@@ -59,8 +61,10 @@ export function useCanvas() {
     } else if (e.evt.shiftKey) {
       if (stage) {
         const { x, y } = stage.position();
-        stage.position({ x: x - e.evt.deltaY, y });
+        const newX = x - e.evt.deltaY;
+        stage.position({ x: newX, y });
         stage.batchDraw();
+        setLiveCam({ x: newX, y, zoom: stage.scaleX() });
         scheduleSync();
       } else {
         setCam((prev) => ({ ...prev, x: prev.x - e.evt.deltaY }));
@@ -68,8 +72,11 @@ export function useCanvas() {
     } else {
       if (stage) {
         const { x, y } = stage.position();
-        stage.position({ x: x - e.evt.deltaX, y: y - e.evt.deltaY });
+        const newX = x - e.evt.deltaX;
+        const newY = y - e.evt.deltaY;
+        stage.position({ x: newX, y: newY });
         stage.batchDraw();
+        setLiveCam({ x: newX, y: newY, zoom: stage.scaleX() });
         scheduleSync();
       } else {
         setCam((prev) => ({ ...prev, x: prev.x - e.evt.deltaX, y: prev.y - e.evt.deltaY }));
@@ -92,8 +99,11 @@ export function useCanvas() {
     const stage = stageRef.current;
     if (stage) {
       const { x, y } = stage.position();
-      stage.position({ x: x + dx, y: y + dy });
+      const newX = x + dx;
+      const newY = y + dy;
+      stage.position({ x: newX, y: newY });
       stage.batchDraw();
+      setLiveCam({ x: newX, y: newY, zoom: stage.scaleX() });
     } else {
       setCam((prev) => ({ ...prev, x: prev.x + dx, y: prev.y + dy }));
     }
